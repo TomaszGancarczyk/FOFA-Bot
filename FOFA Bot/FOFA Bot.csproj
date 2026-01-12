@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Images\" />
     <Folder Include="Nades\" />
     <Folder Include="Attendance\" />
     <Folder Include="PlayerStats\" />

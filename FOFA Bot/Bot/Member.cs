@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 
-namespace FOFA_Bot.Initializer
+namespace FOFA_Bot.Bot
 {
     internal class Member
     {
