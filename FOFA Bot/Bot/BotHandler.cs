@@ -1,16 +1,12 @@
-﻿using Discord;
-using Discord.WebSocket;
-using FOFA_Bot.Nades;
+﻿using Discord.WebSocket;
 using FOFA_Bot.Attendance;
+using FOFA_Bot.Nades;
 
 namespace FOFA_Bot.Bot
 {
     internal class BotHandler
     {
-        private static SocketGuild? Guild;
-        private static IMessageChannel? QuestionChannel;
-        private static IMessageChannel? SignupsChannel;
-        private static IMessageChannel? NadeChannel;
+        private static DiscordSocketClient? Discord;
 
         private static bool NadeMessageRunning = false;
         private static bool AutomnaticNadeMessage = true;
@@ -20,15 +16,7 @@ namespace FOFA_Bot.Bot
 
         internal static async Task Run(DiscordSocketClient discord)
         {
-            Guild = discord.GetGuild(BotData.GetGuildId());
-            Logger.LogInformation($"Found Guild: {Guild.Name}");
-            QuestionChannel = (IMessageChannel)Guild.GetChannel(BotData.GetQuestionChannelId());
-            Logger.LogInformation($"Found Nade Channel: {QuestionChannel.Name}");
-            SignupsChannel = (IMessageChannel)Guild.GetChannel(BotData.GetSignupsChannelId());
-            Logger.LogInformation($"Found Nade Channel: {SignupsChannel.Name}");
-            NadeChannel = (IMessageChannel)Guild.GetChannel(BotData.GetNadeChannelId());
-            Logger.LogInformation($"Found Nade Channel: {NadeChannel.Name}");
-
+            Discord = discord;
             while (true)
             {
                 CheckNadeMessage();
@@ -42,7 +30,7 @@ namespace FOFA_Bot.Bot
         {
             if (!NadeMessageRunning && AutomnaticNadeMessage)
             {
-                if (DateTime.Now.DayOfWeek == DayOfWeek.Monday && DateTime.Now.Hour == 20)
+                if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday && DateTime.Now.Hour == 22)
                 {
                     NadeMessageRunning = true;
                     await NadeHandler.StartNadeEvent();
@@ -54,10 +42,15 @@ namespace FOFA_Bot.Bot
         {
             if (!SignupMessageRunning && AutomnaticSignupMessage)
             {
-                SignupMessageRunning = true;
-                await AttendanceHandler.StartAttendanceEvent();
-                SignupMessageRunning = false;
+                //if (DateTime.Now.Hour == 22)
+                {
+                    SignupMessageRunning = true;
+                    await AttendanceHandler.StartAttendanceEvent();
+                    SignupMessageRunning = false;
+                }
             }
         }
+
+        internal static DiscordSocketClient GetDiscord() => Discord;
     }
 }

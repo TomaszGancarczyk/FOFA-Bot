@@ -10,9 +10,8 @@ namespace FOFA_Bot
         private static string Token;
         static async Task Main()
         {
-            BotData.LoadJson();
             Logger.LogInformation($"Starting...");
-
+            await BotData.LoadJson();
             Token = BotData.GetDiscordToken();
             Logger.LogInformation($"[FOFA] Bot is starting");
             new Program().StartBotAsync().GetAwaiter().GetResult();

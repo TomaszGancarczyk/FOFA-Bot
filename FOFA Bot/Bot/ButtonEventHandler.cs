@@ -1,5 +1,4 @@
-﻿
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 
 namespace FOFA_Bot.Bot
 {
