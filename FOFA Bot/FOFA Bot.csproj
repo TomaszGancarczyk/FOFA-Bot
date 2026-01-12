@@ -17,8 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Nades\" />
-    <Folder Include="Attendance\" />
     <Folder Include="PlayerStats\" />
   </ItemGroup>
 
