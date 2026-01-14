@@ -45,7 +45,7 @@ namespace FOFA_Bot.Bot
                 //if (DateTime.Now.Hour == 22)
                 {
                     SignupMessageRunning = true;
-                    await AttendanceHandler.StartAttendanceEvent();
+                    await AttendanceHandler.StartQuestionAttendanceEvent();
                     SignupMessageRunning = false;
                 }
             }

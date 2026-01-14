@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using FOFA_Bot.Bot;
+using FOFA_Bot.Data;
 
 namespace FOFA_Bot
 {
@@ -35,8 +36,8 @@ namespace FOFA_Bot
             Discord.Ready += DiscordReady;
             Discord.Ready += () =>
             {
-                Discord.ButtonExecuted += ButtonEventHandler.Handler;
-                Discord.SlashCommandExecuted += SlashCommandHandler.Handler;
+                Discord.ButtonExecuted += ButtonEvent.Handle;
+                Discord.SlashCommandExecuted += SlashCommand.Handle;
                 Logger.LogInformation($"[FOFA] Bot is running");
                 return Task.CompletedTask;
             };

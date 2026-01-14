@@ -6,6 +6,7 @@ namespace FOFA_Bot.Bot
     {
         private SocketGuildUser discordUser;
         private string inGameName;
+        private int? squad;
         private bool? status;
     }
 }
