@@ -1,31 +1,87 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using FOFA_Bot.Data;
-using Google.Apis.Sheets.v4.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.Design;
 
 namespace FOFA_Bot.Bot
 {
     internal class MemberHandler
     {
-        internal async static Task<List<Member>> SetMembers()
+        private static List<SocketGuildUser> DiscordMembers;
+        private static List<Member> Members;
+
+        internal async static Task CreateMembersList()
         {
-            //TODO
-            List<Member> members = null;
-
-            SocketGuild guild = BotData.GetGuild();
-            string roleName = BotData.GetRofaRoleName();
-            List<SocketGuildUser> guildMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
-
-            return members;
+            Logger.LogInformation($"Creating attendance Members");
+            Members = null;
+            await CreateDiscordMembers();
+            foreach (SocketGuildUser discordMember in DiscordMembers)
+            {
+                Member member = new()
+                {
+                    discordUser = discordMember,
+                    squad = await GetMemberSquad(discordMember),
+                    inGameName = null, //TODO member in game name
+                    status = null
+                };
+                Members.Add(member);
+                Logger.LogInformation($"Added {member.discordUser.DisplayName} to member list to squad {member.squad}");
+            }
+        }
+        internal async static Task UpdateMemberStatus(SocketGuildUser user, bool status) //TODO member status in button
+        {
+            Logger.LogInformation($"Updating status for {user.DisplayName}");
+            if (Members.Any(member => member.discordUser == user))
+            {
+                Logger.LogInformation($"Found {user.DisplayName}, updating status");
+                Members.FirstOrDefault(member => member.discordUser == user).status = status;
+            }
+            else
+                AddMember(user, status);
         }
         internal async static Task<List<Member>> GetMembers()
         {
+            return Members;
+        }
 
+
+
+        private async static Task CreateDiscordMembers()
+        {
+            Logger.LogInformation($"Creating Members from Discord");
+            DiscordMembers = null;
+
+            SocketGuild guild = BotData.GetGuild();
+            string roleName = BotData.GetRofaRoleName();
+            DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
+        }
+        private async static Task AddMember(SocketGuildUser user, bool status)
+        {
+            Logger.LogInformation($"Cannot find {user.DisplayName}, adding new member to list");
+            //TODO
+        }
+        private async static Task<int> GetMemberSquad(SocketGuildUser user)
+        {
+
+            for (int i = 1; i < 6; i++)
+            {
+                if (user.Roles.Contains(GetRoleByName($"Rofa-Sq{i}")))
+                    return i;
+            }
+            if (user.Roles.Contains(GetRoleByName("")))
+                return 7;
+            return 0;
+        }
+        private static SocketRole? GetRoleByName(string roleName)
+        {
+            SocketGuild guild = BotData.GetGuild();
+            SocketRole? role = guild.Roles.FirstOrDefault(role => role.Name == roleName);
+            if (role != null)
+                return role;
+            else
+            {
+                Logger.LogError($"Cannot get role with name {roleName}");
+                return null;
+            }
         }
     }
 }

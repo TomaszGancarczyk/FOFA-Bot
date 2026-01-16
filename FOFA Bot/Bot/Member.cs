@@ -4,9 +4,9 @@ namespace FOFA_Bot.Bot
 {
     internal class Member
     {
-        private SocketGuildUser discordUser;
-        private string inGameName;
-        private int? squad;
-        private bool? status;
+        internal SocketGuildUser discordUser;
+        internal string? inGameName;
+        internal int? squad;
+        internal bool? status;
     }
 }

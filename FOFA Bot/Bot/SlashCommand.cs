@@ -8,7 +8,7 @@ namespace FOFA_Bot.Bot
     {
         public static async Task Handle(SocketSlashCommand command)
         {
-            //TODO
+            //TODO slash command
             // auto nade toggle
             // auto signup toggle
             // create signup

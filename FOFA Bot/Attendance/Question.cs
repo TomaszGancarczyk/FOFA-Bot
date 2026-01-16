@@ -10,7 +10,7 @@ namespace FOFA_Bot.Attendance
     {
         internal static async Task<string> Handle()
         {
-            //TODO
+            //TODO question handler
             return null;
         }
     }

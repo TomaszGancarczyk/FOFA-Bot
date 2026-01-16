@@ -6,7 +6,7 @@ namespace FOFA_Bot.Bot
     {
         public static async Task Handle(SocketMessageComponent component)
         {
-            //TODO
+            //TODO button event
         }
     }
 }

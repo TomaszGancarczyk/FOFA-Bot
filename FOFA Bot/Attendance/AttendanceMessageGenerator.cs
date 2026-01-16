@@ -59,9 +59,9 @@ namespace FOFA_Bot.Attendance
 
 
             //TODO
+            await MemberHandler.CreateMembersList();
             List<Member> members = await MemberHandler.GetMembers();
             List<IEmote> squadEmotes = GetSquadEmotes();
-
 
 
             embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
@@ -86,6 +86,7 @@ namespace FOFA_Bot.Attendance
         private static List<IEmote> GetSquadEmotes()
         {
             List<IEmote> squadEmotes = [];
+            squadEmotes.Add(new Emoji("🔳")); //Unassigned
             squadEmotes.Add(new Emoji("🟦")); //1
             squadEmotes.Add(new Emoji("🟥")); //2
             squadEmotes.Add(new Emoji("🟩")); //3
@@ -93,7 +94,6 @@ namespace FOFA_Bot.Attendance
             squadEmotes.Add(new Emoji("🟧")); //5
             squadEmotes.Add(new Emoji("🟨")); //6
             squadEmotes.Add(new Emoji("⬜")); //Reseve
-            squadEmotes.Add(new Emoji("🔳")); //Unassigned
             return squadEmotes;
         }
     }
