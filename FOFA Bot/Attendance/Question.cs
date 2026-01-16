@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class Question
     {
-        internal static async Task<string> Handle()
+        internal static async Task<string> Handle(IMessageChannel questionChannel)
         {
             //TODO question handler
             return null;

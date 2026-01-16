@@ -42,6 +42,7 @@ namespace FOFA_Bot.Bot
         {
             if (!SignupMessageRunning && AutomnaticSignupMessage)
             {
+                //TODO   DateTime.Now.Hour == 22 for checksignups
                 //if (DateTime.Now.Hour == 22)
                 {
                     SignupMessageRunning = true;
