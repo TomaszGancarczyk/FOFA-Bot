@@ -31,6 +31,7 @@ namespace FOFA_Bot.Attendance
         private static async Task SendAttendanceMessage(AttendanceMessage message)
         {
             Logger.LogInformation($"Sending attendance message to {message.signupsChannel.Name}");
+            CurrentMessage = await message.signupsChannel.SendMessageAsync("", false, message.embedMessage.Build(), null, null, null, message.messageButtons.Build());
         }
 
     }

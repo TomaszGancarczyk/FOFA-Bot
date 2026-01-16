@@ -50,6 +50,11 @@ namespace FOFA_Bot.Bot
             SocketGuild guild = BotData.GetGuild();
             string roleName = BotData.GetRofaRoleName();
             DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
+            for (int i = (DiscordMembers.Count - 1); i>=0; i--) if (DiscordMembers[i].IsBot)
+                {
+                    Logger.LogWarning($"{DiscordMembers[i].DisplayName} is a bot, removing from the list");
+                    DiscordMembers.RemoveAt(i);
+                }
         }
         private async static Task<Member> CreateMember(SocketGuildUser user, bool? status)
         {

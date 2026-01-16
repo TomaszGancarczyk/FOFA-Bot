@@ -80,29 +80,34 @@ namespace FOFA_Bot.Attendance
             List<IEmote> squadEmotes = GetSquadEmotes();
             List<Member> members = await MemberHandler.GetMembers();
             Logger.LogInformation($"{members.Count} members found");
-            for (int i = 0; i <= 8; i++)
+            for (int squadCount = 0; squadCount <= 8; squadCount++)
             {
                 string? squadMembers = "";
-                foreach (Member member in members.Where(m => m.squad == i))
+                for (int i = members.Count - 1; i >= 0; i--) if (members[i].squad == squadCount)
+                    {
+                        squadMembers += AddMemberAndStatus(members[i].discordUser.DisplayName, members[i].status);
+                        members.RemoveAt(i);
+                    }
+                if (squadCount < 7 && squadMembers != "")
                 {
-                    squadMembers += AddMemberAndStatus(member.discordUser.DisplayName, member.status);
-                    members.Remove(member);
+                    Logger.LogInformation($"Created Squad {squadCount} field");
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}", squadMembers, true);
                 }
-                if (i < 7 && squadMembers != "")
+                else if (squadCount == 7 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[i - 1]} Squad {i}", squadMembers, true);
+                    Logger.LogInformation($"Created Squad Reserve");
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve", squadMembers, true);
                 }
-                else if (i == 7 && squadMembers != "")
+                if (squadCount == 0 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[i - 1]} Reserve", squadMembers, true);
+                    Logger.LogInformation($"Created Squad Unassigned");
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned", squadMembers, true);
                 }
-                if (i == 0 && squadMembers != "")
-                {
-                    embedMessage.AddField($"{squadEmotes[i - 1]} Unassigned", squadMembers, true);
-                }
-                if (members.Count > 0)
-                    Logger.LogWarning($"Unable to handle {members.Count} members");
             }
+            if (members.Count > 0)
+                Logger.LogError($"Unable to handle {members.Count} members");
+            else
+                Logger.LogInformation($"Handled all members");
             return embedMessage;
         }
         private async static Task<EmbedBuilder> AddFooterMessage(EmbedBuilder embedMessage)
