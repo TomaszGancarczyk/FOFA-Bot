@@ -1,5 +1,7 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using FOFA_Bot.Data;
+using System.Linq;
 
 namespace FOFA_Bot.Bot
 {
@@ -20,17 +22,17 @@ namespace FOFA_Bot.Bot
                 Logger.LogInformation($"Added {member.discordUser.DisplayName} to member list to squad {member.squad}");
             }
         }
-        internal async static Task UpdateMemberStatus(SocketGuildUser user, bool status) //TODO member status in button
+        internal async static Task UpdateMemberStatus(SocketUser user, bool status) //TODO member status in button
         {
-            Logger.LogInformation($"Updating status for {user.DisplayName}");
-            if (Members.Any(member => member.discordUser == user))
+            if (Members.Any(member => member.discordUser.Id == user.Id))
             {
-                Logger.LogInformation($"Found {user.DisplayName}, updating status");
-                Members.FirstOrDefault(member => member.discordUser == user).status = status;
+                Member discordUser = Members.FirstOrDefault(m => m.discordUser.Id == user.Id);
+                Logger.LogInformation($"Updating status for {discordUser.discordUser.DisplayName}: {status}");
+                discordUser.status = status;
             }
             else
             {
-                Logger.LogInformation($"Cannot find {user.DisplayName}, adding new member to list");
+                Logger.LogInformation($"Cannot find {user.GlobalName}, adding new member to list");
                 Member member = await CreateMember(user, status);
                 Members.Add(member);
             }
@@ -39,8 +41,6 @@ namespace FOFA_Bot.Bot
         {
             return Members;
         }
-
-
 
         private async static Task CreateDiscordMembers()
         {
@@ -56,12 +56,14 @@ namespace FOFA_Bot.Bot
                     DiscordMembers.RemoveAt(i);
                 }
         }
-        private async static Task<Member> CreateMember(SocketGuildUser user, bool? status)
+        private async static Task<Member> CreateMember(SocketUser user, bool? status)
         {
+            SocketGuild guild = BotData.GetGuild();
+            SocketGuildUser guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
             Member member = new()
             {
-                discordUser = user,
-                squad = await GetMemberSquad(user),
+                discordUser = guildUser,
+                squad = await GetMemberSquad(guildUser),
                 inGameName = null, //TODO member in game name
                 status = status
             };

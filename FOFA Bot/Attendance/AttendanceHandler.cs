@@ -1,38 +1,47 @@
 ﻿using Discord;
+using Discord.WebSocket;
+using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Attendance
 {
     internal class AttendanceHandler
     {
-        private static IMessage CurrentMessage = null;
+        private static AttendanceMessage CurrentMessage;
         internal static async Task StartQuestionAttendanceEvent()
         {
             Logger.LogInformation($"Starting attendance question event");
-            ulong? localCurrentMessageId = null;
             Logger.LogInformation($"HandlingEventQuestion");
             string template = await Question.Handle(BotData.GetQuestionChannel());
             template = "Brawl";//TODO   temporary question response - template
             Logger.LogInformation($"Got response from question: {template}");
-            AttendanceMessage message = await CreateAttendanceEvent(null, null, template);
-            message = await AttendanceButton.AddAttendanceButtons(message);
-            await SendAttendanceMessage(message);
+            await CreateAttendanceEvent(null, null, template);
+            await SendAttendanceMessage();
         }
-        private static async Task<AttendanceMessage> CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
+        private static async Task CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template) //create custom attendance as well
         {
             Logger.LogInformation($"Creating attendance event");
-            AttendanceMessage attendanceMessage = new();
             if (template != null)
-                attendanceMessage = await AttendanceMessageGenerator.CreateAttendanceMessageFromTemplate(template);
+                CurrentMessage = await AttendanceMessageGenerator.CreateAttendanceMessageFromTemplate(template);
             else
-                attendanceMessage = await AttendanceMessageGenerator.CreateCustomAttendanceMessage(EventName, eventDate.Value);
-            return attendanceMessage;
+                CurrentMessage = await AttendanceMessageGenerator.CreateCustomAttendanceMessage(EventName, eventDate.Value);
         }
-        private static async Task SendAttendanceMessage(AttendanceMessage message)
+        private static async Task SendAttendanceMessage()
         {
-            Logger.LogInformation($"Sending attendance message to {message.signupsChannel.Name}");
-            CurrentMessage = await message.signupsChannel.SendMessageAsync("", false, message.embedMessage.Build(), null, null, null, message.messageButtons.Build());
+            Logger.LogInformation($"Sending attendance message to {CurrentMessage.signupsChannel.Name}");
+            CurrentMessage.discordMessage = await CurrentMessage.signupsChannel.SendMessageAsync("", false, CurrentMessage.embedMessage.Build(), null, null, null, CurrentMessage.messageButtons.Build());
+        }
+        internal static async Task<EmbedBuilder> RefreshSignupMessageFields()
+        {
+            Logger.LogInformation($"Refreshing attendance message fields");
+            CurrentMessage.embedMessage = await AttendanceMessageGenerator.AddMessageFields(CurrentMessage.embedMessage);
+            return CurrentMessage.embedMessage;
         }
 
+
+        internal static ulong? GetCurrentMessageId()
+        {
+            return CurrentMessage.discordMessage.Id;
+        }
     }
 }

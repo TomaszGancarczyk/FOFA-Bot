@@ -9,5 +9,6 @@ namespace FOFA_Bot.Attendance
         internal EmbedBuilder embedMessage;
         internal ComponentBuilder messageButtons;
         internal DateTime? Date;
+        internal IMessage? discordMessage;
     }
 }

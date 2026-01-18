@@ -26,11 +26,8 @@ namespace FOFA_Bot.Data
         }
         internal static SocketGuild GetGuild()
         {
-            Logger.LogInformation($"Getting Guild Id");
             ulong guildId = JsonBotData.GuildId;
-            Logger.LogInformation($"Getting Guild");
             SocketGuild guild = BotHandler.GetDiscord().GetGuild(guildId);
-            Logger.LogInformation($"Found Guild: {guild.Name}");
             return guild;
         }
         internal static IMessageChannel GetQuestionChannel()
@@ -61,22 +58,22 @@ namespace FOFA_Bot.Data
             return channel;
         }
 
-        internal static int GetTournamentHour()
+        internal static double GetTournamentHour()
         {
             Logger.LogInformation($"Getting Tournament Hour");
             return JsonBotData.TournamentHour;
         }
-        internal static int GetBrawlHour()
+        internal static double GetBrawlHour()
         {
             Logger.LogInformation($"Getting Brawl Hour");
             return JsonBotData.BrawlHour;
         }
-        internal static int GetBaseCaptureHour()
+        internal static double GetBaseCaptureHour()
         {
             Logger.LogInformation($"Getting Base Capture Hour");
             return JsonBotData.BaseCaptureHour;
         }
-        internal static int GetGoldenDropHour()
+        internal static double GetGoldenDropHour()
         {
             Logger.LogInformation($"Getting Golden Drop Hour");
             return JsonBotData.GoldenDropHour;

@@ -33,7 +33,10 @@ namespace FOFA_Bot.Attendance
                     await GenerateMessageFromData(template, eventDateTime, Color.Gold);
                     break;
             }
+
+
             AttendanceMessage.embedMessage = EmbedMessage;
+            AttendanceMessage = await AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
         internal async static Task<AttendanceMessage> CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
@@ -74,19 +77,21 @@ namespace FOFA_Bot.Attendance
                 .WithColor(color);
             return embedMessage;
         }
-        private async static Task<EmbedBuilder> AddMessageFields(EmbedBuilder embedMessage)
+        internal async static Task<EmbedBuilder> AddMessageFields(EmbedBuilder embedMessage)
         {
+            embedMessage.Fields = [];
             Logger.LogInformation($"Creating message fields...");
             List<IEmote> squadEmotes = GetSquadEmotes();
             List<Member> members = await MemberHandler.GetMembers();
+            List<Member> handledMembers = [];
             Logger.LogInformation($"{members.Count} members found");
             for (int squadCount = 0; squadCount <= 8; squadCount++)
             {
                 string? squadMembers = "";
-                for (int i = members.Count - 1; i >= 0; i--) if (members[i].squad == squadCount)
+                foreach (Member member in members) if (!handledMembers.Contains(member) && squadCount == member.squad)
                     {
-                        squadMembers += AddMemberAndStatus(members[i].discordUser.DisplayName, members[i].status);
-                        members.RemoveAt(i);
+                        squadMembers += AddMemberAndStatus(member.discordUser.DisplayName, member.status);
+                        handledMembers.Add(member);
                     }
                 if (squadCount < 7 && squadMembers != "")
                 {
@@ -104,8 +109,8 @@ namespace FOFA_Bot.Attendance
                     embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned", squadMembers, true);
                 }
             }
-            if (members.Count > 0)
-                Logger.LogError($"Unable to handle {members.Count} members");
+            if (members.Count > handledMembers.Count)
+                Logger.LogError($"Unable to handle {members.Count - handledMembers.Count} members");
             else
                 Logger.LogInformation($"Handled all members");
             return embedMessage;
@@ -121,13 +126,12 @@ namespace FOFA_Bot.Attendance
             return embedMessage;
         }
 
-
-        private async static Task<DateTime> GetEventDateTime(int eventHour)
+        private async static Task<DateTime> GetEventDateTime(double eventHour)
         {
             Logger.LogInformation($"Creating event DateTime");
             DateTime eventDateTime = DateTime.Today;
             if (eventHour < DateTime.Now.Hour) eventDateTime.AddDays(1);
-            eventDateTime.AddHours(eventHour);
+            eventDateTime = eventDateTime.AddHours(eventHour);
             Logger.LogInformation($"Event DateTime set for {eventDateTime}");
             return eventDateTime;
         }
@@ -151,6 +155,16 @@ namespace FOFA_Bot.Attendance
             else if (status == true) return $"{new Emoji("🟢")} {displayName}\n";
             else if (status == false) return $"{new Emoji("🔴")} {displayName}\n";
             return null;
+        }
+        private async static Task<AttendanceMessage> AddMessageButtons(AttendanceMessage message)
+        {
+            Logger.LogInformation($"Adding attendance buttons");
+            ComponentBuilder buttons = new ComponentBuilder()
+                .WithButton("Present", "presentButton", ButtonStyle.Success)
+                .WithButton("Absent", "absentButton", ButtonStyle.Danger);
+            Logger.LogInformation($"Created buttons");
+            message.messageButtons = buttons;
+            return message;
         }
     }
 }
