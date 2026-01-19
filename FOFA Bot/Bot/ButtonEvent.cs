@@ -8,12 +8,36 @@ namespace FOFA_Bot.Bot
     {
         public static async Task Handle(SocketMessageComponent component)
         {
-            EmbedBuilder? responseMessage;
             EmbedBuilder updatedMessage;
             ulong? currentMessageId;
 
             switch (component.Data.CustomId)
             {
+                case "tournamentButton":
+                    Logger.LogInformation($"Got tournament response to event question");
+                    Question.SetQuestionAnswear(component.Message.Id, "Tournament");
+                    component.Message.DeleteAsync().Wait();
+                    break;
+                case "baseCaptureButton":
+                    Logger.LogInformation($"Got base capture response to event question");
+                    Question.SetQuestionAnswear(component.Message.Id, "Base Capture");
+                    component.Message.DeleteAsync().Wait();
+                    break;
+                case "brawlButton":
+                    Logger.LogInformation($"Got brawl response to event question");
+                    Question.SetQuestionAnswear(component.Message.Id, "Brawl");
+                    component.Message.DeleteAsync().Wait();
+                    break;
+                case "goldenDropButton":
+                    Logger.LogInformation($"Got golden drop response to event question");
+                    Question.SetQuestionAnswear(component.Message.Id, "Golden Drop");
+                    component.Message.DeleteAsync().Wait();
+                    break;
+                case "dayOffButton":
+                    Logger.LogInformation($"Got day off response to event question");
+                    Question.SetQuestionAnswear(component.Message.Id, "Day Off");
+                    component.Message.DeleteAsync().Wait();
+                    break;
                 case "presentButton":
                     currentMessageId = AttendanceHandler.GetCurrentMessageId();
                     if (currentMessageId == null)

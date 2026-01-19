@@ -1,6 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
-using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Attendance
@@ -13,7 +11,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"Starting attendance question event");
             Logger.LogInformation($"HandlingEventQuestion");
             string template = await Question.Handle(BotData.GetQuestionChannel());
-            template = "Brawl";//TODO   temporary question response - template
+            if (template == "Day Off") return;
             Logger.LogInformation($"Got response from question: {template}");
             await CreateAttendanceEvent(null, null, template);
             await SendAttendanceMessage();

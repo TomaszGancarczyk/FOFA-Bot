@@ -47,6 +47,7 @@ namespace FOFA_Bot.Bot
                 {
                     SignupMessageRunning = true;
                     await AttendanceHandler.StartQuestionAttendanceEvent();
+                    Task.Delay(3600000).Wait();
                     SignupMessageRunning = false;
                 }
             }

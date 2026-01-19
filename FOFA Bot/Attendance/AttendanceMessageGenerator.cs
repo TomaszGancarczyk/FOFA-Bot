@@ -7,7 +7,7 @@ namespace FOFA_Bot.Attendance
     internal class AttendanceMessageGenerator
     {
         private static EmbedBuilder? EmbedMessage;
-        private static AttendanceMessage AttendanceMessage;
+        private static AttendanceMessage? AttendanceMessage;
         internal async static Task<AttendanceMessage> CreateAttendanceMessageFromTemplate(string template)
         {
             Logger.LogInformation($"Creating attendance message from template");
@@ -126,11 +126,11 @@ namespace FOFA_Bot.Attendance
             return embedMessage;
         }
 
-        private async static Task<DateTime> GetEventDateTime(double eventHour)
+        internal async static Task<DateTime> GetEventDateTime(double eventHour)
         {
             Logger.LogInformation($"Creating event DateTime");
             DateTime eventDateTime = DateTime.Today;
-            if (eventHour < DateTime.Now.Hour) eventDateTime.AddDays(1);
+            if (eventHour < (DateTime.Now.Hour + 1)) eventDateTime = eventDateTime.AddDays(1);
             eventDateTime = eventDateTime.AddHours(eventHour);
             Logger.LogInformation($"Event DateTime set for {eventDateTime}");
             return eventDateTime;
