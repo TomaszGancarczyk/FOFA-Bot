@@ -35,7 +35,7 @@ namespace FOFA_Bot.Attendance
             while (DateTime.Now < eventCloseTime)
                 Task.Delay(60000).Wait();
             if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && MemberHandler.GetMembers().Result.Where(m => m.status == null).Count() > 0)
-                AttendanceGoogleSheet.HandleUnsignedUsers(MemberHandler.GetMembers().Result.Where(m => m.status == null));
+                AttendanceGoogleSheet.HandleUnsignedUsers(MemberHandler.GetMembers().Result.Where(m => m.status == null).ToList());
         }
         internal static async Task<EmbedBuilder> RefreshSignupMessage()
         {
