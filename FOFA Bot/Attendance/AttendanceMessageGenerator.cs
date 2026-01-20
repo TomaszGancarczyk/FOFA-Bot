@@ -73,7 +73,7 @@ namespace FOFA_Bot.Attendance
             long eventUnix = await GetUnixFromDateTime(eventDateTime);
             embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
                 .WithDescription($"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
-                $"Lineup: https://discord.com/channels/710884253457711134/1272270948115939339")
+                $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845")
                 .WithColor(color);
             return embedMessage;
         }
@@ -115,7 +115,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogInformation($"Handled all members");
             return embedMessage;
         }
-        private async static Task<EmbedBuilder> AddFooterMessage(EmbedBuilder embedMessage)
+        internal async static Task<EmbedBuilder> AddFooterMessage(EmbedBuilder embedMessage)
         {
             Logger.LogInformation($"Creating footer...");
             List<Member> members = await MemberHandler.GetMembers();

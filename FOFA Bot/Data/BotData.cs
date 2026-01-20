@@ -84,5 +84,26 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"Getting Rofa Role Name");
             return JsonBotData.RofaRoleName;
         }
+
+        internal static string GetSheetClientId()
+        {
+            Logger.LogInformation($"Getting Sheet Client Id");
+            return JsonBotData.SheetClientId;
+        }
+        internal static string GetSheetClientSecret()
+        {
+            Logger.LogInformation($"Getting Sheet Client Secret");
+            return JsonBotData.SheetClientSecret;
+        }
+        internal static string GetSignupSheetId()
+        {
+            Logger.LogInformation($"Getting Signup Sheet Id");
+            return JsonBotData.SignupSheetId;
+        }
+        internal static string GetNadeSheetId()
+        {
+            Logger.LogInformation($"Getting Nade Sheet Id");
+            return JsonBotData.NadeSheetId;
+        }
     }
 }

@@ -1,0 +1,81 @@
+﻿using FOFA_Bot.Bot;
+using FOFA_Bot.Data;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Sheets.v4.Data;
+using Google.Apis.Util.Store;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Runtime;
+
+namespace FOFA_Bot.Attendance
+{
+    internal class AttendanceGoogleSheet
+    {
+        internal static async Task HandleUnsignedUsers(List<Member> members)
+        {
+            Logger.LogInformation($"Exporting unassigned users");
+            string sheetId = BotData.GetSignupSheetId();
+            SheetsService? service = await GetSheetService();
+            string range = await GetRange(members.Count + 1);
+            List<string> userNames = members.Select(m => m.discordUser.Username).ToList();
+            IList<IList<Object>> objRecords = await GenerateData(userNames);
+            if (service != null)
+                await UpdateGoogleSheet(objRecords, sheetId, range, service);
+            Logger.LogInformation($"Finished updating attendance sheet");
+        }
+
+        private static async Task UpdateGoogleSheet(IList<IList<Object>> objRecords, string sheetId, string range, SheetsService service)
+        {
+            Logger.LogInformation($"Updating signup google sheet");
+            var request = service.Spreadsheets.Values.Append(new ValueRange() { Values = objRecords }, sheetId, range);
+            request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
+            request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
+            request.Execute();
+        }
+
+        private static async Task<IList<IList<object>>> GenerateData(List<string> userNames)
+        {
+            Logger.LogInformation($"Generating data for the signup sheet");
+            List<IList<Object>> fullObject = [];
+            IList<Object> objectLine = [];
+            objectLine.Add(DateTime.Now.ToString("dd/MM/yyyy"));
+            foreach (string userName in userNames)
+                objectLine.Add(userName);
+            fullObject.Add(objectLine);
+            return fullObject;
+        }
+
+        private static async Task<SheetsService?> GetSheetService()
+        {
+            Logger.LogInformation($"Getting signup sheet service");
+            string clientId = BotData.GetSheetClientId();
+            string clientSecret = BotData.GetSheetClientSecret();
+            string[] scopes = [SheetsService.Scope.Spreadsheets];
+            UserCredential? credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                new ClientSecrets
+                {
+                    ClientId = clientId,
+                    ClientSecret = clientSecret
+                },
+                scopes,
+                "FOFA Bot",
+                CancellationToken.None,
+                new FileDataStore("GoogleToken"))
+                .Result;
+            SheetsService? service = new(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "FOFA Bot"
+            });
+            return service;
+        }
+        private static async Task<string> GetRange(int numberOfCollumns)
+        {
+            Logger.LogInformation($"Getting sheet range");
+            char lastCollumnChar = (char)('A' - 1 + numberOfCollumns);
+            return ($"A{2}:{lastCollumnChar}2");
+        }
+    }
+}
