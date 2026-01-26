@@ -8,15 +8,13 @@ namespace FOFA_Bot.Data
     internal class BotData
     {
         private static dynamic JsonBotData;
-        internal async static Task LoadJson()
+        internal static void LoadJson()
         {
             Logger.LogInformation($"Getting json data");
-            using (StreamReader reader = new StreamReader("..\\..\\..\\Data\\Data.json"))
-            {
-                string json = reader.ReadToEnd();
-                JsonBotData = JObject.Parse(json);
-                Logger.LogInformation($"Read json data");
-            }
+            using StreamReader reader = new("..\\..\\..\\Data\\Data.json");
+            string json = reader.ReadToEnd();
+            JsonBotData = JObject.Parse(json);
+            Logger.LogInformation($"Read json data");
         }
 
         internal static string GetDiscordToken()

@@ -14,7 +14,7 @@ namespace FOFA_Bot.Bot
         private static bool SignupMessageRunning = false;
         private static bool AutomnaticSignupMessage = true;
 
-        internal static async Task Run(DiscordSocketClient discord)
+        internal static void Run(DiscordSocketClient discord)
         {
             Discord = discord;
             while (true)

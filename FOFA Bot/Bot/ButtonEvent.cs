@@ -15,27 +15,27 @@ namespace FOFA_Bot.Bot
             {
                 case "tournamentButton":
                     Logger.LogInformation($"Got tournament response to event question");
-                    Question.SetQuestionAnswear(component.Message.Id, "Tournament");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Tournament");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "baseCaptureButton":
                     Logger.LogInformation($"Got base capture response to event question");
-                    Question.SetQuestionAnswear(component.Message.Id, "Base Capture");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Base Capture");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "brawlButton":
                     Logger.LogInformation($"Got brawl response to event question");
-                    Question.SetQuestionAnswear(component.Message.Id, "Brawl");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Brawl");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "goldenDropButton":
                     Logger.LogInformation($"Got golden drop response to event question");
-                    Question.SetQuestionAnswear(component.Message.Id, "Golden Drop");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Golden Drop");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "dayOffButton":
                     Logger.LogInformation($"Got day off response to event question");
-                    Question.SetQuestionAnswear(component.Message.Id, "Day Off");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Day Off");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "presentButton":
@@ -45,7 +45,7 @@ namespace FOFA_Bot.Bot
                     else if (component.Message.Id == currentMessageId)
                     {
                         Logger.LogInformation($"{component.User.Username} clicked present on the signup");
-                        await MemberHandler.UpdateMemberStatus(component.User, true);
+                        MemberHandler.UpdateMemberStatus(component.User, true);
                         updatedMessage = await AttendanceHandler.RefreshSignupMessage();
                         Logger.LogInformation($"Updating discord attendance message");
                         await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
@@ -61,7 +61,7 @@ namespace FOFA_Bot.Bot
                     else if (component.Message.Id == currentMessageId)
                     {
                         Logger.LogInformation($"{component.User.Username} clicked absent on the signup");
-                        await MemberHandler.UpdateMemberStatus(component.User, false);
+                        MemberHandler.UpdateMemberStatus(component.User, false);
                         updatedMessage = await AttendanceHandler.RefreshSignupMessage();
                         Logger.LogInformation($"Updating discord attendance message");
                         await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());

@@ -5,28 +5,25 @@ using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Util.Store;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Runtime;
 
 namespace FOFA_Bot.Attendance
 {
     internal class AttendanceGoogleSheet
     {
-        internal static async Task HandleUnsignedUsers(List<Member> members)
+        internal static void HandleUnsignedUsers(List<Member> members)
         {
             Logger.LogInformation($"Exporting unassigned users");
             string sheetId = BotData.GetSignupSheetId();
-            SheetsService? service = await GetSheetService();
-            string range = await GetRange(members.Count + 1);
-            List<string> userNames = members.Select(m => m.discordUser.Username).ToList();
-            IList<IList<Object>> objRecords = await GenerateData(userNames);
+            SheetsService? service = GetSheetService();
+            string range = GetRange(members.Count + 1);
+            List<string> userNames = [.. members.Select(m => m.discordUser.Username)];
+            IList<IList<Object>> objRecords = GenerateData(userNames);
             if (service != null)
-                await UpdateGoogleSheet(objRecords, sheetId, range, service);
+                UpdateGoogleSheet(objRecords, sheetId, range, service);
             Logger.LogInformation($"Finished updating attendance sheet");
         }
 
-        private static async Task UpdateGoogleSheet(IList<IList<Object>> objRecords, string sheetId, string range, SheetsService service)
+        private static void UpdateGoogleSheet(IList<IList<Object>> objRecords, string sheetId, string range, SheetsService service)
         {
             Logger.LogInformation($"Updating signup google sheet");
             var request = service.Spreadsheets.Values.Append(new ValueRange() { Values = objRecords }, sheetId, range);
@@ -35,7 +32,7 @@ namespace FOFA_Bot.Attendance
             request.Execute();
         }
 
-        private static async Task<IList<IList<object>>> GenerateData(List<string> userNames)
+        private static IList<IList<object>> GenerateData(List<string> userNames)
         {
             Logger.LogInformation($"Generating data for the signup sheet");
             List<IList<Object>> fullObject = [];
@@ -47,7 +44,7 @@ namespace FOFA_Bot.Attendance
             return fullObject;
         }
 
-        private static async Task<SheetsService?> GetSheetService()
+        private static SheetsService? GetSheetService()
         {
             Logger.LogInformation($"Getting signup sheet service");
             string clientId = BotData.GetSheetClientId();
@@ -71,11 +68,11 @@ namespace FOFA_Bot.Attendance
             });
             return service;
         }
-        private static async Task<string> GetRange(int numberOfCollumns)
+        private static string GetRange(int numberOfCollumns)
         {
             Logger.LogInformation($"Getting sheet range");
-            char lastCollumnChar = (char)('A' - 1 + numberOfCollumns);
-            return ($"A{2}:{lastCollumnChar}2");
+            char lastCollumnChar = (char)('A' + numberOfCollumns);
+            return ($"A{3}:{lastCollumnChar}2");
         }
     }
 }

@@ -8,7 +8,7 @@ namespace FOFA_Bot.Attendance
     {
         private static EmbedBuilder? EmbedMessage;
         private static AttendanceMessage? AttendanceMessage;
-        internal async static Task<AttendanceMessage> CreateAttendanceMessageFromTemplate(string template)
+        internal static AttendanceMessage CreateAttendanceMessageFromTemplate(string template)
         {
             Logger.LogInformation($"Creating attendance message from template");
             AttendanceMessage = new();
@@ -17,72 +17,72 @@ namespace FOFA_Bot.Attendance
             switch (template)
             {
                 case "Tournament":
-                    eventDateTime = await GetEventDateTime(BotData.GetTournamentHour());
-                    await GenerateMessageFromData(template, eventDateTime, Color.DarkGreen);
+                    eventDateTime = GetEventDateTime(BotData.GetTournamentHour());
+                    GenerateMessageFromData(template, eventDateTime, Color.DarkGreen);
                     break;
                 case "Brawl":
-                    eventDateTime = await GetEventDateTime(BotData.GetBrawlHour());
-                    await GenerateMessageFromData(template, eventDateTime, Color.Green);
+                    eventDateTime = GetEventDateTime(BotData.GetBrawlHour());
+                    GenerateMessageFromData(template, eventDateTime, Color.Green);
                     break;
                 case "Base Capture":
-                    eventDateTime = await GetEventDateTime(BotData.GetBaseCaptureHour());
-                    await GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
+                    eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
+                    GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
                     break;
                 case "Golden Drop":
-                    eventDateTime = await GetEventDateTime(BotData.GetGoldenDropHour());
-                    await GenerateMessageFromData(template, eventDateTime, Color.Gold);
+                    eventDateTime = GetEventDateTime(BotData.GetGoldenDropHour());
+                    GenerateMessageFromData(template, eventDateTime, Color.Gold);
                     break;
             }
 
 
             AttendanceMessage.embedMessage = EmbedMessage;
-            AttendanceMessage = await AddMessageButtons(AttendanceMessage);
+            AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
-        internal async static Task<AttendanceMessage> CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
+        internal static AttendanceMessage CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
         {
             Logger.LogInformation($"Creating custom attendance message");
             AttendanceMessage = null;
 
-            await GenerateMessageFromData(EventName, eventDateTime, Color.Green);
+            GenerateMessageFromData(EventName, eventDateTime, Color.Green);
 
             AttendanceMessage.embedMessage = EmbedMessage;
             return AttendanceMessage;
         }
 
 
-        private async static Task GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
+        private static void GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
         {
             Logger.LogInformation($"Creating {EventName} attendance message");
             EmbedMessage = null;
             AttendanceMessage.Date = eventDateTime;
 
-            EmbedBuilder embedMessage = await CreateBaseMessage(EventName, eventDateTime, color);
-            await MemberHandler.CreateMembersList();
-            embedMessage = await AddMessageFields(embedMessage);
-            embedMessage = await AddFooterMessage(embedMessage);
+            EmbedBuilder embedMessage = CreateBaseMessage(EventName, eventDateTime, color);
+            MemberHandler.CreateMembersList();
+            embedMessage = AddMessageFields(embedMessage);
+            embedMessage = AddFooterMessage(embedMessage);
 
             EmbedMessage = embedMessage;
             Logger.LogInformation($"Embed message created");
         }
 
-        private async static Task<EmbedBuilder> CreateBaseMessage(string EventName, DateTime eventDateTime, Color color)
+        private static EmbedBuilder CreateBaseMessage(string EventName, DateTime eventDateTime, Color color)
         {
             Logger.LogInformation($"Creating base message...");
             EmbedBuilder embedMessage = new();
-            long eventUnix = await GetUnixFromDateTime(eventDateTime);
+            long eventUnix = GetUnixFromDateTime(eventDateTime);
             embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
                 .WithDescription($"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
                 $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845")
                 .WithColor(color);
             return embedMessage;
         }
-        internal async static Task<EmbedBuilder> AddMessageFields(EmbedBuilder embedMessage)
+        internal static EmbedBuilder AddMessageFields(EmbedBuilder embedMessage)
         {
             embedMessage.Fields = [];
             Logger.LogInformation($"Creating message fields...");
             List<IEmote> squadEmotes = GetSquadEmotes();
-            List<Member> members = await MemberHandler.GetMembers();
+            List<Member> members = MemberHandler.GetMembers();
             List<Member> handledMembers = [];
             Logger.LogInformation($"{members.Count} members found");
             for (int squadCount = 0; squadCount <= 8; squadCount++)
@@ -115,10 +115,10 @@ namespace FOFA_Bot.Attendance
                 Logger.LogInformation($"Handled all members");
             return embedMessage;
         }
-        internal async static Task<EmbedBuilder> AddFooterMessage(EmbedBuilder embedMessage)
+        internal static EmbedBuilder AddFooterMessage(EmbedBuilder embedMessage)
         {
             Logger.LogInformation($"Creating footer...");
-            List<Member> members = await MemberHandler.GetMembers();
+            List<Member> members = MemberHandler.GetMembers();
             int present = members.Where(m => m.status == true).Count();
             int absent = members.Where(m => m.status == false).Count();
             int usigned = members.Where(m => m.status == null).Count();
@@ -126,7 +126,7 @@ namespace FOFA_Bot.Attendance
             return embedMessage;
         }
 
-        internal async static Task<DateTime> GetEventDateTime(double eventHour)
+        internal static DateTime GetEventDateTime(double eventHour)
         {
             Logger.LogInformation($"Creating event DateTime");
             DateTime eventDateTime = DateTime.Today;
@@ -135,7 +135,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"Event DateTime set for {eventDateTime}");
             return eventDateTime;
         }
-        private async static Task<long> GetUnixFromDateTime(DateTime dateTime) => ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
+        private static long GetUnixFromDateTime(DateTime dateTime) => ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
         private static List<IEmote> GetSquadEmotes()
         {
             List<IEmote> squadEmotes = [];
@@ -156,7 +156,7 @@ namespace FOFA_Bot.Attendance
             else if (status == false) return $"{new Emoji("🔴")} {displayName}\n";
             return null;
         }
-        private async static Task<AttendanceMessage> AddMessageButtons(AttendanceMessage message)
+        private static AttendanceMessage AddMessageButtons(AttendanceMessage message)
         {
             Logger.LogInformation($"Adding attendance buttons");
             ComponentBuilder buttons = new ComponentBuilder()

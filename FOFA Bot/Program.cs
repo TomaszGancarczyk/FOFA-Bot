@@ -12,7 +12,7 @@ namespace FOFA_Bot
         static async Task Main()
         {
             Logger.LogInformation($"Starting...");
-            await BotData.LoadJson();
+            BotData.LoadJson();
             Token = BotData.GetDiscordToken();
             Logger.LogInformation($"[FOFA] Bot is starting");
             new Program().StartBotAsync().GetAwaiter().GetResult();
@@ -42,7 +42,7 @@ namespace FOFA_Bot
                 return Task.CompletedTask;
             };
             await Task.Delay(3000);
-            await BotHandler.Run(Discord);
+            BotHandler.Run(Discord);
             await Task.Delay(-1);
         }
         private async Task DiscordReady()

@@ -2,7 +2,7 @@
 
 namespace FOFA_Bot.Attendance
 {
-    internal class Question
+    internal class AttendanceQuestion
     {
         private static IMessage? CurrentQuestionMessage = null;
         private static bool WaitingForQuestionResponse;
@@ -29,7 +29,7 @@ namespace FOFA_Bot.Attendance
         {
             CurrentQuestionMessage = null;
             WaitingForQuestionResponse = true;
-            EventDateTime = await AttendanceMessageGenerator.GetEventDateTime(20);
+            EventDateTime = AttendanceMessageGenerator.GetEventDateTime(20);
             Logger.LogInformation($"Creating attendance event question");
 
             string questionMessageContent;
@@ -37,18 +37,21 @@ namespace FOFA_Bot.Attendance
                 questionMessageContent = $"## What do we play today?";
             else questionMessageContent = $"## What do we play tomorrow?";
 
-            ComponentBuilder component = await CreateQuestionButtons();
+            ComponentBuilder component = CreateQuestionButtons();
 
             IMessage? localCurrentQuestionMessage = await questionChannel.SendMessageAsync(questionMessageContent, components: component.Build());
             CurrentQuestionMessage = localCurrentQuestionMessage;
-            while (WaitingForQuestionResponse)
+            while ((DateTime.Now - localCurrentQuestionMessage.CreatedAt).Hours < 24 && WaitingForQuestionResponse)
             {
                 await Task.Delay(1000);
             }
             if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
+            {
+                Logger.LogInformation($"Got response from question: {QuestionResponse}");
                 return QuestionResponse;
+            }
             else
-                return null;
+                return "Next Message";
         }
 
         internal static void SetQuestionAnswear(ulong questionMessageId, string questionResponse)
@@ -63,7 +66,7 @@ namespace FOFA_Bot.Attendance
             else Logger.LogError($"CurrentQuestionMessage is null");
         }
 
-        private async static Task<ComponentBuilder> CreateQuestionButtons()
+        private static ComponentBuilder CreateQuestionButtons()
         {
             Logger.LogInformation($"Creating attendance event question buttons");
             DayOfWeek eventDayOfWeek = EventDateTime.DayOfWeek;
