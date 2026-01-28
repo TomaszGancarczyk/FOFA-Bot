@@ -38,11 +38,12 @@ namespace FOFA_Bot.Attendance
             else questionMessageContent = $"## What do we play tomorrow?";
 
             ComponentBuilder component = CreateQuestionButtons();
-
+            Logger.LogInformation($"Sending attendance question to {questionChannel.Name}");
             IMessage? localCurrentQuestionMessage = await questionChannel.SendMessageAsync(questionMessageContent, components: component.Build());
             CurrentQuestionMessage = localCurrentQuestionMessage;
             while ((DateTime.Now - localCurrentQuestionMessage.CreatedAt).Hours < 24 && WaitingForQuestionResponse)
             {
+                Console.WriteLine((DateTime.Now - localCurrentQuestionMessage.CreatedAt).Hours);
                 await Task.Delay(1000);
             }
             if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
