@@ -7,7 +7,7 @@ namespace FOFA_Bot.Data
 {
     internal class BotData
     {
-        private static dynamic JsonBotData;
+        private static dynamic JsonBotData = "";
         internal static void LoadJson()
         {
             Logger.LogInformation($"Getting json data");

@@ -8,7 +8,7 @@ namespace FOFA_Bot.Attendance
     {
         private static EmbedBuilder? EmbedMessage;
         private static AttendanceMessage? AttendanceMessage;
-        internal static AttendanceMessage CreateAttendanceMessageFromTemplate(string template)
+        internal static AttendanceMessage? CreateAttendanceMessageFromTemplate(string template)
         {
             Logger.LogInformation($"Creating attendance message from template");
             AttendanceMessage = new();
@@ -18,52 +18,58 @@ namespace FOFA_Bot.Attendance
             {
                 case "Tournament":
                     eventDateTime = GetEventDateTime(BotData.GetTournamentHour());
-                    GenerateMessageFromData(template, eventDateTime, Color.DarkGreen);
+                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.DarkGreen);
                     break;
                 case "Brawl":
                     eventDateTime = GetEventDateTime(BotData.GetBrawlHour());
-                    GenerateMessageFromData(template, eventDateTime, Color.Green);
+                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Green);
                     break;
                 case "Base Capture":
                     eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
-                    GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
+                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
                     break;
                 case "Golden Drop":
                     eventDateTime = GetEventDateTime(BotData.GetGoldenDropHour());
-                    GenerateMessageFromData(template, eventDateTime, Color.Gold);
+                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Gold);
                     break;
             }
-
-
+            if (EmbedMessage == null)
+            {
+                return null;
+            }
             AttendanceMessage.embedMessage = EmbedMessage;
             AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
-        internal static AttendanceMessage CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
+        internal static AttendanceMessage? CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
         {
             Logger.LogInformation($"Creating custom attendance message");
-            AttendanceMessage = null;
-
-            GenerateMessageFromData(EventName, eventDateTime, Color.Green);
-
-            AttendanceMessage.embedMessage = EmbedMessage;
+            AttendanceMessage = new();
+            EmbedBuilder? tempMessage = GenerateMessageFromData(EventName, eventDateTime, Color.Green);
+            if (tempMessage == null)
+                return null;
+            AttendanceMessage.embedMessage = tempMessage;
             return AttendanceMessage;
         }
 
 
-        private static void GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
+        private static EmbedBuilder? GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
         {
             Logger.LogInformation($"Creating {EventName} attendance message");
             EmbedMessage = null;
+            if (AttendanceMessage == null)
+            {
+                Logger.LogError($"Cannot find Attendance Message in GenerateMessageFromData, exiting...");
+                return null;
+            }
             AttendanceMessage.Date = eventDateTime;
 
             EmbedBuilder embedMessage = CreateBaseMessage(EventName, eventDateTime, color);
             MemberHandler.CreateMembersList();
             embedMessage = AddMessageFields(embedMessage);
             embedMessage = AddFooterMessage(embedMessage);
-
-            EmbedMessage = embedMessage;
             Logger.LogInformation($"Embed message created");
+            return embedMessage;
         }
 
         private static EmbedBuilder CreateBaseMessage(string EventName, DateTime eventDateTime, Color color)
@@ -71,10 +77,11 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"Creating base message...");
             EmbedBuilder embedMessage = new();
             long eventUnix = GetUnixFromDateTime(eventDateTime);
+            ulong? roleID = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
             embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
                 .WithDescription($"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
                 $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n" +
-                $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id}>")
+                $"<@&{roleID}>")
                 .WithColor(color);
             return embedMessage;
         }
@@ -91,7 +98,11 @@ namespace FOFA_Bot.Attendance
                 string? squadMembers = "";
                 foreach (Member member in members) if (!handledMembers.Contains(member) && squadCount == member.squad)
                     {
-                        squadMembers += AddMemberAndStatus(member.discordUser.DisplayName, member.status);
+                        if (member.discordUser == null) continue;
+                        string? newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status);
+                        if (newMember == null)
+                            continue;
+                        squadMembers += newMember;
                         handledMembers.Add(member);
                     }
                 if (squadCount < 7 && squadMembers != "")
@@ -150,7 +161,7 @@ namespace FOFA_Bot.Attendance
             squadEmotes.Add(new Emoji("⬜")); //7 - Reseve
             return squadEmotes;
         }
-        private static string AddMemberAndStatus(string displayName, bool? status)
+        private static string? AddMemberAndStatus(string displayName, bool? status)
         {
             if (status == null) return $"{new Emoji("⚫")} {displayName}\n";
             else if (status == true) return $"{new Emoji("🟢")} {displayName}\n";

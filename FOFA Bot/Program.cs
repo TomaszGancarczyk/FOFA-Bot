@@ -8,7 +8,7 @@ namespace FOFA_Bot
     internal class Program
     {
         private readonly DiscordSocketClient Discord;
-        private static string Token;
+        private static string? Token;
         static async Task Main()
         {
             Logger.LogInformation($"Starting...");
@@ -33,7 +33,8 @@ namespace FOFA_Bot
         {
             await Discord.LoginAsync(TokenType.Bot, Token);
             await Discord.StartAsync();
-            Discord.Ready += DiscordReady;
+            //TODO commands
+            //Discord.Ready += DiscordReady;
             Discord.Ready += () =>
             {
                 Discord.ButtonExecuted += ButtonEvent.Handle;
@@ -45,9 +46,9 @@ namespace FOFA_Bot
             BotHandler.Run(Discord);
             await Task.Delay(-1);
         }
-        private async Task DiscordReady()
-        {
-            //commands
-        }
+        //private async Task DiscordReady()
+        //{
+        //    //TODO commands
+        //}
     }
 }

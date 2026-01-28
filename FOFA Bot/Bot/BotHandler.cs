@@ -19,9 +19,9 @@ namespace FOFA_Bot.Bot
             Discord = discord;
             while (true)
             {
-                CheckNadeMessage();
+                _ = CheckNadeMessage();
 
-                CheckSignupMessage();
+                _ = CheckSignupMessage();
 
                 Task.Delay(60000).Wait();
             }

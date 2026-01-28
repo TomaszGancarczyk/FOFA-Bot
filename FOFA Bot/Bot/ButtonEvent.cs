@@ -46,7 +46,7 @@ namespace FOFA_Bot.Bot
                     {
                         Logger.LogInformation($"{component.User.Username} clicked present on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, true);
-                        updatedMessage = await AttendanceHandler.RefreshSignupMessage();
+                        updatedMessage = AttendanceHandler.RefreshSignupMessage();
                         Logger.LogInformation($"Updating discord attendance message");
                         await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
                         await AttendanceMessageResponds.RespondWithSignupStatus(component, true);
@@ -62,7 +62,7 @@ namespace FOFA_Bot.Bot
                     {
                         Logger.LogInformation($"{component.User.Username} clicked absent on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, false);
-                        updatedMessage = await AttendanceHandler.RefreshSignupMessage();
+                        updatedMessage = AttendanceHandler.RefreshSignupMessage();
                         Logger.LogInformation($"Updating discord attendance message");
                         await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
                         await AttendanceMessageResponds.RespondWithSignupStatus(component, false);
@@ -71,8 +71,6 @@ namespace FOFA_Bot.Bot
                         await AttendanceMessageResponds.RespondWithOldSignupError(component);
                     break;
             }
-            //TODO button event
-            // question buttons
         }
     }
 }

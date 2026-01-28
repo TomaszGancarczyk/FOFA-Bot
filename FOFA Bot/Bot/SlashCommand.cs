@@ -6,8 +6,9 @@ namespace FOFA_Bot.Bot
 {
     internal class SlashCommand
     {
-        public static async Task Handle(SocketSlashCommand command)
+        public static Task Handle(SocketSlashCommand command)
         {
+            return Task.CompletedTask;
             //TODO slash command
             // auto nade toggle
             // auto signup toggle

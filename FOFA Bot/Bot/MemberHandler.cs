@@ -5,8 +5,8 @@ namespace FOFA_Bot.Bot
 {
     internal class MemberHandler
     {
-        private static List<SocketGuildUser> DiscordMembers;
-        private static List<Member> Members;
+        private static List<SocketGuildUser> DiscordMembers = [];
+        private static List<Member> Members = [];
 
         internal static void CreateMembersList()
         {
@@ -15,7 +15,9 @@ namespace FOFA_Bot.Bot
             CreateDiscordMembers();
             foreach (SocketGuildUser discordMember in DiscordMembers)
             {
-                Member member = CreateMember(discordMember, null);
+                Member? member = CreateMember(discordMember, null);
+                if (member == null) continue;
+                if (member.discordUser == null) continue;
                 Members.Add(member);
                 Logger.LogInformation($"Added {member.discordUser.DisplayName} to member list to squad {member.squad}");
             }
@@ -24,15 +26,20 @@ namespace FOFA_Bot.Bot
         {
             if (Members.Any(member => member.discordUser.Id == user.Id))
             {
-                Member discordUser = Members.FirstOrDefault(m => m.discordUser.Id == user.Id);
-                Logger.LogInformation($"Updating status for {discordUser.discordUser.DisplayName}: {status}");
-                discordUser.status = status;
+                Member? discordUser = Members.FirstOrDefault(m => m.discordUser.Id == user.Id);
+                if (discordUser != null)
+                    if (discordUser.discordUser != null)
+                    {
+                        Logger.LogInformation($"Updating status for {discordUser.discordUser.DisplayName}: {status}");
+                        discordUser.status = status;
+                    }
             }
             else
             {
                 Logger.LogInformation($"Cannot find {user.GlobalName}, adding new member to list");
-                Member member = CreateMember(user, status);
-                Members.Add(member);
+                Member? member = CreateMember(user, status);
+                if (member != null)
+                    Members.Add(member);
             }
         }
         internal static List<Member> GetMembers()
@@ -54,10 +61,15 @@ namespace FOFA_Bot.Bot
                     DiscordMembers.RemoveAt(i);
                 }
         }
-        private static Member CreateMember(SocketUser user, bool? status)
+        private static Member? CreateMember(SocketUser user, bool? status)
         {
             SocketGuild guild = BotData.GetGuild();
-            SocketGuildUser guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
+            SocketGuildUser? guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
+            if (guildUser == null)
+            {
+                Logger.LogWarning($"Cannot find and create new user for {user.Username}, returning...");
+                return null;
+            }
             Member member = new()
             {
                 discordUser = guildUser,
