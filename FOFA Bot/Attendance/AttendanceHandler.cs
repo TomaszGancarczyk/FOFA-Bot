@@ -6,7 +6,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class AttendanceHandler
     {
-        private static AttendanceMessage CurrentMessage = new();
+        private static AttendanceMessage? CurrentMessage;
         private readonly static int EventCloseMinutes = 15;
         internal static async Task StartQuestionAttendanceEvent()
         {
@@ -56,15 +56,16 @@ namespace FOFA_Bot.Attendance
                 Task.Delay(60000).Wait();
             if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
                 AttendanceGoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
+            CurrentMessage = null;
         }
         internal static EmbedBuilder RefreshSignupMessage()
         {
+            if (CurrentMessage == null) return null;
             Logger.LogInformation($"Refreshing attendance message fields");
             CurrentMessage.embedMessage = AttendanceMessageGenerator.AddMessageFields(CurrentMessage.embedMessage);
             CurrentMessage.embedMessage = AttendanceMessageGenerator.AddFooterMessage(CurrentMessage.embedMessage);
             return CurrentMessage.embedMessage;
         }
-
 
         internal static ulong? GetCurrentMessageId()
         {

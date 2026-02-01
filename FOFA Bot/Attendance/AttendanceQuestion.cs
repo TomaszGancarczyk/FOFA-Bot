@@ -5,7 +5,7 @@ namespace FOFA_Bot.Attendance
     internal class AttendanceQuestion
     {
         private static IMessage? CurrentQuestionMessage = null;
-        private static bool WaitingForQuestionResponse;
+        private static bool WaitingForQuestionResponse = true;
         private static string? QuestionResponse;
         private static DateTime EventDateTime;
 
@@ -28,7 +28,6 @@ namespace FOFA_Bot.Attendance
         internal static async Task<string> Handle(IMessageChannel questionChannel)
         {
             CurrentQuestionMessage = null;
-            WaitingForQuestionResponse = true;
             EventDateTime = AttendanceMessageGenerator.GetEventDateTime(20);
             Logger.LogInformation($"Creating attendance event question");
 
@@ -45,10 +44,11 @@ namespace FOFA_Bot.Attendance
             {
                 await Task.Delay(1000);
             }
-            WaitingForQuestionResponse = true;
             if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
             {
                 Logger.LogInformation($"Got response from question: {QuestionResponse}");
+                WaitingForQuestionResponse = true;
+                CurrentQuestionMessage = null;
                 return QuestionResponse;
             }
             else

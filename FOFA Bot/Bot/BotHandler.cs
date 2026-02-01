@@ -40,15 +40,14 @@ namespace FOFA_Bot.Bot
         }
         private static async Task CheckSignupMessage()
         {
-            if (!SignupMessageRunning && AutomnaticSignupMessage)
+            if (!SignupMessageRunning && AutomnaticSignupMessage && DateTime.Now.Hour == 22)
             {
-                if (DateTime.Now.Hour == 22)
-                {
-                    SignupMessageRunning = true;
-                    await AttendanceHandler.StartQuestionAttendanceEvent();
-                    Task.Delay(3600000).Wait();
-                    SignupMessageRunning = false;
-                }
+                Console.WriteLine(DateTime.Now.Hour);
+                SignupMessageRunning = true;
+                await AttendanceHandler.StartQuestionAttendanceEvent();
+                Logger.LogInformation($"Attendance event finished");
+                Task.Delay(3600000).Wait();
+                SignupMessageRunning = false;
             }
         }
         //TODO automatic signup message
