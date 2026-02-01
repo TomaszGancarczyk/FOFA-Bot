@@ -103,5 +103,11 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"Getting Nade Sheet Id");
             return JsonBotData.NadeSheetId;
         }
+
+        internal static string GetApiToken()
+        {
+            Logger.LogInformation($"API Token");
+            return JsonBotData.ApiToken;
+        }
     }
 }

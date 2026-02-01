@@ -33,8 +33,7 @@ namespace FOFA_Bot
         {
             await Discord.LoginAsync(TokenType.Bot, Token);
             await Discord.StartAsync();
-            //TODO commands
-            //Discord.Ready += DiscordReady;
+            Discord.Ready += DiscordReady;
             Discord.Ready += () =>
             {
                 Discord.ButtonExecuted += ButtonEvent.Handle;
@@ -46,9 +45,44 @@ namespace FOFA_Bot
             BotHandler.Run(Discord);
             await Task.Delay(-1);
         }
-        //private async Task DiscordReady()
-        //{
-        //    //TODO commands
-        //}
+        private async Task DiscordReady()
+        {
+            //TODO commands
+            SlashCommandBuilder? createTemplateSignupCommand = new SlashCommandBuilder()
+                .WithName("create-signup-template")
+                .WithDescription("Create new signup with template")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("template:")
+                    .WithDescription("Leave blank to create question in officer chat")
+                    .WithRequired(false)
+                    .AddChoice("Tournament", 2)
+                    .AddChoice("Brawl", 1)
+                    .AddChoice("Base Capture", 0)
+                    .WithType(ApplicationCommandOptionType.Integer)
+                );
+            SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
+                .WithName("create-signup-custom")
+                .WithDescription("Create new custom signup")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("name:")
+                    .WithDescription("Name of the event")
+                    .WithRequired(true)
+                )
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("date:")
+                    .WithDescription("Date of the event")
+                    .WithRequired(true)
+                );
+            try
+            {
+                await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
+            }
+            catch (Exception e)
+            {
+                Logger.LogCritical($"{e}");
+            }
+            //TODO commands
+        }
     }
 }

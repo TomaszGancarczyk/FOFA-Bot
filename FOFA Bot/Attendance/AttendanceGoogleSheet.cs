@@ -1,6 +1,5 @@
 ﻿using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
-using Discord.WebSocket;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
@@ -26,11 +25,13 @@ namespace FOFA_Bot.Attendance
 
         private static void UpdateGoogleSheet(IList<IList<Object>> objRecords, string sheetId, string range, SheetsService service)
         {
-            Logger.LogInformation($"Updating signup google sheet");
+            Logger.LogInformation($"Updating signup google sheet...");
             var request = service.Spreadsheets.Values.Append(new ValueRange() { Values = objRecords }, sheetId, range);
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
             request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
+            Logger.LogInformation($"Executing signup google sheet update...");
             request.Execute();
+            Logger.LogInformation($"Signup google sheet updated");
         }
 
         private static IList<IList<object>> GenerateData(List<string> userNames)
@@ -71,9 +72,10 @@ namespace FOFA_Bot.Attendance
         }
         private static string GetRange(int numberOfCollumns)
         {
-            Logger.LogInformation($"Getting sheet range");
             char lastCollumnChar = (char)('A' + numberOfCollumns);
-            return ($"A{3}:{lastCollumnChar}2");
+            string range = $"A3:{lastCollumnChar}3";
+            Logger.LogInformation($"Got sheet range for {range}");
+            return range;
         }
     }
 }

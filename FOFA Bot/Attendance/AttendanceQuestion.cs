@@ -45,6 +45,7 @@ namespace FOFA_Bot.Attendance
             {
                 await Task.Delay(1000);
             }
+            WaitingForQuestionResponse = true;
             if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
             {
                 Logger.LogInformation($"Got response from question: {QuestionResponse}");
