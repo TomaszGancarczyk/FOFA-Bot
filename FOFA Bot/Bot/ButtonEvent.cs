@@ -10,7 +10,6 @@ namespace FOFA_Bot.Bot
         {
             EmbedBuilder updatedMessage;
             ulong? currentMessageId;
-
             switch (component.Data.CustomId)
             {
                 case "tournamentButton":

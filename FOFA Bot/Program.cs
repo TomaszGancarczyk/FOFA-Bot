@@ -33,7 +33,6 @@ namespace FOFA_Bot
         {
             await Discord.LoginAsync(TokenType.Bot, Token);
             await Discord.StartAsync();
-            Discord.Ready += DiscordReady;
             Discord.Ready += () =>
             {
                 Discord.ButtonExecuted += ButtonEvent.Handle;
@@ -41,6 +40,7 @@ namespace FOFA_Bot
                 Logger.LogInformation($"[FOFA] Bot is running");
                 return Task.CompletedTask;
             };
+            Discord.Ready += DiscordReady;
             await Task.Delay(3000);
             BotHandler.Run(Discord);
             await Task.Delay(-1);
