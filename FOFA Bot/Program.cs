@@ -73,6 +73,13 @@ namespace FOFA_Bot
                     .WithDescription("Date of the event")
                     .WithRequired(true)
                 );
+            SlashCommandBuilder? changeAutomnaticSignupMessage = new SlashCommandBuilder()
+                .WithName("change-automatic-signups")
+                .WithDescription("Do you want to change automatic signup questions?")
+                .AddOption(new SlashCommandOptionBuilder()
+                    .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.Boolean)
+                );
             try
             {
                 await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());

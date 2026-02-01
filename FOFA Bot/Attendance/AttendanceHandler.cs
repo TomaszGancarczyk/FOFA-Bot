@@ -22,6 +22,7 @@ namespace FOFA_Bot.Attendance
             if (template == "Next Message")
                 return;
             await CreateAttendanceEvent(null, null, template);
+            await SendAttendanceMessage();
         }
         private static async Task CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template) //create custom attendance as well
         {
@@ -42,7 +43,6 @@ namespace FOFA_Bot.Attendance
                 return;
             }
             CurrentMessage = tempCurrentMessage;
-            await SendAttendanceMessage();
         }
         private static async Task SendAttendanceMessage()
         {

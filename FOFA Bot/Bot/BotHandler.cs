@@ -42,8 +42,7 @@ namespace FOFA_Bot.Bot
         {
             if (!SignupMessageRunning && AutomnaticSignupMessage)
             {
-                //TODO   DateTime.Now.Hour == 22 for checksignups
-                //if (DateTime.Now.Hour == 22)
+                if (DateTime.Now.Hour == 22)
                 {
                     SignupMessageRunning = true;
                     await AttendanceHandler.StartQuestionAttendanceEvent();
@@ -51,6 +50,11 @@ namespace FOFA_Bot.Bot
                     SignupMessageRunning = false;
                 }
             }
+        }
+        //TODO automatic signup message
+        internal static void ChangeAutomnaticSignupMessage(bool status)
+        {
+            AutomnaticSignupMessage = status;
         }
 
         internal static DiscordSocketClient GetDiscord() => Discord;
