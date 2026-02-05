@@ -77,11 +77,9 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"Creating base message...");
             EmbedBuilder embedMessage = new();
             long eventUnix = GetUnixFromDateTime(eventDateTime);
-            ulong? roleID = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
             embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
                 .WithDescription($"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
-                $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n" +
-                $"<@&{roleID}>")
+                $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n")
                 .WithColor(color);
             return embedMessage;
         }

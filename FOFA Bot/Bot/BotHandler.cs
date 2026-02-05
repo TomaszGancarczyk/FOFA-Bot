@@ -42,7 +42,6 @@ namespace FOFA_Bot.Bot
         {
             if (!SignupMessageRunning && AutomnaticSignupMessage && DateTime.Now.Hour == 22)
             {
-                Console.WriteLine(DateTime.Now.Hour);
                 SignupMessageRunning = true;
                 await AttendanceHandler.StartQuestionAttendanceEvent();
                 Logger.LogInformation($"Attendance event finished");

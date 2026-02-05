@@ -28,6 +28,7 @@ namespace FOFA_Bot.Attendance
         internal static async Task<string> Handle(IMessageChannel questionChannel)
         {
             CurrentQuestionMessage = null;
+            QuestionResponse = null;
             EventDateTime = AttendanceMessageGenerator.GetEventDateTime(20);
             Logger.LogInformation($"Creating attendance event question");
 

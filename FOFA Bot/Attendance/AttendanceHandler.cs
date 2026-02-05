@@ -47,7 +47,9 @@ namespace FOFA_Bot.Attendance
         private static async Task SendAttendanceMessage()
         {
             Logger.LogInformation($"Sending attendance message to {CurrentMessage.signupsChannel.Name}");
-            IMessage localCurrentMessage = await CurrentMessage.signupsChannel.SendMessageAsync("", false, CurrentMessage.embedMessage.Build(), null, null, null, CurrentMessage.messageButtons.Build());
+            IMessage localCurrentMessage = await CurrentMessage.signupsChannel.SendMessageAsync(
+                $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id}>"
+                , false, CurrentMessage.embedMessage.Build(), null, null, null, CurrentMessage.messageButtons.Build());
             CurrentMessage.discordMessage = localCurrentMessage;
             if (CurrentMessage.Date == null)
                 return;

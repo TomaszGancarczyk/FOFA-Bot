@@ -6,8 +6,7 @@ namespace FOFA_Bot.Nades
     {
         internal static async Task StartNadeEvent()
         {
-            //TODO nade event
-            Logger.LogInformation($"Starting nade event");
+            //Logger.LogInformation($"Starting nade event");
             return;
         }
     }
