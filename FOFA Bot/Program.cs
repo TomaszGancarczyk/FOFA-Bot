@@ -84,6 +84,8 @@ namespace FOFA_Bot
             {
                 await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
+                Logger.LogInformation($"Commands succesfully set");
             }
             catch (Exception e)
             {
