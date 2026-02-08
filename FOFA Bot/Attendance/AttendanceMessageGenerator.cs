@@ -28,6 +28,10 @@ namespace FOFA_Bot.Attendance
                     eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
                     break;
+                case "Stillwaters Chrono/Pulpe/Drops":
+                    eventDateTime = GetEventDateTime(BotData.GetStillwatersHour());
+                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
+                    break;
                 case "Golden Drop":
                     eventDateTime = GetEventDateTime(BotData.GetGoldenDropHour());
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Gold);

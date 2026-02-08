@@ -32,6 +32,11 @@ namespace FOFA_Bot.Bot
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Golden Drop");
                     component.Message.DeleteAsync().Wait();
                     break;
+                case "stillwatersButton":
+                    Logger.LogInformation($"Got stillwaters response to event question");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Stillwaters Chrono/Pulpe/Drops");
+                    component.Message.DeleteAsync().Wait();
+                    break;
                 case "dayOffButton":
                     Logger.LogInformation($"Got day off response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Day Off");

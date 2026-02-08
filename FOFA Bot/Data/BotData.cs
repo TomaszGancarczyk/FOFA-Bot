@@ -71,15 +71,19 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"Getting Base Capture Hour");
             return JsonBotData.BaseCaptureHour;
         }
+        
         internal static double GetGoldenDropHour()
         {
             Logger.LogInformation($"Getting Golden Drop Hour");
             return JsonBotData.GoldenDropHour;
         }
-
+        internal static double GetStillwatersHour()
+        {
+            Logger.LogInformation($"Getting Stillwaters Hour");
+            return JsonBotData.StillwatersHour;
+        }
         internal static string GetRofaRoleName()
         {
-            Logger.LogInformation($"Getting Rofa Role Name");
             return JsonBotData.RofaRoleName;
         }
 
