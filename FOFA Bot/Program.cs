@@ -48,49 +48,55 @@ namespace FOFA_Bot
         private async Task DiscordReady()
         {
             //TODO commands
-            SlashCommandBuilder? createTemplateSignupCommand = new SlashCommandBuilder()
-                .WithName("create-signup-template")
-                .WithDescription("Create new signup with template")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("template:")
-                    .WithDescription("Leave blank to create question in officer chat")
-                    .WithRequired(false)
-                    .AddChoice("Tournament", 2)
-                    .AddChoice("Brawl", 1)
-                    .AddChoice("Base Capture", 0)
-                    .WithType(ApplicationCommandOptionType.Integer)
-                );
+            try
+            {
+                SlashCommandBuilder? createTemplateSignupCommand = new SlashCommandBuilder()
+                    .WithName("create-signup-template")
+                    .WithDescription("Create new signup with template")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("template")
+                        .WithDescription("Leave blank to create question in officer chat")
+                        .WithRequired(false)
+                        .AddChoice("Tournament", 0)
+                        .AddChoice("Brawl", 1)
+                        .AddChoice("Base Capture", 2)
+                        .AddChoice("Golden Drop", 3)
+                        .AddChoice("Stillwaters Chrono/Pulpe/Drops", 4)
+                        .WithType(ApplicationCommandOptionType.Integer)
+                    );
             SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
                 .WithName("create-signup-custom")
                 .WithDescription("Create new custom signup")
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("name:")
+                    .WithName("name")
                     .WithDescription("Name of the event")
                     .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
                 )
                 .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("date:")
-                    .WithDescription("Date of the event")
+                    .WithName("when")
+                    .WithDescription("Date of the event - [day.month.hour.minute] of the event or [hours.minutes] untill the event")
                     .WithRequired(true)
+                    .WithType(ApplicationCommandOptionType.String)
                 );
             SlashCommandBuilder? changeAutomnaticSignupMessage = new SlashCommandBuilder()
-                .WithName("change-automatic-signups")
+                .WithName("automatic-signups-question")
                 .WithDescription("Do you want to change automatic signup questions?")
                 .AddOption(new SlashCommandOptionBuilder()
+                    .WithName("change")
+                    .WithDescription("yes or no")
                     .WithRequired(true)
                     .WithType(ApplicationCommandOptionType.Boolean)
                 );
-            try
-            {
                 await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
-                Logger.LogInformation($"Commands succesfully set");
             }
             catch (Exception e)
             {
                 Logger.LogCritical($"{e}");
             }
+
             //TODO commands
         }
     }
