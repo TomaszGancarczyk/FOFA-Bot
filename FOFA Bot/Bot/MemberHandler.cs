@@ -74,7 +74,7 @@ namespace FOFA_Bot.Bot
             {
                 discordUser = guildUser,
                 squad = GetMemberSquad(guildUser),
-                inGameName = null, //TODO member in game name
+                inGameName = null,
                 status = status
             };
             return member;

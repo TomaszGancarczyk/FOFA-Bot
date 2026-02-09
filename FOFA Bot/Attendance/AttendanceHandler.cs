@@ -7,7 +7,9 @@ namespace FOFA_Bot.Attendance
     internal class AttendanceHandler
     {
         private static AttendanceMessage? CurrentMessage;
+        private readonly static int EventReminderMinutes = 90;
         private readonly static int EventCloseMinutes = 15;
+        private static bool AutomaticReminder = true;
         internal static async Task StartQuestionAttendanceEvent()
         {
             Logger.LogInformation($"Starting attendance question event");
@@ -53,6 +55,17 @@ namespace FOFA_Bot.Attendance
             CurrentMessage.discordMessage = localCurrentMessage;
             if (CurrentMessage.Date == null)
                 return;
+
+            DateTime eventReminderTime = CurrentMessage.Date.Value.AddMinutes(-EventReminderMinutes);
+            while (DateTime.Now < eventReminderTime)
+                Task.Delay(60000).Wait();
+            if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && AutomaticReminder)
+            {
+                string reminderMessage = CreateReminderMessage();
+                if (reminderMessage != string.Empty)
+                    await CurrentMessage.signupsChannel.SendMessageAsync(reminderMessage);
+            }
+
             DateTime eventCloseTime = CurrentMessage.Date.Value.AddMinutes(-EventCloseMinutes);
             while (DateTime.Now < eventCloseTime)
                 Task.Delay(60000).Wait();
@@ -69,12 +82,23 @@ namespace FOFA_Bot.Attendance
             return CurrentMessage.embedMessage;
         }
 
+        private static string CreateReminderMessage()
+        {
+            string reminderMessage = "";
+            List<Member> members = MemberHandler.GetMembers();
+            foreach (var member in members) if (member.status == null)
+                {
+                    reminderMessage += $"@{member.discordUser.GlobalName}\n";
+                }
+            return reminderMessage;
+        }
+
         internal static ulong? GetCurrentMessageId()
         {
             if (CurrentMessage != null) if (CurrentMessage.discordMessage != null) return CurrentMessage.discordMessage.Id;
                 else return null;
             else return null;
-                
+
         }
     }
 }

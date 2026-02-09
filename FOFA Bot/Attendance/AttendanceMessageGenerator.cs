@@ -100,8 +100,10 @@ namespace FOFA_Bot.Attendance
                 string? squadMembers = "";
                 foreach (Member member in members) if (!handledMembers.Contains(member) && squadCount == member.squad)
                     {
+                        string? newMember = null;
                         if (member.discordUser == null) continue;
-                        string? newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status);
+                        if (member.inGameName != null) newMember = AddMemberAndStatus(member.inGameName, member.status);
+                        else newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status);
                         if (newMember == null)
                             continue;
                         squadMembers += newMember;
