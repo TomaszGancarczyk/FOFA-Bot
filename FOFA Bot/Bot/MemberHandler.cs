@@ -22,7 +22,7 @@ namespace FOFA_Bot.Bot
                 Logger.LogInformation($"Added {member.discordUser.DisplayName} to member list to squad {member.squad}");
             }
         }
-        internal static void UpdateMemberStatus(SocketUser user, bool status) //TODO member status in button
+        internal static void UpdateMemberStatus(SocketUser user, bool status)
         {
             if (Members.Any(member => member.discordUser.Id == user.Id))
             {

@@ -36,8 +36,8 @@ namespace FOFA_Bot
             Discord.Ready += DiscordReady;
             Discord.Ready += () =>
             {
-                Discord.ButtonExecuted += ButtonEvent.Handle;
-                Discord.SlashCommandExecuted += SlashCommand.Handle;
+                Discord.ButtonExecuted += ButtonEventHandler.Handle;
+                Discord.SlashCommandExecuted += SlashCommandHandler.Handle;
                 Logger.LogInformation($"[FOFA] Bot is running");
                 return Task.CompletedTask;
             };
@@ -47,7 +47,6 @@ namespace FOFA_Bot
         }
         private async Task DiscordReady()
         {
-            //TODO commands
             try
             {
                 SlashCommandBuilder? createTemplateSignupCommand = new SlashCommandBuilder()
@@ -64,40 +63,48 @@ namespace FOFA_Bot
                         .AddChoice("Stillwaters Chrono/Pulpe/Drops", 4)
                         .WithType(ApplicationCommandOptionType.Integer)
                     );
-            SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
-                .WithName("create-signup-custom")
-                .WithDescription("Create new custom signup")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("name")
-                    .WithDescription("Name of the event")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                )
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("when")
-                    .WithDescription("Date of the event - [day.month.hour.minute] of the event or [hours.minutes] untill the event")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.String)
-                );
-            SlashCommandBuilder? changeAutomnaticSignupMessage = new SlashCommandBuilder()
-                .WithName("automatic-signups-question")
-                .WithDescription("Do you want to change automatic signup questions?")
-                .AddOption(new SlashCommandOptionBuilder()
-                    .WithName("change")
-                    .WithDescription("yes or no")
-                    .WithRequired(true)
-                    .WithType(ApplicationCommandOptionType.Boolean)
-                );
+                SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
+                    .WithName("create-signup-custom")
+                    .WithDescription("Create new custom signup")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("name")
+                        .WithDescription("Name of the event")
+                        .WithRequired(true)
+                        .WithType(ApplicationCommandOptionType.String)
+                    )
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("when")
+                        .WithDescription("Date of the event - [day.month.hour.minute] of the event or [hours.minutes] untill the event")
+                        .WithRequired(true)
+                        .WithType(ApplicationCommandOptionType.String)
+                    );
+                SlashCommandBuilder? changeAutomnaticSignupMessage = new SlashCommandBuilder()
+                    .WithName("automatic-signups-question")
+                    .WithDescription("Do you want to change automatic signup questions?")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("change")
+                        .WithDescription("yes or no")
+                        .WithRequired(true)
+                        .WithType(ApplicationCommandOptionType.Boolean)
+                    );
+                SlashCommandBuilder? changeAutomnaticSignupReminder = new SlashCommandBuilder()
+                    .WithName("automatic-signups-reminder")
+                    .WithDescription("Do you want to change automatic signup reminders?")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("change")
+                        .WithDescription("yes or no")
+                        .WithRequired(true)
+                        .WithType(ApplicationCommandOptionType.Boolean)
+                    );
                 await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
             }
             catch (Exception e)
             {
                 Logger.LogCritical($"{e}");
             }
-
-            //TODO commands
         }
     }
 }

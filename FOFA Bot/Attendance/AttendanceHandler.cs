@@ -100,5 +100,10 @@ namespace FOFA_Bot.Attendance
             else return null;
 
         }
+        //TODO ChangeAutomaticReminder
+        internal static void ChangeAutomaticReminder(bool status)
+        {
+            AutomaticReminder = status;
+        }
     }
 }

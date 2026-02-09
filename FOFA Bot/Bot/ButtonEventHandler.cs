@@ -4,7 +4,7 @@ using FOFA_Bot.Attendance;
 
 namespace FOFA_Bot.Bot
 {
-    internal class ButtonEvent
+    internal class ButtonEventHandler
     {
         public static async Task Handle(SocketMessageComponent component)
         {

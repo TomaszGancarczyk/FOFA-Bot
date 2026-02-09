@@ -19,7 +19,7 @@ namespace FOFA_Bot.Bot
             Discord = discord;
             while (true)
             {
-                _ = CheckNadeMessage();
+                //_ = CheckNadeMessage();
 
                 _ = CheckSignupMessage();
 
@@ -49,7 +49,7 @@ namespace FOFA_Bot.Bot
                 SignupMessageRunning = false;
             }
         }
-        //TODO automatic signup message
+        //TODO ChangeAutomnaticSignupMessage
         internal static void ChangeAutomnaticSignupMessage(bool status)
         {
             AutomnaticSignupMessage = status;
