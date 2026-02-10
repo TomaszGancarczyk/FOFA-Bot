@@ -44,7 +44,6 @@ namespace FOFA_Bot.Bot
                 await AttendanceHandler.StartQuestionAttendanceEvent();
                 Logger.LogInformation($"Attendance event finished");
                 Task.Delay(3600000).Wait();
-                SignupMessageRunning = false;
             }
         }
         internal static EmbedBuilder ChangeAutomnaticSignupMessage(bool status)
@@ -56,7 +55,7 @@ namespace FOFA_Bot.Bot
             else embed = AttendanceMessageResponse.CreateNegativeStatusResponse();
             return embed;
         }
-
+        internal static void SetSignupMessageRunning(bool status) => status = SignupMessageRunning;
         internal static DiscordSocketClient GetDiscord() => Discord;
     }
 }

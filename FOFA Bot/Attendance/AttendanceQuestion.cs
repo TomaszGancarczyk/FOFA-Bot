@@ -1,4 +1,5 @@
 ﻿using Discord;
+using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Attendance
 {
@@ -25,10 +26,11 @@ namespace FOFA_Bot.Attendance
             DayOfWeek.Tuesday,
             DayOfWeek.Wednesday,
         ];
-        internal static async Task<string> Handle(IMessageChannel questionChannel)
+        internal static async Task<string> Handle()
         {
             CurrentQuestionMessage = null;
             QuestionResponse = null;
+            IMessageChannel questionChannel = BotData.GetQuestionChannel();
             EventDateTime = AttendanceMessageGenerator.GetEventDateTime(20);
             Logger.LogInformation($"Creating attendance event question");
 

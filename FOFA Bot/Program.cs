@@ -74,7 +74,7 @@ namespace FOFA_Bot
                     )
                     .AddOption(new SlashCommandOptionBuilder()
                         .WithName("when")
-                        .WithDescription("Date of the event - [day.month.hour.minute] of the event or [hours.minutes] untill the event")
+                        .WithDescription("Date of the event - [day.month.year.hour.minute] of the event or [hours.minutes] untill the event")
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.String)
                     );

@@ -13,13 +13,19 @@ namespace FOFA_Bot.Bot
             {
                 case "create-signup-template":
                     Logger.LogInformation($"User {command.User.Username} used create-signup-template");
+                    embed = null;
                     await command.DeferAsync(ephemeral: true);
-                    //TODO slash command
+                    embed = await SlashAttendanceHandler.CreateSignupTemplate((int)command.Data.Options.First().Value);
+                    if (embed != null)
+                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
                 case "create-signup-custom":
                     Logger.LogInformation($"User {command.User.Username} used create-signup-custom");
+                    embed = null;
                     await command.DeferAsync(ephemeral: true);
-                    //TODO slash command
+                    embed = await SlashAttendanceHandler.CreateSignupCustom((string)command.Data.Options.First().Value, (string)command.Data.Options.Last().Value);
+                    if (embed != null)
+                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
                 case "automatic-signups-question":
                     Logger.LogInformation($"User {command.User.Username} used automatic-signups-question");
@@ -27,7 +33,7 @@ namespace FOFA_Bot.Bot
                     await command.DeferAsync(ephemeral: true);
                     embed = BotHandler.ChangeAutomnaticSignupMessage((bool)command.Data.Options.First().Value);
                     if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build());
+                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
                 case "automatic-signups-reminder":
                     Logger.LogInformation($"User {command.User.Username} used automatic-signups-reminder");
@@ -35,7 +41,7 @@ namespace FOFA_Bot.Bot
                     await command.DeferAsync(ephemeral: true);
                     embed = AttendanceHandler.ChangeAutomaticReminder((bool)command.Data.Options.First().Value);
                     if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build());
+                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
             }
         }
