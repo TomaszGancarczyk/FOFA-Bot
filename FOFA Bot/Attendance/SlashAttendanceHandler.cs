@@ -5,7 +5,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class SlashAttendanceHandler
     {
-        internal async static Task<EmbedBuilder?> CreateSignupTemplate(int templateOption)
+        internal async static Task<EmbedBuilder?> CreateSignupTemplate(long templateOption)
         {
             EmbedBuilder embed = new();
             BotHandler.SetSignupMessageRunning(true);

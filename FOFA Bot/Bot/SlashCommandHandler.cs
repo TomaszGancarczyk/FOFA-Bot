@@ -15,7 +15,7 @@ namespace FOFA_Bot.Bot
                     Logger.LogInformation($"User {command.User.Username} used create-signup-template");
                     embed = null;
                     await command.DeferAsync(ephemeral: true);
-                    embed = await SlashAttendanceHandler.CreateSignupTemplate((int)command.Data.Options.First().Value);
+                    embed = await SlashAttendanceHandler.CreateSignupTemplate((Int64)command.Data.Options.First().Value);
                     if (embed != null)
                         await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
