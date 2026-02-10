@@ -61,6 +61,7 @@ namespace FOFA_Bot.Bot
                     DiscordMembers.RemoveAt(i);
                 }
         }
+        //TODO > Get member IGN
         private static Member? CreateMember(SocketUser user, bool? status)
         {
             SocketGuild guild = BotData.GetGuild();

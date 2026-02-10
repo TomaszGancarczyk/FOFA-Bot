@@ -1,5 +1,7 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using FOFA_Bot.Attendance;
+using FOFA_Bot.Data;
 using FOFA_Bot.Nades;
 
 namespace FOFA_Bot.Bot
@@ -7,12 +9,8 @@ namespace FOFA_Bot.Bot
     internal class BotHandler
     {
         private static DiscordSocketClient? Discord;
-
-        private static bool NadeMessageRunning = false;
-        private static bool AutomnaticNadeMessage = true;
-
         private static bool SignupMessageRunning = false;
-        private static bool AutomnaticSignupMessage = true;
+        private static bool NadeMessageRunning = false;
 
         internal static void Run(DiscordSocketClient discord)
         {
@@ -28,7 +26,7 @@ namespace FOFA_Bot.Bot
         }
         private static async Task CheckNadeMessage()
         {
-            if (!NadeMessageRunning && AutomnaticNadeMessage)
+            if (!NadeMessageRunning && SettingsHandler.GetAutomnaticNadeMessage())
             {
                 if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday && DateTime.Now.Hour == 22)
                 {
@@ -40,7 +38,7 @@ namespace FOFA_Bot.Bot
         }
         private static async Task CheckSignupMessage()
         {
-            if (!SignupMessageRunning && AutomnaticSignupMessage && DateTime.Now.Hour == 22)
+            if (!SignupMessageRunning && DateTime.Now.Hour == 22 && SettingsHandler.GetAutomnaticSignupMessage())
             {
                 SignupMessageRunning = true;
                 await AttendanceHandler.StartQuestionAttendanceEvent();
@@ -49,10 +47,14 @@ namespace FOFA_Bot.Bot
                 SignupMessageRunning = false;
             }
         }
-        //TODO ChangeAutomnaticSignupMessage
-        internal static void ChangeAutomnaticSignupMessage(bool status)
+        internal static EmbedBuilder ChangeAutomnaticSignupMessage(bool status)
         {
-            AutomnaticSignupMessage = status;
+            EmbedBuilder embed = new EmbedBuilder();
+            SettingsHandler.SetAutomnaticSignupMessage(status);
+            if (SettingsHandler.GetAutomnaticSignupMessage() == status)
+                embed = AttendanceMessageResponse.CreatePositiveStatusResponse(status);
+            else embed = AttendanceMessageResponse.CreateNegativeStatusResponse();
+            return embed;
         }
 
         internal static DiscordSocketClient GetDiscord() => Discord;

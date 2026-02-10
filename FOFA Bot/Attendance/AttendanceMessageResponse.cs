@@ -3,7 +3,7 @@ using Discord.WebSocket;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class AttendanceMessageResponds
+    internal class AttendanceMessageResponse
     {
         internal static async Task RespondWithOldSignupError(SocketMessageComponent component)
         {
@@ -34,6 +34,21 @@ namespace FOFA_Bot.Attendance
                 .WithColor(color)
                 .WithTitle(message);
             await component.FollowupAsync(embed: embed.Build(), ephemeral: true);
+        }
+
+        internal static EmbedBuilder CreatePositiveStatusResponse(bool status)
+        {
+            EmbedBuilder embed = new();
+            embed.WithColor(Color.Green);
+            embed.WithTitle($"Status successfully changed to {status}");
+            return embed;
+        }
+        internal static EmbedBuilder CreateNegativeStatusResponse()
+        {
+            EmbedBuilder embed = new();
+            embed.WithColor(Color.Red);
+            embed.WithTitle($"Run into error when changing status");
+            return embed;
         }
     }
 }

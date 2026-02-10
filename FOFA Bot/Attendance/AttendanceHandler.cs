@@ -9,7 +9,6 @@ namespace FOFA_Bot.Attendance
         private static AttendanceMessage? CurrentMessage;
         private readonly static int EventReminderMinutes = 90;
         private readonly static int EventCloseMinutes = 15;
-        private static bool AutomaticReminder = true;
         internal static async Task StartQuestionAttendanceEvent()
         {
             Logger.LogInformation($"Starting attendance question event");
@@ -59,7 +58,7 @@ namespace FOFA_Bot.Attendance
             DateTime eventReminderTime = CurrentMessage.Date.Value.AddMinutes(-EventReminderMinutes);
             while (DateTime.Now < eventReminderTime)
                 Task.Delay(60000).Wait();
-            if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && AutomaticReminder)
+            if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder())
             {
                 string reminderMessage = CreateReminderMessage();
                 if (reminderMessage != string.Empty)
@@ -88,7 +87,7 @@ namespace FOFA_Bot.Attendance
             List<Member> members = MemberHandler.GetMembers();
             foreach (var member in members) if (member.status == null)
                 {
-                    reminderMessage += $"@{member.discordUser.GlobalName}\n";
+                    reminderMessage += $"@{member.discordUser.Id}\n";
                 }
             return reminderMessage;
         }
@@ -100,10 +99,14 @@ namespace FOFA_Bot.Attendance
             else return null;
 
         }
-        //TODO ChangeAutomaticReminder
-        internal static void ChangeAutomaticReminder(bool status)
+        internal static EmbedBuilder ChangeAutomaticReminder(bool status)
         {
-            AutomaticReminder = status;
+            EmbedBuilder embed = new EmbedBuilder();
+            SettingsHandler.SetAutomaticReminder(status);
+            if (SettingsHandler.GetAutomaticReminder() == status)
+                embed = AttendanceMessageResponse.CreatePositiveStatusResponse(status);
+            else embed = AttendanceMessageResponse.CreateNegativeStatusResponse();
+            return embed;
         }
     }
 }
