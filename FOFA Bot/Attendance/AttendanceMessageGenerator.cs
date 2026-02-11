@@ -109,7 +109,12 @@ namespace FOFA_Bot.Attendance
                         squadMembers += newMember;
                         handledMembers.Add(member);
                     }
-                if (squadCount < 7 && squadMembers != "")
+                if (squadCount == 0 && squadMembers != "")
+                {
+                    Logger.LogInformation($"Created Squad Unassigned");
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned", squadMembers, true);
+                }
+                else if (squadCount < 7 && squadMembers != "")
                 {
                     Logger.LogInformation($"Created Squad {squadCount} field");
                     embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}", squadMembers, true);
@@ -118,11 +123,6 @@ namespace FOFA_Bot.Attendance
                 {
                     Logger.LogInformation($"Created Squad Reserve");
                     embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve", squadMembers, true);
-                }
-                if (squadCount == 0 && squadMembers != "")
-                {
-                    Logger.LogInformation($"Created Squad Unassigned");
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned", squadMembers, true);
                 }
             }
             if (members.Count > handledMembers.Count)
