@@ -95,7 +95,7 @@ namespace FOFA_Bot.Attendance
             List<Member> members = MemberHandler.GetMembers();
             List<Member> handledMembers = [];
             Logger.LogInformation($"{members.Count} members found");
-            for (int squadCount = 0; squadCount <= 8; squadCount++)
+            for (int squadCount = 1; squadCount <= 9; squadCount++)
             {
                 string? squadMembers = "";
                 foreach (Member member in members) if (!handledMembers.Contains(member) && squadCount == member.squad)
@@ -109,7 +109,7 @@ namespace FOFA_Bot.Attendance
                         squadMembers += newMember;
                         handledMembers.Add(member);
                     }
-                if (squadCount < 7 && squadCount > 0 && squadMembers != "")
+                if (squadCount < 7 && squadMembers != "")
                 {
                     Logger.LogInformation($"Created Squad {squadCount} field");
                     embedMessage.AddField($"{squadEmotes[squadCount]} Squad {squadCount}", squadMembers, true);
@@ -119,7 +119,7 @@ namespace FOFA_Bot.Attendance
                     Logger.LogInformation($"Created Squad Reserve");
                     embedMessage.AddField($"{squadEmotes[squadCount]} Reserve", squadMembers, true);
                     }
-                else if (squadCount == 0 && squadMembers != "")
+                else if (squadCount == 8 && squadMembers != "")
                 {
                     Logger.LogInformation($"Created Squad Unassigned");
                     embedMessage.AddField($"{squadEmotes[squadCount]} Unassigned", squadMembers, true);
@@ -155,7 +155,6 @@ namespace FOFA_Bot.Attendance
         private static List<IEmote> GetSquadEmotes()
         {
             List<IEmote> squadEmotes = [];
-            squadEmotes.Add(new Emoji("🔳")); //0 - Unassigned
             squadEmotes.Add(new Emoji("🟦")); //1
             squadEmotes.Add(new Emoji("🟥")); //2
             squadEmotes.Add(new Emoji("🟩")); //3
@@ -163,6 +162,7 @@ namespace FOFA_Bot.Attendance
             squadEmotes.Add(new Emoji("🟧")); //5
             squadEmotes.Add(new Emoji("🟨")); //6
             squadEmotes.Add(new Emoji("⬜")); //7 - Reseve
+            squadEmotes.Add(new Emoji("🔳")); //8 - Unassigned
             return squadEmotes;
         }
         private static string? AddMemberAndStatus(string displayName, bool? status)

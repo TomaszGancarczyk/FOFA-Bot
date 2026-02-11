@@ -89,7 +89,7 @@ namespace FOFA_Bot.Bot
             }
             if (user.Roles.Contains(GetRoleByName("Rofa-Reserve")))
                 return 7; //reserve
-            return 0; //unassigned
+            return 8; //unassigned
         }
         private static SocketRole? GetRoleByName(string roleName)
         {
