@@ -34,7 +34,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"Signup google sheet updated");
         }
 
-        private static IList<IList<object>> GenerateData(List<string> userNames)
+        private static List<IList<object>> GenerateData(List<string> userNames)
         {
             Logger.LogInformation($"Generating data for the signup sheet");
             List<IList<Object>> fullObject = [];

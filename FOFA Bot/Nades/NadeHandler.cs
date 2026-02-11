@@ -4,10 +4,9 @@ namespace FOFA_Bot.Nades
 {
     internal class NadeHandler
     {
-        internal static async Task StartNadeEvent()
+        internal static Task StartNadeEvent()
         {
-            //Logger.LogInformation($"Starting nade event");
-            return;
+            return Task.CompletedTask;
         }
     }
 }

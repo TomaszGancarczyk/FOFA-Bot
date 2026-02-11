@@ -45,7 +45,7 @@ namespace FOFA_Bot
             BotHandler.Run(Discord);
             await Task.Delay(-1);
         }
-        private async Task DiscordReady()
+        private Task DiscordReady()
         {
             try
             {
@@ -105,6 +105,8 @@ namespace FOFA_Bot
             {
                 Logger.LogCritical($"{e}");
             }
+
+            return Task.CompletedTask;
         }
     }
 }

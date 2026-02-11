@@ -1,6 +1,6 @@
 ﻿using Discord;
-using FOFA_Bot.Data;
 using FOFA_Bot.Bot;
+using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Attendance
 {
@@ -22,10 +22,10 @@ namespace FOFA_Bot.Attendance
             }
             if (template == "Next Message")
                 return;
-            await CreateAttendanceEvent(null, null, template);
+            CreateAttendanceEvent(null, null, template);
             await SendAttendanceMessage();
         }
-        internal static async Task CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
+        internal static void CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
         {
             Logger.LogInformation($"Creating attendance event");
             AttendanceMessage? tempCurrentMessage;
@@ -47,6 +47,11 @@ namespace FOFA_Bot.Attendance
         }
         internal static async Task SendAttendanceMessage()
         {
+            if (CurrentMessage == null)
+            {
+                Logger.LogError($"Attendance message not found, cannot send it");
+                return;
+            }
             Logger.LogInformation($"Sending attendance message to {CurrentMessage.signupsChannel.Name}");
             IMessage localCurrentMessage = await CurrentMessage.signupsChannel.SendMessageAsync(
                 $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id}>"
@@ -74,7 +79,7 @@ namespace FOFA_Bot.Attendance
                 BotHandler.SetSignupMessageRunning(false);
             CurrentMessage = null;
         }
-        internal static EmbedBuilder RefreshSignupMessage()
+        internal static EmbedBuilder? RefreshSignupMessage()
         {
             if (CurrentMessage == null) return null;
             Logger.LogInformation($"Refreshing attendance message fields");
@@ -85,10 +90,10 @@ namespace FOFA_Bot.Attendance
 
         private static string CreateReminderMessage()
         {
-            string reminderMessage = "";
+            string reminderMessage = "## Don't forget to signup!";
             List<Member> members = MemberHandler.GetMembers();
-            foreach (var member in members) if (member.status == null)
-                    reminderMessage += $"@{member.discordUser.Id}\n";
+            foreach (var member in members) if (member.status == null && member.discordUser != null)
+                    reminderMessage += $"\n@{member.discordUser.Id}";
             return reminderMessage;
         }
 
@@ -101,7 +106,7 @@ namespace FOFA_Bot.Attendance
         }
         internal static EmbedBuilder ChangeAutomaticReminder(bool status)
         {
-            EmbedBuilder embed = new();
+            EmbedBuilder embed;
             SettingsHandler.SetAutomaticReminder(status);
             if (SettingsHandler.GetAutomaticReminder() == status)
                 embed = AttendanceMessageResponse.CreatePositiveStatusResponse(status);

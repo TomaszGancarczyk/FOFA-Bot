@@ -7,7 +7,6 @@ namespace FOFA_Bot.Attendance
     {
         internal async static Task<EmbedBuilder?> CreateSignupTemplate(long templateOption)
         {
-            EmbedBuilder embed = new();
             BotHandler.SetSignupMessageRunning(true);
             string template = "";
             switch (templateOption)
@@ -28,16 +27,15 @@ namespace FOFA_Bot.Attendance
                     template = "Stillwaters Chrono/Pulpe/Drops";
                     break;
             }
-            await AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            AttendanceHandler.CreateAttendanceEvent(null, null, template);
             _ = AttendanceHandler.SendAttendanceMessage();
             return SuccessMessage();
         }
         internal async static Task<EmbedBuilder> CreateSignupCustom(string eventName, string date)
         {
-            EmbedBuilder embed = new();
             BotHandler.SetSignupMessageRunning(true);
             string[] dateParts = date.Split('.');
-            DateTime? formatedDate = null;
+            DateTime? formatedDate;
             if (dateParts.Length != 2 || dateParts.Length != 4)
             {
                 Logger.LogWarning($"Incorrect date used for custom signup: {date}");
@@ -55,7 +53,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogWarning($"Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage("The date provided for event already passed");
             }
-            await AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
+            AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
             _ = AttendanceHandler.SendAttendanceMessage();
             return SuccessMessage();
         }
@@ -63,17 +61,17 @@ namespace FOFA_Bot.Attendance
         private static DateTime? FormatDate(string[] dateParts)
         {
             Logger.LogInformation($"Formatting date for custom signup");
-            int[] datePartsFormatted = [];
+            List<int> datePartsFormatted = [];
             foreach (string datePart in dateParts)
             {
-                try { datePartsFormatted.Append(Int32.Parse(datePart)); }
+                try { datePartsFormatted.Add(int.Parse(datePart)); }
                 catch (Exception) { return null; }
             }
-            if (datePartsFormatted.Length == 2) return FormatShortDate(datePartsFormatted);
-            if (datePartsFormatted.Length == 4) return FormatLongDate(datePartsFormatted);
+            if (datePartsFormatted.Count == 2) return FormatShortDate(datePartsFormatted);
+            if (datePartsFormatted.Count == 4) return FormatLongDate(datePartsFormatted);
             return null;
         }
-        private static DateTime? FormatShortDate(int[] dateParts)
+        private static DateTime? FormatShortDate(List<int> dateParts)
         {
             //[hours.minutes] untill the event
             Logger.LogInformation($"Formatting short date");
@@ -91,12 +89,12 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"Formatting date to {eventDateTime}");
             return eventDateTime;
         }
-        private static DateTime? FormatLongDate(int[] dateParts)
+        private static DateTime? FormatLongDate(List<int> dateParts)
         {
             //[day.month.year.hour.minute] of the event
             if (dateParts[2] < 2000) dateParts[2] = dateParts[2] + 2000;
             Logger.LogInformation($"Formatting long date");
-            DateTime? eventDateTime = null;
+            DateTime? eventDateTime;
             try
             {
                 eventDateTime = new DateTime(

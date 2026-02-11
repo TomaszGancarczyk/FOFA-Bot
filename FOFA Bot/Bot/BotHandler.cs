@@ -48,14 +48,14 @@ namespace FOFA_Bot.Bot
         }
         internal static EmbedBuilder ChangeAutomnaticSignupMessage(bool status)
         {
-            EmbedBuilder embed = new EmbedBuilder();
+            EmbedBuilder embed;
             SettingsHandler.SetAutomnaticSignupMessage(status);
             if (SettingsHandler.GetAutomnaticSignupMessage() == status)
                 embed = AttendanceMessageResponse.CreatePositiveStatusResponse(status);
             else embed = AttendanceMessageResponse.CreateNegativeStatusResponse();
             return embed;
         }
-        internal static void SetSignupMessageRunning(bool status) => status = SignupMessageRunning;
+        internal static void SetSignupMessageRunning(bool status) => SignupMessageRunning = status;
         internal static DiscordSocketClient GetDiscord() => Discord;
     }
 }
