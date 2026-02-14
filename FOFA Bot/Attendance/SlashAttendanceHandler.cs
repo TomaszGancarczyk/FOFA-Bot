@@ -36,7 +36,7 @@ namespace FOFA_Bot.Attendance
             BotHandler.SetSignupMessageRunning(true);
             string[] dateParts = date.Split('.');
             DateTime? formatedDate;
-            if (dateParts.Length != 2 || dateParts.Length != 4)
+            if (dateParts.Length != 2 && dateParts.Length != 5)
             {
                 Logger.LogWarning($"Incorrect date used for custom signup: {date}");
                 BotHandler.SetSignupMessageRunning(false);
@@ -48,7 +48,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogWarning($"Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage($"Wrong date for event, cannot create date from provided numbers");
             }
-            if (formatedDate < DateTime.Now)
+            if (formatedDate <= DateTime.Now)
             {
                 Logger.LogWarning($"Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage("The date provided for event already passed");
@@ -68,7 +68,7 @@ namespace FOFA_Bot.Attendance
                 catch (Exception) { return null; }
             }
             if (datePartsFormatted.Count == 2) return FormatShortDate(datePartsFormatted);
-            if (datePartsFormatted.Count == 4) return FormatLongDate(datePartsFormatted);
+            if (datePartsFormatted.Count == 5) return FormatLongDate(datePartsFormatted);
             return null;
         }
         private static DateTime? FormatShortDate(List<int> dateParts)
@@ -78,8 +78,8 @@ namespace FOFA_Bot.Attendance
             DateTime eventDateTime = DateTime.Now;
             try
             {
-                eventDateTime.AddHours(dateParts[0]);
-                eventDateTime.AddMinutes(dateParts[1]);
+                eventDateTime = eventDateTime.AddHours(dateParts[0]);
+                eventDateTime = eventDateTime.AddMinutes(dateParts[1]);
             }
             catch (Exception e)
             {

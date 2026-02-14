@@ -96,14 +96,14 @@ namespace FOFA_Bot
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.Boolean)
                     );
-                await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
-                await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
-                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
-                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
+                //await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
+                //await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
+                //await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
+                //await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
             }
             catch (Exception e)
             {
-                Logger.LogCritical($"{e}");
+                Logger.LogCritical($"Run into problem when setting up commands:\n{e}");
             }
         }
     }

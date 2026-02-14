@@ -93,7 +93,7 @@ namespace FOFA_Bot.Attendance
             string reminderMessage = "## Don't forget to signup!";
             List<Member> members = MemberHandler.GetMembers();
             foreach (var member in members) if (member.status == null && member.discordUser != null)
-                    reminderMessage += MentionUtils.MentionUser(member.discordUser.Id);
+                    reminderMessage += "\n" + MentionUtils.MentionUser(member.discordUser.Id);
             return reminderMessage;
         }
 
