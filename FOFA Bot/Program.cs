@@ -45,7 +45,7 @@ namespace FOFA_Bot
             BotHandler.Run(Discord);
             await Task.Delay(-1);
         }
-        private Task DiscordReady()
+        private async Task DiscordReady()
         {
             try
             {
@@ -96,17 +96,15 @@ namespace FOFA_Bot
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.Boolean)
                     );
-                //await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
-                //await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
-                //await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
-                //await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
             }
             catch (Exception e)
             {
                 Logger.LogCritical($"{e}");
             }
-
-            return Task.CompletedTask;
         }
     }
 }

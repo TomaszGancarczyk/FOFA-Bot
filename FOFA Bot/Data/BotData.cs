@@ -107,6 +107,11 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"Getting Nade Sheet Id");
             return JsonBotData.NadeSheetId;
         }
+        internal static string GetPlannerSheetId()
+        {
+            Logger.LogInformation($"Getting Planner Sheet Id");
+            return JsonBotData.PlannerSheetId;
+        }
 
         internal static string GetApiToken()
         {

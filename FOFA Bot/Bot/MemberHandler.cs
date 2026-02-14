@@ -7,6 +7,7 @@ namespace FOFA_Bot.Bot
     {
         private static List<SocketGuildUser> DiscordMembers = [];
         private static List<Member> Members = [];
+        private static Dictionary<string, string> InGameNames = [];
 
         internal static void CreateMembersList()
         {
@@ -36,7 +37,7 @@ namespace FOFA_Bot.Bot
             }
             else
             {
-                Logger.LogInformation($"Cannot find {user.GlobalName}, adding new member to list");
+                Logger.LogInformation($"Cannot find {user.Username}, adding new member to list");
                 Member? member = CreateMember(user, status);
                 if (member != null)
                     Members.Add(member);
@@ -51,7 +52,7 @@ namespace FOFA_Bot.Bot
         {
             Logger.LogInformation($"Creating Members from Discord");
             DiscordMembers = [];
-
+            InGameNames = PlannerGoogleSheet.GetInGameNames();
             SocketGuild guild = BotData.GetGuild();
             string roleName = BotData.GetRofaRoleName();
             DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
@@ -61,7 +62,6 @@ namespace FOFA_Bot.Bot
                     DiscordMembers.RemoveAt(i);
                 }
         }
-        //TODO > Get member IGN
         private static Member? CreateMember(SocketUser user, bool? status)
         {
             SocketGuild guild = BotData.GetGuild();
@@ -71,11 +71,17 @@ namespace FOFA_Bot.Bot
                 Logger.LogWarning($"Cannot find and create new user for {user.Username}, returning...");
                 return null;
             }
+            string? inGameName = null;
+            if (InGameNames.Keys.Contains(guildUser.Username))
+            {
+                inGameName = InGameNames[guildUser.Username];
+                Logger.LogInformation($"Got {inGameName} name for {guildUser.Username}");
+            }
             Member member = new()
             {
                 discordUser = guildUser,
                 squad = GetMemberSquad(guildUser),
-                inGameName = null,
+                inGameName = inGameName,
                 status = status
             };
             return member;
