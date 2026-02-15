@@ -49,10 +49,11 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"Creating custom attendance message");
             AttendanceMessage = new();
-            EmbedBuilder? tempMessage = GenerateMessageFromData(EventName, eventDateTime, Color.Green);
-            if (tempMessage == null)
+            EmbedMessage = GenerateMessageFromData(EventName, eventDateTime, Color.Green);
+            if (EmbedMessage == null)
                 return null;
-            AttendanceMessage.embedMessage = tempMessage;
+            AttendanceMessage.embedMessage = EmbedMessage;
+            AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
 
