@@ -16,7 +16,7 @@ namespace FOFA_Bot.Bot
             CreateDiscordMembers();
             foreach (SocketGuildUser discordMember in DiscordMembers)
             {
-                Member? member = CreateMember(discordMember, null);
+                Member? member = CreateMember(discordMember, null, true);
                 if (member == null) continue;
                 if (member.discordUser == null) continue;
                 Members.Add(member);
@@ -38,7 +38,7 @@ namespace FOFA_Bot.Bot
             else
             {
                 Logger.LogInformation($"Cannot find {user.Username}, adding new member to list");
-                Member? member = CreateMember(user, status);
+                Member? member = CreateMember(user, status, false);
                 if (member != null)
                     Members.Add(member);
             }
@@ -62,7 +62,7 @@ namespace FOFA_Bot.Bot
                     DiscordMembers.RemoveAt(i);
                 }
         }
-        private static Member? CreateMember(SocketUser user, bool? status)
+        private static Member? CreateMember(SocketUser user, bool? status, bool skipUnassigned)
         {
             SocketGuild guild = BotData.GetGuild();
             SocketGuildUser? guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
@@ -77,16 +77,18 @@ namespace FOFA_Bot.Bot
                 inGameName = InGameNames[guildUser.Username];
                 Logger.LogInformation($"Got {inGameName} name for {guildUser.Username}");
             }
+            int squad = GetMemberSquad(guildUser, skipUnassigned);
+                if (squad == 0) return null;
             Member member = new()
             {
                 discordUser = guildUser,
-                squad = GetMemberSquad(guildUser),
+                squad = squad,
                 inGameName = inGameName,
                 status = status
             };
             return member;
         }
-        private static int GetMemberSquad(SocketGuildUser user)
+        private static int GetMemberSquad(SocketGuildUser user, bool skipUnassigned)
         {
             for (int i = 1; i <= 6; i++)
             {
@@ -95,7 +97,8 @@ namespace FOFA_Bot.Bot
             }
             if (user.Roles.Contains(GetRoleByName("Rofa-Reserve")))
                 return 7; //reserve
-            return 8; //unassigned
+            else if (!skipUnassigned) return 8; //unassigned
+            return 0; //skip
         }
         private static SocketRole? GetRoleByName(string roleName)
         {
