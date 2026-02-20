@@ -63,7 +63,7 @@ namespace FOFA_Bot.Attendance
             DateTime eventReminderTime = CurrentMessage.Date.Value.AddMinutes(-EventReminderMinutes);
             while (DateTime.Now < eventReminderTime)
                 Task.Delay(60000).Wait();
-            if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder())
+            if (localCurrentMessage != null || CurrentMessage != null || (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder()))
             {
                 string reminderMessage = CreateReminderMessage();
                 if (reminderMessage != string.Empty)
