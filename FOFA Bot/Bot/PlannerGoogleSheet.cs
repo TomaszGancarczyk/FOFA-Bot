@@ -2,7 +2,6 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Util.Store;
 
 namespace FOFA_Bot.Bot
@@ -18,9 +17,9 @@ namespace FOFA_Bot.Bot
             var request = service.Spreadsheets.Values.Get(sheetId, range);
             var requestResponse = request.Execute().Values;
             foreach (var value in requestResponse) if (value != null && value[0] != null && value[1] != null)
-            {
-                inGameNames.Add(value[0].ToString(), value[1].ToString());
-            }
+                {
+                    inGameNames.Add(value[0].ToString(), value[1].ToString());
+                }
             return inGameNames;
         }
         private static SheetsService? GetSheetService()

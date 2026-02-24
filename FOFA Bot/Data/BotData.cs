@@ -71,7 +71,7 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"Getting Base Capture Hour");
             return JsonBotData.BaseCaptureHour;
         }
-        
+
         internal static double GetGoldenDropHour()
         {
             Logger.LogInformation($"Getting Golden Drop Hour");
@@ -85,6 +85,10 @@ namespace FOFA_Bot.Data
         internal static string GetRofaRoleName()
         {
             return JsonBotData.RofaRoleName;
+        }
+        internal static List<string> GetPrivilegedRoleNames()
+        {
+            return JsonBotData.PrivilegedRoleNames;
         }
 
         internal static string GetSheetClientId()
