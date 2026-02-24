@@ -30,7 +30,14 @@ namespace FOFA_Bot.Attendance
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
             request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
             Logger.LogInformation($"Executing signup google sheet update...");
-            request.Execute();
+            try
+            {
+                request.Execute();
+            }
+            catch(Exception e)
+            {
+                Logger.LogCritical($"Run into error when execuring sheet update:\n{e}");
+            }
             Logger.LogInformation($"Signup google sheet updated");
         }
 
