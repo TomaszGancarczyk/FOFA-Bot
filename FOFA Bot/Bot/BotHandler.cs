@@ -38,7 +38,7 @@ namespace FOFA_Bot.Bot
         }
         private static async Task CheckSignupMessage()
         {
-            if (!SignupMessageRunning && DateTime.Now.Hour == 22 && SettingsHandler.GetAutomnaticSignupMessage())
+            if (!SignupMessageRunning && DateTime.Now.Hour == 20.25 && SettingsHandler.GetAutomnaticSignupMessage())
             {
                 SignupMessageRunning = true;
                 await AttendanceHandler.StartQuestionAttendanceEvent();
