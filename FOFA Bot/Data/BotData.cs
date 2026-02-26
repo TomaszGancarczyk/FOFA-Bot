@@ -86,7 +86,7 @@ namespace FOFA_Bot.Data
         {
             return JsonBotData.RofaRoleName;
         }
-        internal static List<string> GetPrivilegedRoleNames()
+        internal static string[] GetPrivilegedRoleNames()
         {
             return JsonBotData.PrivilegedRoleNames;
         }
