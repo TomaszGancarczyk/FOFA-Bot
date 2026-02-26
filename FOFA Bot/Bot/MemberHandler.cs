@@ -17,8 +17,7 @@ namespace FOFA_Bot.Bot
             foreach (SocketGuildUser discordMember in DiscordMembers)
             {
                 Member? member = CreateMember(discordMember, null, true);
-                if (member == null) continue;
-                if (member.discordUser == null) continue;
+                if (member == null || member.discordUser == null) continue;
                 Members.Add(member);
                 Logger.LogInformation($"Added {member.discordUser.DisplayName} to member list to squad {member.squad}");
             }
@@ -27,7 +26,7 @@ namespace FOFA_Bot.Bot
         {
             if (Members.Any(member => member.discordUser.Id == user.Id))
             {
-                Member? discordUser = Members.FirstOrDefault(m => m.discordUser.Id == user.Id);
+                Member? discordUser = Members.First(member => member.discordUser.Id == user.Id);
                 if (discordUser != null)
                     if (discordUser.discordUser != null)
                     {
@@ -72,13 +71,13 @@ namespace FOFA_Bot.Bot
                 return null;
             }
             string? inGameName = null;
-            if (InGameNames.Keys.Contains(guildUser.Username))
+            if (InGameNames.TryGetValue(guildUser.Username, out string? value))
             {
-                inGameName = InGameNames[guildUser.Username];
+                inGameName = value;
                 Logger.LogInformation($"Got {inGameName} name for {guildUser.Username}");
             }
             int squad = GetMemberSquad(guildUser, skipUnassigned);
-                if (squad == 0) return null;
+            if (squad == 0) return null;
             Member member = new()
             {
                 discordUser = guildUser,

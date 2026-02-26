@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using FOFA_Bot.Attendance;
+using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Bot
 {
@@ -8,6 +9,14 @@ namespace FOFA_Bot.Bot
     {
         public static async Task Handle(SocketSlashCommand command)
         {
+            bool hasPermission = CheckForPermission(command.User.Id);
+            if (!hasPermission)
+            {
+                Logger.LogWarning($"User {command.User.Username} don't have permission to use {command.Data.Name}");
+                await command.RespondAsync(embed: GetPermissionErrorMessage().Build(), ephemeral: true);
+                return;
+            }
+
             EmbedBuilder? embed;
             switch (command.Data.Name)
             {
@@ -40,6 +49,26 @@ namespace FOFA_Bot.Bot
                         await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
             }
+        }
+
+        private static bool CheckForPermission(ulong userId)
+        {
+            bool hasPermission = false;
+            List<string> privilegedRoleNames = BotData.GetPrivilegedRoleNames();
+            SocketGuildUser user = BotData.GetGuild().Users.First(user => user.Id == userId);
+            foreach (SocketRole role in user.Roles) if (privilegedRoleNames.Contains(role.Name))
+                {
+                    hasPermission = true;
+                    break;
+                }
+            return hasPermission;
+        }
+        private static EmbedBuilder GetPermissionErrorMessage()
+        {
+            EmbedBuilder embed = new();
+            embed.WithColor(Color.Red);
+            embed.WithTitle($"You don't have permission to use this command");
+            return embed;
         }
     }
 }
