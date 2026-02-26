@@ -46,7 +46,6 @@ namespace FOFA_Bot.Bot
         {
             return Members;
         }
-
         private static void CreateDiscordMembers()
         {
             Logger.LogInformation($"Creating Members from Discord");
@@ -61,6 +60,20 @@ namespace FOFA_Bot.Bot
                     DiscordMembers.RemoveAt(i);
                 }
         }
+
+        internal static void RefreshMemberSquads()
+        {
+            Logger.LogInformation("Refreshing members");
+            SocketGuild guild = BotData.GetGuild();
+            foreach (var member in Members)
+            {
+                int? tempSquad = member.squad;
+                member.squad = GetMemberSquad(member.discordUser, false);
+                if (member.squad != tempSquad) Logger.LogInformation($"{member.discordUser.GlobalName} changed squad from {tempSquad} to {member.squad}");
+            }
+
+        }
+
         private static Member? CreateMember(SocketUser user, bool? status, bool skipUnassigned)
         {
             SocketGuild guild = BotData.GetGuild();

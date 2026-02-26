@@ -82,6 +82,8 @@ namespace FOFA_Bot.Attendance
         internal static EmbedBuilder? RefreshSignupMessage()
         {
             if (CurrentMessage == null) return null;
+            Logger.LogInformation($"Refreshing attendance message members");
+            MemberHandler.RefreshMemberSquads();
             Logger.LogInformation($"Refreshing attendance message fields");
             CurrentMessage.embedMessage = AttendanceMessageGenerator.AddMessageFields(CurrentMessage.embedMessage);
             CurrentMessage.embedMessage = AttendanceMessageGenerator.AddFooterMessage(CurrentMessage.embedMessage);

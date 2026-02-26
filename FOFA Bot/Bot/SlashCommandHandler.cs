@@ -9,20 +9,13 @@ namespace FOFA_Bot.Bot
     {
         public static async Task Handle(SocketSlashCommand command)
         {
-            try
-            {
-                bool hasPermission = CheckForPermission(command.User.Id);
-                if (!hasPermission)
-                {
-                    Logger.LogWarning($"User {command.User.Username} don't have permission to use {command.Data.Name}");
-                    await command.RespondAsync(embed: GetPermissionErrorMessage().Build(), ephemeral: true);
-                    return;
-                }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+            //bool hasPermission = CheckForPermission(command.User.Id);
+            //if (!hasPermission)
+            //{
+            //    Logger.LogWarning($"User {command.User.Username} don't have permission to use {command.Data.Name}");
+            //    await command.RespondAsync(embed: GetPermissionErrorMessage().Build(), ephemeral: true);
+            //    return;
+            //}
 
             EmbedBuilder? embed;
             switch (command.Data.Name)
@@ -60,8 +53,16 @@ namespace FOFA_Bot.Bot
 
         private static bool CheckForPermission(ulong userId)
         {
+            string[] privilegedRoleNames = [];
             bool hasPermission = false;
-            string[] privilegedRoleNames = BotData.GetPrivilegedRoleNames();
+            try
+            {
+                privilegedRoleNames = BotData.GetPrivilegedRoleNames();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Run into issue getting PrivilegedRoleNames:\n{ex}");
+            }
             SocketGuildUser user = BotData.GetGuild().Users.First(user => user.Id == userId);
             foreach (SocketRole role in user.Roles) if (privilegedRoleNames.Contains(role.Name))
                 {

@@ -88,7 +88,7 @@ namespace FOFA_Bot.Data
         }
         internal static string[] GetPrivilegedRoleNames()
         {
-            return JsonBotData.PrivilegedRoleNames;
+            return JsonBotData.PrivilegedRoleNames.ToObject<string[]>();
         }
 
         internal static string GetSheetClientId()
