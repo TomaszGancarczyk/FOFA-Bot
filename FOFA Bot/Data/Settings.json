@@ -1,5 +1,5 @@
 {
-  "AutomaticReminder": false,
+  "AutomaticReminder": true,
   "AutomnaticSignupMessage": true,
   "AutomnaticNadeMessage": true
 }

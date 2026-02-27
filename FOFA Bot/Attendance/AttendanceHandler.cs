@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
 
@@ -64,7 +65,8 @@ namespace FOFA_Bot.Attendance
             DateTime eventReminderTime = CurrentMessage.Date.Value.AddMinutes(-EventReminderMinutes);
             while (DateTime.Now < eventReminderTime)
                 Task.Delay(60000).Wait();
-            if (localCurrentMessage != null && CurrentMessage != null && (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder()))
+            bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.discordMessage.Id);
+            if (localCurrentMessage != null && CurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
             {
                 string reminderMessage = CreateReminderMessage();
                 if (reminderMessage != string.Empty)
@@ -80,6 +82,16 @@ namespace FOFA_Bot.Attendance
                 BotHandler.SetSignupMessageRunning(false);
             CurrentMessage = null;
         }
+
+        private static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
+        {
+            IMessageChannel channel = BotData.GetSignupsChannel();
+            IMessage msg = await channel.GetMessageAsync(messageId);
+            if (msg != null) return false;
+            Logger.LogInformation($"    Signup message got deleted, skipping reminder");
+            return true;
+        }
+
         internal static EmbedBuilder? RefreshSignupMessage()
         {
             if (CurrentMessage == null) return null;
