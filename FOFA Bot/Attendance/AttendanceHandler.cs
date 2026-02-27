@@ -53,8 +53,9 @@ namespace FOFA_Bot.Attendance
                 return;
             }
             Logger.LogInformation($"    Sending attendance message to {CurrentMessage.signupsChannel.Name}");
+            ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
             IMessage localCurrentMessage = await CurrentMessage.signupsChannel.SendMessageAsync(
-                $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id}>"
+                $"<@&{pingMessage}>"
                 , false, CurrentMessage.embedMessage.Build(), null, null, null, CurrentMessage.messageButtons.Build());
             CurrentMessage.discordMessage = localCurrentMessage;
             if (CurrentMessage.Date == null)
@@ -63,7 +64,7 @@ namespace FOFA_Bot.Attendance
             DateTime eventReminderTime = CurrentMessage.Date.Value.AddMinutes(-EventReminderMinutes);
             while (DateTime.Now < eventReminderTime)
                 Task.Delay(60000).Wait();
-            if (localCurrentMessage != null || CurrentMessage != null || (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder()))
+            if (localCurrentMessage != null && CurrentMessage != null && (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder()))
             {
                 string reminderMessage = CreateReminderMessage();
                 if (reminderMessage != string.Empty)
@@ -73,9 +74,9 @@ namespace FOFA_Bot.Attendance
             DateTime eventCloseTime = CurrentMessage.Date.Value.AddMinutes(-EventCloseMinutes);
             while (DateTime.Now < eventCloseTime)
                 Task.Delay(60000).Wait();
-            if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
+            if (localCurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
                 AttendanceGoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
-            if (localCurrentMessage.Id == CurrentMessage.discordMessage.Id)
+            if (localCurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id)
                 BotHandler.SetSignupMessageRunning(false);
             CurrentMessage = null;
         }

@@ -7,7 +7,6 @@ namespace FOFA_Bot.Attendance
     {
         internal async static Task<EmbedBuilder?> CreateSignupTemplate(long templateOption)
         {
-            BotHandler.SetSignupMessageRunning(true);
             string template = "";
             switch (templateOption)
             {
@@ -26,11 +25,24 @@ namespace FOFA_Bot.Attendance
                 case 4:
                     template = "Stillwaters Chrono/Pulpe/Drops";
                     break;
+                case 10:
+                    _ = HandleSlashQuestion();
+                    return SuccessQuestionMessage();
             }
+            BotHandler.SetSignupMessageRunning(true);
             AttendanceHandler.CreateAttendanceEvent(null, null, template);
             _ = AttendanceHandler.SendAttendanceMessage();
-            return SuccessMessage();
+            return SuccessSignupMessage();
         }
+        private async static Task HandleSlashQuestion()
+        {
+            Logger.LogInformation($"    Handling question event from slash command");
+            string template = await AttendanceQuestion.Handle();
+            BotHandler.SetSignupMessageRunning(true);
+            AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            _ = AttendanceHandler.SendAttendanceMessage();
+        }
+
         internal async static Task<EmbedBuilder> CreateSignupCustom(string eventName, string date)
         {
             BotHandler.SetSignupMessageRunning(true);
@@ -38,24 +50,24 @@ namespace FOFA_Bot.Attendance
             DateTime? formatedDate;
             if (dateParts.Length != 2 && dateParts.Length != 5)
             {
-                Logger.LogWarning($"Incorrect date used for custom signup: {date}");
+                Logger.LogWarning($"    Incorrect date used for custom signup: {date}");
                 BotHandler.SetSignupMessageRunning(false);
                 return DateErrorMessage($"Wrong date for event, please use [day.month.year.hour.minute] of the event or [hours.minutes] untill the event");
             }
             else formatedDate = FormatDate(dateParts);
             if (formatedDate == null)
             {
-                Logger.LogWarning($"Incorrect numbers used for custom signup: {date}");
+                Logger.LogWarning($"    Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage($"Wrong date for event, cannot create date from provided numbers");
             }
             if (formatedDate <= DateTime.Now)
             {
-                Logger.LogWarning($"Incorrect numbers used for custom signup: {date}");
+                Logger.LogWarning($"    Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage("The date provided for event already passed");
             }
             AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
             _ = AttendanceHandler.SendAttendanceMessage();
-            return SuccessMessage();
+            return SuccessSignupMessage();
         }
 
         private static DateTime? FormatDate(string[] dateParts)
@@ -114,11 +126,18 @@ namespace FOFA_Bot.Attendance
             return eventDateTime;
         }
 
-        private static EmbedBuilder SuccessMessage()
+        private static EmbedBuilder SuccessSignupMessage()
         {
             EmbedBuilder embed = new();
             embed.WithColor(Color.Green);
             embed.WithTitle($"Successfully created signup message");
+            return embed;
+        }
+        private static EmbedBuilder SuccessQuestionMessage()
+        {
+            EmbedBuilder embed = new();
+            embed.WithColor(Color.Green);
+            embed.WithTitle($"Successfully created signup question");
             return embed;
         }
         private static EmbedBuilder NameErrorMessage()

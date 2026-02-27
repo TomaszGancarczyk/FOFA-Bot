@@ -25,7 +25,7 @@ namespace FOFA_Bot.PlayerStats
             {
                 Logger.LogInformation($"    Successfully got the request for {playerName}");
                 string responseBody = await response.Content.ReadAsStringAsync();
-                Stats playerStats = await ConvertJsonStringToPlayerStats(responseBody);
+                Stats? playerStats = ConvertJsonStringToPlayerStats(responseBody);
                 return playerStats;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -44,9 +44,9 @@ namespace FOFA_Bot.PlayerStats
                 return null;
             }
         }
-        private static async Task<Stats> ConvertJsonStringToPlayerStats(string jsonString)
+        private static Stats? ConvertJsonStringToPlayerStats(string jsonString)
         {
-            dynamic? dynamicStats = JsonConvert.DeserializeObject(jsonString);
+            //dynamic? dynamicStats = JsonConvert.DeserializeObject(jsonString);
             //Stats stats = new()
             //{
             //    Uuid = dynamicStats.uuid,

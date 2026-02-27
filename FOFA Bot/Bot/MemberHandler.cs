@@ -64,12 +64,15 @@ namespace FOFA_Bot.Bot
         internal static void RefreshMemberSquads()
         {
             Logger.LogInformation($"    Refreshing members");
-            SocketGuild guild = BotData.GetGuild();
             foreach (var member in Members)
             {
                 int? tempSquad = member.squad;
-                member.squad = GetMemberSquad(member.discordUser, false);
-                if (member.squad != tempSquad) Logger.LogInformation($"      {member.discordUser.Username} changed squad from {tempSquad} to {member.squad}");
+                if (member.discordUser != null)
+                {
+
+                    member.squad = GetMemberSquad(member.discordUser, false);
+                    if (member.squad != tempSquad) Logger.LogInformation($"      {member.discordUser.Username} changed squad from {tempSquad} to {member.squad}");
+                }
             }
 
         }
