@@ -12,7 +12,7 @@ namespace FOFA_Bot.Attendance
     {
         internal static void HandleUnsignedUsers(List<Member> members)
         {
-            Logger.LogInformation($"Exporting unassigned users");
+            Logger.LogInformation($"[excel] Exporting unassigned users");
             string sheetId = BotData.GetSignupSheetId();
             SheetsService? service = GetSheetService();
             string range = GetRange(members.Count + 1);
@@ -20,30 +20,30 @@ namespace FOFA_Bot.Attendance
             IList<IList<Object>> objRecords = GenerateData(userNames);
             if (service != null)
                 UpdateGoogleSheet(objRecords, sheetId, range, service);
-            Logger.LogInformation($"Finished updating attendance sheet");
+            Logger.LogInformation($"    Finished updating attendance sheet");
         }
 
         private static void UpdateGoogleSheet(IList<IList<Object>> objRecords, string sheetId, string range, SheetsService service)
         {
-            Logger.LogInformation($"Updating signup google sheet...");
+            Logger.LogInformation($"    Updating signup google sheet...");
             var request = service.Spreadsheets.Values.Append(new ValueRange() { Values = objRecords }, sheetId, range);
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
             request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
-            Logger.LogInformation($"Executing signup google sheet update...");
+            Logger.LogInformation($"    Executing signup google sheet update...");
             try
             {
                 request.Execute();
             }
             catch(Exception e)
             {
-                Logger.LogCritical($"Run into error when execuring sheet update:\n{e}");
+                Logger.LogCritical($"    Run into error when execuring sheet update:\n{e}");
             }
-            Logger.LogInformation($"Signup google sheet updated");
+            Logger.LogInformation($"    Signup google sheet updated");
         }
 
         private static List<IList<object>> GenerateData(List<string> userNames)
         {
-            Logger.LogInformation($"Generating data for the signup sheet");
+            Logger.LogInformation($"    Generating data for the signup sheet");
             List<IList<Object>> fullObject = [];
             IList<Object> objectLine = [];
             objectLine.Add(DateTime.Now.ToString("dd/MM/yyyy"));
@@ -55,7 +55,7 @@ namespace FOFA_Bot.Attendance
 
         private static SheetsService? GetSheetService()
         {
-            Logger.LogInformation($"Getting signup sheet service");
+            Logger.LogInformation($"    Getting signup sheet service");
             string clientId = BotData.GetSheetClientId();
             string clientSecret = BotData.GetSheetClientSecret();
             string[] scopes = [SheetsService.Scope.Spreadsheets];
@@ -81,7 +81,7 @@ namespace FOFA_Bot.Attendance
         {
             char lastCollumnChar = (char)('A' + numberOfCollumns);
             string range = $"A3:{lastCollumnChar}3";
-            Logger.LogInformation($"Got sheet range for {range}");
+            Logger.LogInformation($"    Got sheet range for {range}");
             return range;
         }
     }

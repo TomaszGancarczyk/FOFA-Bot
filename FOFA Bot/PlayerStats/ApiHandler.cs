@@ -9,7 +9,7 @@ namespace FOFA_Bot.PlayerStats
     {
         internal static async Task<Stats?> GetPlayerStats(string playerName)
         {
-            Logger.LogInformation($"Calling API for {playerName}");
+            Logger.LogInformation($"    Calling API for {playerName}");
             string apitoken = BotData.GetApiToken();
 
             HttpClient client = new()
@@ -23,7 +23,7 @@ namespace FOFA_Bot.PlayerStats
             HttpResponseMessage response = client.GetAsync($"{playerName}/profile").Result;
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                Logger.LogInformation($"Successfully got the request for {playerName}");
+                Logger.LogInformation($"    Successfully got the request for {playerName}");
                 string responseBody = await response.Content.ReadAsStringAsync();
                 Stats playerStats = await ConvertJsonStringToPlayerStats(responseBody);
                 return playerStats;

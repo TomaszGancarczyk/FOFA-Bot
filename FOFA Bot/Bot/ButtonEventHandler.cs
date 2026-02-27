@@ -13,32 +13,32 @@ namespace FOFA_Bot.Bot
             switch (component.Data.CustomId)
             {
                 case "tournamentButton":
-                    Logger.LogInformation($"Got tournament response to event question");
+                    Logger.LogInformation($"    Got tournament response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Tournament");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "baseCaptureButton":
-                    Logger.LogInformation($"Got base capture response to event question");
+                    Logger.LogInformation($"    Got base capture response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Base Capture");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "brawlButton":
-                    Logger.LogInformation($"Got brawl response to event question");
+                    Logger.LogInformation($"    Got brawl response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Brawl");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "goldenDropButton":
-                    Logger.LogInformation($"Got golden drop response to event question");
+                    Logger.LogInformation($"    Got golden drop response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Golden Drop");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "stillwatersButton":
-                    Logger.LogInformation($"Got stillwaters response to event question");
+                    Logger.LogInformation($"    Got stillwaters response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Stillwaters Chrono/Pulpe/Drops");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "dayOffButton":
-                    Logger.LogInformation($"Got day off response to event question");
+                    Logger.LogInformation($"    Got day off response to event question");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Day Off");
                     component.Message.DeleteAsync().Wait();
                     break;
@@ -48,12 +48,12 @@ namespace FOFA_Bot.Bot
                         await AttendanceMessageResponse.RespondWithOldSignupError(component);
                     else if (component.Message.Id == currentMessageId)
                     {
-                        Logger.LogInformation($"{component.User.Username} clicked present on the signup");
+                        Logger.LogInformation($"[button] {component.User.Username} clicked present on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, true);
                         updatedMessage = AttendanceHandler.RefreshSignupMessage();
                         if (updatedMessage != null)
                         {
-                            Logger.LogInformation($"Updating discord attendance message");
+                            Logger.LogInformation($"    Updating discord attendance message");
                             await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
                             await AttendanceMessageResponse.RespondWithSignupStatus(component, true);
                         }
@@ -67,12 +67,12 @@ namespace FOFA_Bot.Bot
                         await AttendanceMessageResponse.RespondWithOldSignupError(component);
                     else if (component.Message.Id == currentMessageId)
                     {
-                        Logger.LogInformation($"{component.User.Username} clicked absent on the signup");
+                        Logger.LogInformation($"[button] {component.User.Username} clicked absent on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, false);
                         updatedMessage = AttendanceHandler.RefreshSignupMessage();
                         if (updatedMessage != null)
                         {
-                            Logger.LogInformation($"Updating discord attendance message");
+                            Logger.LogInformation($"    Updating discord attendance message");
                             await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
                             await AttendanceMessageResponse.RespondWithSignupStatus(component, false);
                         }

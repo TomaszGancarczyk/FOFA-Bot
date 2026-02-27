@@ -30,56 +30,56 @@ namespace FOFA_Bot.Data
         }
         internal static IMessageChannel GetQuestionChannel()
         {
-            Logger.LogInformation($"Getting Question Channel Id");
+            Logger.LogInformation($"    Getting Question Channel Id");
             ulong channelId = JsonBotData.QuestionChannelId;
-            Logger.LogInformation($"Getting Question Channel");
+            Logger.LogInformation($"    Getting Question Channel");
             IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
-            Logger.LogInformation($"Found Question Channel: {channel.Name}");
+            Logger.LogInformation($"    Found Question Channel: {channel.Name}");
             return channel;
         }
         internal static IMessageChannel GetSignupsChannel()
         {
-            Logger.LogInformation($"Getting Signups Channel Id");
+            Logger.LogInformation($"    Getting Signups Channel Id");
             ulong channelId = JsonBotData.SignupsChannelId;
-            Logger.LogInformation($"Getting Signups Channel");
+            Logger.LogInformation($"    Getting Signups Channel");
             IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
-            Logger.LogInformation($"Found Signups Channel: {channel.Name}");
+            Logger.LogInformation($"    Found Signups Channel: {channel.Name}");
             return channel;
         }
         internal static IMessageChannel GetNadeChannel()
         {
-            Logger.LogInformation($"Getting Nade Channel Id");
+            Logger.LogInformation($"    Getting Nade Channel Id");
             ulong channelId = JsonBotData.NadeChannelId;
-            Logger.LogInformation($"Getting Nade Channel");
+            Logger.LogInformation($"    Getting Nade Channel");
             IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
-            Logger.LogInformation($"Found Nade Channel: {channel.Name}");
+            Logger.LogInformation($"    Found Nade Channel: {channel.Name}");
             return channel;
         }
 
         internal static double GetTournamentHour()
         {
-            Logger.LogInformation($"Getting Tournament Hour");
+            Logger.LogInformation($"    Getting Tournament Hour");
             return JsonBotData.TournamentHour;
         }
         internal static double GetBrawlHour()
         {
-            Logger.LogInformation($"Getting Brawl Hour");
+            Logger.LogInformation($"    Getting Brawl Hour");
             return JsonBotData.BrawlHour;
         }
         internal static double GetBaseCaptureHour()
         {
-            Logger.LogInformation($"Getting Base Capture Hour");
+            Logger.LogInformation($"    Getting Base Capture Hour");
             return JsonBotData.BaseCaptureHour;
         }
 
         internal static double GetGoldenDropHour()
         {
-            Logger.LogInformation($"Getting Golden Drop Hour");
+            Logger.LogInformation($"    Getting Golden Drop Hour");
             return JsonBotData.GoldenDropHour;
         }
         internal static double GetStillwatersHour()
         {
-            Logger.LogInformation($"Getting Stillwaters Hour");
+            Logger.LogInformation($"    Getting Stillwaters Hour");
             return JsonBotData.StillwatersHour;
         }
         internal static string GetRofaRoleName()
@@ -93,27 +93,27 @@ namespace FOFA_Bot.Data
 
         internal static string GetSheetClientId()
         {
-            Logger.LogInformation($"Getting Sheet Client Id");
+            Logger.LogInformation($"    Getting Sheet Client Id");
             return JsonBotData.SheetClientId;
         }
         internal static string GetSheetClientSecret()
         {
-            Logger.LogInformation($"Getting Sheet Client Secret");
+            Logger.LogInformation($"    Getting Sheet Client Secret");
             return JsonBotData.SheetClientSecret;
         }
         internal static string GetSignupSheetId()
         {
-            Logger.LogInformation($"Getting Signup Sheet Id");
+            Logger.LogInformation($"    Getting Signup Sheet Id");
             return JsonBotData.SignupSheetId;
         }
         internal static string GetNadeSheetId()
         {
-            Logger.LogInformation($"Getting Nade Sheet Id");
+            Logger.LogInformation($"    Getting Nade Sheet Id");
             return JsonBotData.NadeSheetId;
         }
         internal static string GetPlannerSheetId()
         {
-            Logger.LogInformation($"Getting Planner Sheet Id");
+            Logger.LogInformation($"    Getting Planner Sheet Id");
             return JsonBotData.PlannerSheetId;
         }
 

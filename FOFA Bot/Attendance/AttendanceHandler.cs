@@ -11,8 +11,8 @@ namespace FOFA_Bot.Attendance
         private readonly static int EventCloseMinutes = 15;
         internal static async Task StartQuestionAttendanceEvent()
         {
-            Logger.LogInformation($"Starting attendance question event");
-            Logger.LogInformation($"HandlingEventQuestion");
+            Logger.LogInformation($"    Starting attendance question event");
+            Logger.LogInformation($"    HandlingEventQuestion");
             string template = await AttendanceQuestion.Handle();
             if (template == "Day Off")
             {
@@ -27,7 +27,7 @@ namespace FOFA_Bot.Attendance
         }
         internal static void CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
         {
-            Logger.LogInformation($"Creating attendance event");
+            Logger.LogInformation($"    Creating attendance event");
             AttendanceMessage? tempCurrentMessage;
             if (template != null)
                 tempCurrentMessage = AttendanceMessageGenerator.CreateAttendanceMessageFromTemplate(template);
@@ -35,12 +35,12 @@ namespace FOFA_Bot.Attendance
                 tempCurrentMessage = AttendanceMessageGenerator.CreateCustomAttendanceMessage(EventName, eventDate.Value);
             else
             {
-                Logger.LogError($"Wrong data for message creation, returning");
+                Logger.LogError($"    Wrong data for message creation, returning");
                 return;
             }
             if (tempCurrentMessage == null)
             {
-                Logger.LogError($"Cloudn't create attendance message, returning");
+                Logger.LogError($"    Cloudn't create attendance message, returning");
                 return;
             }
             CurrentMessage = tempCurrentMessage;
@@ -49,10 +49,10 @@ namespace FOFA_Bot.Attendance
         {
             if (CurrentMessage == null)
             {
-                Logger.LogError($"Attendance message not found, cannot send it");
+                Logger.LogError($"    Attendance message not found, cannot send it");
                 return;
             }
-            Logger.LogInformation($"Sending attendance message to {CurrentMessage.signupsChannel.Name}");
+            Logger.LogInformation($"    Sending attendance message to {CurrentMessage.signupsChannel.Name}");
             IMessage localCurrentMessage = await CurrentMessage.signupsChannel.SendMessageAsync(
                 $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id}>"
                 , false, CurrentMessage.embedMessage.Build(), null, null, null, CurrentMessage.messageButtons.Build());
@@ -82,9 +82,9 @@ namespace FOFA_Bot.Attendance
         internal static EmbedBuilder? RefreshSignupMessage()
         {
             if (CurrentMessage == null) return null;
-            Logger.LogInformation($"Refreshing attendance message members");
+            Logger.LogInformation($"    Refreshing attendance message members");
             MemberHandler.RefreshMemberSquads();
-            Logger.LogInformation($"Refreshing attendance message fields");
+            Logger.LogInformation($"    Refreshing attendance message fields");
             CurrentMessage.embedMessage = AttendanceMessageGenerator.AddMessageFields(CurrentMessage.embedMessage);
             CurrentMessage.embedMessage = AttendanceMessageGenerator.AddFooterMessage(CurrentMessage.embedMessage);
             return CurrentMessage.embedMessage;

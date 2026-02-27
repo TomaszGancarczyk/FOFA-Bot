@@ -10,7 +10,7 @@ namespace FOFA_Bot.Attendance
         private static AttendanceMessage? AttendanceMessage;
         internal static AttendanceMessage? CreateAttendanceMessageFromTemplate(string template)
         {
-            Logger.LogInformation($"Creating attendance message from template");
+            Logger.LogInformation($"    Creating attendance message from template");
             AttendanceMessage = new();
             DateTime eventDateTime;
 
@@ -47,7 +47,7 @@ namespace FOFA_Bot.Attendance
         }
         internal static AttendanceMessage? CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
         {
-            Logger.LogInformation($"Creating custom attendance message");
+            Logger.LogInformation($"    Creating custom attendance message");
             AttendanceMessage = new();
             EmbedMessage = GenerateMessageFromData(EventName, eventDateTime, Color.Green);
             if (EmbedMessage == null)
@@ -60,11 +60,11 @@ namespace FOFA_Bot.Attendance
 
         private static EmbedBuilder? GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
         {
-            Logger.LogInformation($"Creating {EventName} attendance message");
+            Logger.LogInformation($"[message] Creating {EventName} attendance message");
             EmbedMessage = null;
             if (AttendanceMessage == null)
             {
-                Logger.LogError($"Cannot find Attendance Message in GenerateMessageFromData, exiting...");
+                Logger.LogError($"    Cannot find Attendance Message in GenerateMessageFromData, exiting...");
                 return null;
             }
             AttendanceMessage.Date = eventDateTime;
@@ -73,13 +73,13 @@ namespace FOFA_Bot.Attendance
             MemberHandler.CreateMembersList();
             embedMessage = AddMessageFields(embedMessage);
             embedMessage = AddFooterMessage(embedMessage);
-            Logger.LogInformation($"Embed message created");
+            Logger.LogInformation($"    Embed message created");
             return embedMessage;
         }
 
         private static EmbedBuilder CreateBaseMessage(string EventName, DateTime eventDateTime, Color color)
         {
-            Logger.LogInformation($"Creating base message...");
+            Logger.LogInformation($"    Creating base message");
             EmbedBuilder embedMessage = new();
             long eventUnix = GetUnixFromDateTime(eventDateTime);
             embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
@@ -91,11 +91,11 @@ namespace FOFA_Bot.Attendance
         internal static EmbedBuilder AddMessageFields(EmbedBuilder embedMessage)
         {
             embedMessage.Fields = [];
-            Logger.LogInformation($"Creating message fields...");
+            Logger.LogInformation($"    Creating message fields");
             List<IEmote> squadEmotes = GetSquadEmotes();
             List<Member> members = MemberHandler.GetMembers();
             List<Member> handledMembers = [];
-            Logger.LogInformation($"{members.Count} members found");
+            Logger.LogInformation($"    {members.Count} members found");
             for (int squadCount = 1; squadCount <= 9; squadCount++)
             {
                 string? squadMembers = "";
@@ -112,29 +112,29 @@ namespace FOFA_Bot.Attendance
                     }
                 if (squadCount < 7 && squadMembers != "")
                 {
-                    Logger.LogInformation($"Created Squad {squadCount} field");
+                    Logger.LogInformation($"      Created Squad {squadCount} field");
                     embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}", squadMembers, true);
                 }
                 else if (squadCount == 7 && squadMembers != "")
                 {
-                    Logger.LogInformation($"Created Squad Reserve");
+                    Logger.LogInformation($"      Created Squad Reserve");
                     embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve", squadMembers, true);
                 }
                 else if (squadCount == 8 && squadMembers != "")
                 {
-                    Logger.LogInformation($"Created Squad Unassigned");
+                    Logger.LogInformation($"      Created Squad Unassigned");
                     embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned", squadMembers, true);
                 }
             }
             if (members.Count > handledMembers.Count)
-                Logger.LogError($"Unable to handle {members.Count - handledMembers.Count} members");
+                Logger.LogError($"    Unable to handle {members.Count - handledMembers.Count} members");
             else
-                Logger.LogInformation($"Handled all members");
+                Logger.LogInformation($"    Handled all members");
             return embedMessage;
         }
         internal static EmbedBuilder AddFooterMessage(EmbedBuilder embedMessage)
         {
-            Logger.LogInformation($"Creating footer...");
+            Logger.LogInformation($"    Creating footer");
             List<Member> members = MemberHandler.GetMembers();
             int present = members.Where(m => m.status == true).Count();
             int absent = members.Where(m => m.status == false).Count();
@@ -145,11 +145,11 @@ namespace FOFA_Bot.Attendance
 
         internal static DateTime GetEventDateTime(double eventHour)
         {
-            Logger.LogInformation($"Creating event DateTime");
+            Logger.LogInformation($"    Creating event DateTime");
             DateTime eventDateTime = DateTime.Today;
             if (eventHour < (DateTime.Now.Hour + 1)) eventDateTime = eventDateTime.AddDays(1);
             eventDateTime = eventDateTime.AddHours(eventHour);
-            Logger.LogInformation($"Event DateTime set for {eventDateTime}");
+            Logger.LogInformation($"    Event DateTime set for {eventDateTime}");
             return eventDateTime;
         }
         private static long GetUnixFromDateTime(DateTime dateTime) => ((DateTimeOffset)dateTime).ToUnixTimeSeconds();
@@ -175,11 +175,11 @@ namespace FOFA_Bot.Attendance
         }
         private static AttendanceMessage AddMessageButtons(AttendanceMessage message)
         {
-            Logger.LogInformation($"Adding attendance buttons");
+            Logger.LogInformation($"    Adding attendance buttons");
             ComponentBuilder buttons = new ComponentBuilder()
                 .WithButton("Present", "presentButton", ButtonStyle.Success)
                 .WithButton("Absent", "absentButton", ButtonStyle.Danger);
-            Logger.LogInformation($"Created buttons");
+            Logger.LogInformation($"    Created buttons");
             message.messageButtons = buttons;
             return message;
         }

@@ -24,7 +24,7 @@ namespace FOFA_Bot.Bot
         }
         private static SheetsService? GetSheetService()
         {
-            Logger.LogInformation($"Getting signup sheet service");
+            Logger.LogInformation($"    Getting signup sheet service");
             string clientId = BotData.GetSheetClientId();
             string clientSecret = BotData.GetSheetClientSecret();
             string[] scopes = [SheetsService.Scope.Spreadsheets];

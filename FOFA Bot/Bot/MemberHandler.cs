@@ -11,7 +11,7 @@ namespace FOFA_Bot.Bot
 
         internal static void CreateMembersList()
         {
-            Logger.LogInformation($"Creating attendance Members");
+            Logger.LogInformation($"    Creating attendance Members");
             Members = [];
             CreateDiscordMembers();
             foreach (SocketGuildUser discordMember in DiscordMembers)
@@ -19,7 +19,7 @@ namespace FOFA_Bot.Bot
                 Member? member = CreateMember(discordMember, null, true);
                 if (member == null || member.discordUser == null) continue;
                 Members.Add(member);
-                Logger.LogInformation($"Added {member.discordUser.DisplayName} to member list to squad {member.squad}");
+                Logger.LogInformation($"    Added {member.discordUser.Username} to member list to squad {member.squad}");
             }
         }
         internal static void UpdateMemberStatus(SocketUser user, bool status)
@@ -30,13 +30,13 @@ namespace FOFA_Bot.Bot
                 if (discordUser != null)
                     if (discordUser.discordUser != null)
                     {
-                        Logger.LogInformation($"Updating status for {discordUser.discordUser.DisplayName}: {status}");
+                        Logger.LogInformation($"    Updating status for {discordUser.discordUser.Username}: {status}");
                         discordUser.status = status;
                     }
             }
             else
             {
-                Logger.LogInformation($"Cannot find {user.Username}, adding new member to list");
+                Logger.LogInformation($"    Cannot find {user.Username}, adding new member to list");
                 Member? member = CreateMember(user, status, false);
                 if (member != null)
                     Members.Add(member);
@@ -48,7 +48,7 @@ namespace FOFA_Bot.Bot
         }
         private static void CreateDiscordMembers()
         {
-            Logger.LogInformation($"Creating Members from Discord");
+            Logger.LogInformation($"    Creating Members from Discord");
             DiscordMembers = [];
             InGameNames = PlannerGoogleSheet.GetInGameNames();
             SocketGuild guild = BotData.GetGuild();
@@ -56,20 +56,20 @@ namespace FOFA_Bot.Bot
             DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
             for (int i = (DiscordMembers.Count - 1); i >= 0; i--) if (DiscordMembers[i].IsBot)
                 {
-                    Logger.LogWarning($"{DiscordMembers[i].DisplayName} is a bot, removing from the list");
+                    Logger.LogWarning($"    {DiscordMembers[i].Username} is a bot, removing from the list");
                     DiscordMembers.RemoveAt(i);
                 }
         }
 
         internal static void RefreshMemberSquads()
         {
-            Logger.LogInformation("Refreshing members");
+            Logger.LogInformation($"    Refreshing members");
             SocketGuild guild = BotData.GetGuild();
             foreach (var member in Members)
             {
                 int? tempSquad = member.squad;
                 member.squad = GetMemberSquad(member.discordUser, false);
-                if (member.squad != tempSquad) Logger.LogInformation($"{member.discordUser.GlobalName} changed squad from {tempSquad} to {member.squad}");
+                if (member.squad != tempSquad) Logger.LogInformation($"      {member.discordUser.Username} changed squad from {tempSquad} to {member.squad}");
             }
 
         }
@@ -80,14 +80,14 @@ namespace FOFA_Bot.Bot
             SocketGuildUser? guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
             if (guildUser == null)
             {
-                Logger.LogWarning($"Cannot find and create new user for {user.Username}, returning...");
+                Logger.LogWarning($"    Cannot find and create new user for {user.Username}, returning...");
                 return null;
             }
             string? inGameName = null;
             if (InGameNames.TryGetValue(guildUser.Username, out string? value))
             {
                 inGameName = value;
-                Logger.LogInformation($"Got {inGameName} name for {guildUser.Username}");
+                Logger.LogInformation($"      Got {inGameName} name for {guildUser.Username}");
             }
             int squad = GetMemberSquad(guildUser, skipUnassigned);
             if (squad == 0) return null;
@@ -120,7 +120,7 @@ namespace FOFA_Bot.Bot
                 return role;
             else
             {
-                Logger.LogError($"Cannot get role with name {roleName}");
+                Logger.LogError($"    Cannot get role with name {roleName}");
                 return null;
             }
         }

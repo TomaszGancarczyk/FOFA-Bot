@@ -32,7 +32,7 @@ namespace FOFA_Bot.Attendance
             QuestionResponse = null;
             IMessageChannel questionChannel = BotData.GetQuestionChannel();
             EventDateTime = AttendanceMessageGenerator.GetEventDateTime(20);
-            Logger.LogInformation($"Creating attendance event question");
+            Logger.LogInformation($"[question] Creating attendance event question");
 
             string questionMessageContent;
             if (EventDateTime.DayOfWeek == DateTime.Now.DayOfWeek)
@@ -40,7 +40,7 @@ namespace FOFA_Bot.Attendance
             else questionMessageContent = $"## What do we play tomorrow?";
 
             ComponentBuilder component = CreateQuestionButtons();
-            Logger.LogInformation($"Sending attendance question to {questionChannel.Name}");
+            Logger.LogInformation($"    Sending attendance question to {questionChannel.Name}");
             IMessage? localCurrentQuestionMessage = await questionChannel.SendMessageAsync(questionMessageContent, components: component.Build());
             CurrentQuestionMessage = localCurrentQuestionMessage;
             while (DateTime.Now < EventDateTime && WaitingForQuestionResponse)
@@ -49,7 +49,7 @@ namespace FOFA_Bot.Attendance
             }
             if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
             {
-                Logger.LogInformation($"Got response from question: {QuestionResponse}");
+                Logger.LogInformation($"    Got response from question: {QuestionResponse}");
                 WaitingForQuestionResponse = true;
                 CurrentQuestionMessage = null;
                 return QuestionResponse;
@@ -66,13 +66,13 @@ namespace FOFA_Bot.Attendance
                     QuestionResponse = questionResponse;
                     WaitingForQuestionResponse = false;
                 }
-                else Logger.LogError($"Got response from question message that has different ID than CurrentQuestionMessage");
-            else Logger.LogError($"CurrentQuestionMessage is null");
+                else Logger.LogError($"    Got response from question message that has different ID than CurrentQuestionMessage");
+            else Logger.LogError($"    CurrentQuestionMessage is null");
         }
 
         private static ComponentBuilder CreateQuestionButtons()
         {
-            Logger.LogInformation($"Creating attendance event question buttons");
+            Logger.LogInformation($"    Creating attendance event question buttons");
             DayOfWeek eventDayOfWeek = EventDateTime.DayOfWeek;
             ComponentBuilder component = new();
             if (TournamentDays.Contains(eventDayOfWeek))

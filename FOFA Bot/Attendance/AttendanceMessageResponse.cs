@@ -7,7 +7,7 @@ namespace FOFA_Bot.Attendance
     {
         internal static async Task RespondWithOldSignupError(SocketMessageComponent component)
         {
-            Logger.LogWarning($"{component.User.Username} interacted with old signup");
+            Logger.LogWarning($"    {component.User.Username} interacted with old signup");
             EmbedBuilder embed = new();
             embed
                 .WithColor(Color.DarkGrey)
@@ -17,7 +17,7 @@ namespace FOFA_Bot.Attendance
 
         internal static async Task RespondWithSignupStatus(SocketMessageComponent component, bool status)
         {
-            Logger.LogInformation($"Responding to {component.User.Username} button event"); EmbedBuilder embed = new();
+            Logger.LogInformation($"    Responding to {component.User.Username} button event"); EmbedBuilder embed = new();
             Color color;
             string message;
             if (status)
@@ -40,14 +40,14 @@ namespace FOFA_Bot.Attendance
         {
             EmbedBuilder embed = new();
             embed.WithColor(Color.Green);
-            embed.WithTitle($"Status successfully changed to {status}");
+            embed.WithTitle($"    Status successfully changed to {status}");
             return embed;
         }
         internal static EmbedBuilder CreateNegativeStatusResponse()
         {
             EmbedBuilder embed = new();
             embed.WithColor(Color.Red);
-            embed.WithTitle($"Run into error when changing status");
+            embed.WithTitle($"    Run into error when changing status");
             return embed;
         }
     }

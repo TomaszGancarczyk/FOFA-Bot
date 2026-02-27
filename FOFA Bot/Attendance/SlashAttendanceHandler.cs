@@ -60,7 +60,7 @@ namespace FOFA_Bot.Attendance
 
         private static DateTime? FormatDate(string[] dateParts)
         {
-            Logger.LogInformation($"Formatting date for custom signup");
+            Logger.LogInformation($"    Formatting date for custom signup");
             List<int> datePartsFormatted = [];
             foreach (string datePart in dateParts)
             {
@@ -74,7 +74,7 @@ namespace FOFA_Bot.Attendance
         private static DateTime? FormatShortDate(List<int> dateParts)
         {
             //[hours.minutes] untill the event
-            Logger.LogInformation($"Formatting short date");
+            Logger.LogInformation($"    Formatting short date");
             DateTime eventDateTime = DateTime.Now;
             try
             {
@@ -86,7 +86,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogError(e.ToString());
                 return null;
             }
-            Logger.LogInformation($"Formatting date to {eventDateTime}");
+            Logger.LogInformation($"    Formatting date to {eventDateTime}");
             return eventDateTime;
         }
         private static DateTime? FormatLongDate(List<int> dateParts)
