@@ -43,7 +43,6 @@ namespace FOFA_Bot.Bot
                 SignupMessageRunning = true;
                 await AttendanceHandler.StartQuestionAttendanceEvent();
                 Logger.LogInformation($"    Attendance event finished");
-                Task.Delay(60000).Wait();
             }
         }
         internal static EmbedBuilder ChangeAutomnaticSignupMessage(bool status)

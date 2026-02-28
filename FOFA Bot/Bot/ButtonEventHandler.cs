@@ -13,32 +13,32 @@ namespace FOFA_Bot.Bot
             switch (component.Data.CustomId)
             {
                 case "tournamentButton":
-                    Logger.LogInformation($"    Got tournament response to event question");
+                    Logger.LogInformation($"    Got tournament response to event question from {component.User.Username}");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Tournament");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "baseCaptureButton":
-                    Logger.LogInformation($"    Got base capture response to event question");
+                    Logger.LogInformation($"    Got base capture response to event question from {component.User.Username}");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Base Capture");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "brawlButton":
-                    Logger.LogInformation($"    Got brawl response to event question");
+                    Logger.LogInformation($"    Got brawl response to event question from {component.User.Username}");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Brawl");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "goldenDropButton":
-                    Logger.LogInformation($"    Got golden drop response to event question");
+                    Logger.LogInformation($"    Got golden drop response to event question from {component.User.Username}");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Golden Drop");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "stillwatersButton":
-                    Logger.LogInformation($"    Got stillwaters response to event question");
+                    Logger.LogInformation($"    Got stillwaters response to event question from {component.User.Username}");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Stillwaters Chrono/Pulpe/Drops");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "dayOffButton":
-                    Logger.LogInformation($"    Got day off response to event question");
+                    Logger.LogInformation($"    Got day off response to event question from {component.User.Username}");
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Day Off");
                     component.Message.DeleteAsync().Wait();
                     break;

@@ -17,8 +17,7 @@ namespace FOFA_Bot.Attendance
             string template = await AttendanceQuestion.Handle();
             if (template == "Day Off")
             {
-                DateTime nextEventTime = AttendanceMessageGenerator.GetEventDateTime(20);
-                await Task.Delay(nextEventTime - DateTime.Now);
+                Task.Delay(3600000).Wait();
                 return;
             }
             if (template == "Next Message")
