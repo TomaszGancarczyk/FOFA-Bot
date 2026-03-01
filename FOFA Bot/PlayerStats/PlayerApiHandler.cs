@@ -1,23 +1,22 @@
-﻿using FOFA_Bot.Data;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Net.Http.Headers;
 
 
 namespace FOFA_Bot.PlayerStats
 {
-    internal class ApiHandler
+    internal class PlayerApiHandler
     {
         internal static async Task<Stats?> GetPlayerStats(string playerName)
         {
             Logger.LogInformation($"    Calling API for {playerName}");
-            string apitoken = BotData.GetApiToken();
+            var apitoken = await APIAccessToken.GetApiAcessToken();
 
             HttpClient client = new()
             {
                 BaseAddress = new Uri("https://eapi.stalcraft.net/eu/character/by-name/")
             };
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", apitoken);
+                new AuthenticationHeaderValue("Bearer", apitoken.AccessToken);
             client.DefaultRequestHeaders.Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync($"{playerName}/profile").Result;
@@ -46,13 +45,13 @@ namespace FOFA_Bot.PlayerStats
         }
         private static Stats? ConvertJsonStringToPlayerStats(string jsonString)
         {
-            //dynamic? dynamicStats = JsonConvert.DeserializeObject(jsonString);
-            //Stats stats = new()
-            //{
-            //    Uuid = dynamicStats.uuid,
-            //    Username = dynamicStats.username
-            //};
-            //return stats;
+            dynamic? dynamicStats = JsonConvert.DeserializeObject(jsonString);
+            Stats stats = new()
+            {
+                Uuid = dynamicStats.uuid,
+                Username = dynamicStats.username
+            };
+            return stats;
             return null;
         }
     }

@@ -117,10 +117,15 @@ namespace FOFA_Bot.Data
             return JsonBotData.PlannerSheetId;
         }
 
-        internal static string GetApiToken()
+        internal static string GetExboClientID()
         {
-            Logger.LogInformation($"API Token");
-            return JsonBotData.ApiToken;
+            Logger.LogInformation($"Getting Exbo Client ID");
+            return JsonBotData.ExboClientID;
+        }
+        internal static string GetExboClientSecret()
+        {
+            Logger.LogInformation($"Getting Exbo Client Secret");
+            return JsonBotData.ExboClientSecret;
         }
     }
 }

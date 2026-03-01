@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
+using FOFA_Bot.PlayerStats;
 
 namespace FOFA_Bot
 {
@@ -13,6 +14,8 @@ namespace FOFA_Bot
         {
             Logger.LogInformation($"Starting...");
             BotData.LoadJson();
+            //TODO remove after testing
+            //await PlayerApiHandler.GetPlayerStats("Johny_Anime");
             Token = BotData.GetDiscordToken();
             Logger.LogInformation($"[FOFA] Bot is starting");
             new Program().StartBotAsync().GetAwaiter().GetResult();

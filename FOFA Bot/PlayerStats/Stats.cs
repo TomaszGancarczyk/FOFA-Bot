@@ -27,38 +27,6 @@
         internal required int DeliveriesMade { get; set; }
         internal required int CachesFound { get; set; }
         internal required int SignalsFound { get; set; }
-
-        internal static Stats CreateTestPlayer()
-        {
-            var player = new Stats
-            {
-                Uuid = "id",
-                Username = "username",
-                Faction = "Rise",
-                Clan = "ROFA",
-                ClanTag = "[TAG]",
-                ClanRank = "Colonel",
-                TimesJoinedClan = 5,
-                PlaytimeHours = 500,
-                JoinedGame = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
-                LastLogin = DateOnly.FromDateTime(DateTime.Now),
-                Kills = 69,
-                Deaths = 420,
-                Assists = 1,
-                TotalKD = 69/420,
-                SessionKD = 10 / 500,
-                Suicides = 10000,
-                ArtifactsFound = 0,
-                HighestMoney = 69420,
-                BoltsThrown = 10,
-                MutantKills = 10000000,
-                NpcKills = 100,
-                DeliveriesMade = 0,
-                CachesFound = 2179846,
-                SignalsFound = 54321
-            };
-            return player;
-        }
     }
 
 

@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
 
@@ -9,7 +8,7 @@ namespace FOFA_Bot.Attendance
     {
         private static AttendanceMessage? CurrentMessage;
         private readonly static int EventReminderMinutes = 90;
-        private readonly static int EventCloseMinutes = 15;
+        private readonly static int EventCloseMinutes = 30;
         internal static async Task StartQuestionAttendanceEvent()
         {
             Logger.LogInformation($"    Starting attendance question event");
@@ -18,10 +17,14 @@ namespace FOFA_Bot.Attendance
             if (template == "Day Off")
             {
                 Task.Delay(3600000).Wait();
+                BotHandler.SetSignupMessageRunning(false);
                 return;
             }
             if (template == "Next Message")
+            {
+                BotHandler.SetSignupMessageRunning(false);
                 return;
+            }
             CreateAttendanceEvent(null, null, template);
             await SendAttendanceMessage();
         }
