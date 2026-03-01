@@ -79,8 +79,14 @@ namespace FOFA_Bot.Attendance
         }
         private static string GetRange(int numberOfCollumns)
         {
+            string isBigChar = "";
+            if (numberOfCollumns > 25)
+            {
+                isBigChar = "A";
+                numberOfCollumns -= 25;
+            }
             char lastCollumnChar = (char)('A' + numberOfCollumns);
-            string range = $"A3:{lastCollumnChar}3";
+            string range = $"A3:{isBigChar}{lastCollumnChar}3";
             Logger.LogInformation($"    Got sheet range for {range}");
             return range;
         }
