@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using FOFA_Bot.Attendance;
 using FOFA_Bot.Data;
 using FOFA_Bot.Nades;
+using FOFA_Bot.PlayerStats;
 
 namespace FOFA_Bot.Bot
 {
@@ -12,9 +13,12 @@ namespace FOFA_Bot.Bot
         private static bool SignupMessageRunning = false;
         private static bool NadeMessageRunning = false;
 
-        internal static void Run(DiscordSocketClient discord)
+        internal static async Task Run(DiscordSocketClient discord)
         {
             Discord = discord;
+            //TODO remove after testing
+            await StatsMessage.SendStatsMessage("Stagnant_Water");
+            //TODO remove after testing
             while (true)
             {
                 //_ = CheckNadeMessage();

@@ -6,7 +6,7 @@ namespace FOFA_Bot.PlayerStats
 {
     internal class PlayerApiHandler
     {
-        internal static async Task<Stats?> GetPlayerStats(string playerName)
+        internal static async Task<PlayerStats?> GetPlayerStats(string playerName)
         {
             Logger.LogInformation($"    Calling API for {playerName}");
             var apitoken = await APIAccessToken.GetApiAcessToken();
@@ -24,7 +24,7 @@ namespace FOFA_Bot.PlayerStats
             {
                 Logger.LogInformation($"    Successfully got the request for {playerName}");
                 string responseBody = await response.Content.ReadAsStringAsync();
-                Stats? playerStats = ConvertJsonStringToPlayerStats(responseBody);
+                PlayerStats? playerStats = ConvertJsonStringToPlayerStats(responseBody);
                 return playerStats;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
@@ -43,16 +43,18 @@ namespace FOFA_Bot.PlayerStats
                 return null;
             }
         }
-        private static Stats? ConvertJsonStringToPlayerStats(string jsonString)
+        private static PlayerStats? ConvertJsonStringToPlayerStats(string jsonString)
         {
-            dynamic? dynamicStats = JsonConvert.DeserializeObject(jsonString);
-            Stats stats = new()
+            try
             {
-                Uuid = dynamicStats.uuid,
-                Username = dynamicStats.username
-            };
-            return stats;
-            return null;
+                PlayerStats stats = JsonConvert.DeserializeObject<PlayerStats>(jsonString);
+                return stats;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Run into problem deserializing player stats:\n{e}");
+                return null;
+            }
         }
     }
 }
