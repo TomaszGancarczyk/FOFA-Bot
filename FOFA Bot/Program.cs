@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
-using FOFA_Bot.PlayerStats;
 
 namespace FOFA_Bot
 {
@@ -97,15 +96,26 @@ namespace FOFA_Bot
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.Boolean)
                     );
-                //await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
-                //await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
-                //await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
-                //await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
+                SlashCommandBuilder? stats = new SlashCommandBuilder()
+                    .WithName("stats")
+                    .WithDescription("Show player stats")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("player")
+                        .WithDescription("Name of the player")
+                        .WithRequired(true)
+                        .WithType(ApplicationCommandOptionType.String)
+                    );
+                await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(stats.Build());
             }
             catch (Exception e)
             {
                 Logger.LogCritical($"Run into problem when setting up commands:\n{e}");
             }
+            //TODO stats command locked to specific channel
         }
     }
 }

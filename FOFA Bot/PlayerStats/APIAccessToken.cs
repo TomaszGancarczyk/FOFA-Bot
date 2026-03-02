@@ -6,15 +6,17 @@ namespace FOFA_Bot.PlayerStats
 {
     internal class APIAccessToken
     {
-        private static ApiToken? Token = null;
+        private static ApiToken? Token;
         private static DateTime TokenExpirationTime = DateTime.Now;
         internal static async Task<ApiToken?> GetApiAcessToken()
         {
             Logger.LogInformation($"    Getting API Access token");
-            Logger.LogInformation($"    Token expires in {TokenExpirationTime - DateTime.Now}");
             if (Token != null && TokenExpirationTime > DateTime.Now)
+            {
+                Logger.LogInformation($"    Token expires in {TokenExpirationTime - DateTime.Now}");
                 return Token;
-            Logger.LogInformation($"    Creating new API Access token");
+            }
+            Logger.LogInformation($"    Token Expired, creating new API Access token");
             string clientId = BotData.GetExboClientID();
             string clientSecret = BotData.GetExboClientSecret();
             HttpClient client = new()
@@ -37,7 +39,8 @@ namespace FOFA_Bot.PlayerStats
                 ApiToken? responseBody = JsonConvert.DeserializeObject<ApiToken>(jsonContent);
                 TokenExpirationTime = DateTime.Now.AddMilliseconds(responseBody.ExpiresIn);
                 Logger.LogInformation($"    Token expires in {TokenExpirationTime - DateTime.Now}");
-                return responseBody;
+                Token = responseBody;
+                return Token;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {

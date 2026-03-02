@@ -1,26 +1,30 @@
 ﻿using Discord;
-using FOFA_Bot.Data;
-using static System.Net.Mime.MediaTypeNames;
+using Discord.WebSocket;
 
 namespace FOFA_Bot.PlayerStats
 {
     internal class StatsMessage
     {
-        internal static async Task SendStatsMessage(string playername)
+        internal static async Task SendStatsMessage(SocketSlashCommand command)
         {
+            string playername = command.Data.Options.First().Value.ToString();
+            if (playername == null)
+            {
+                await command.RespondAsync(embed: GetErrorMessage("").Build());
+                return;
+            }
             var stats = await PlayerApiHandler.GetPlayerStats(playername);
             EmbedBuilder message;
             if (stats == null)
             {
-                message = GetErrorMessage(playername);
-                await BotData.GetSignupsChannel().SendMessageAsync(embed: message.Build());
+                await command.RespondAsync(embed: GetErrorMessage(playername).Build());
             }
             else
             {
                 message = StatsMessageGenerator.CreateStatsMessage(stats);
                 string image = GetFactionImage(stats.alliance);
                 message.WithThumbnailUrl($"attachment://{stats.alliance.ToLower()}.webp");
-                await BotData.GetSignupsChannel().SendFileAsync(image, embed: message.Build());
+                await command.RespondWithFileAsync(image, embed: message.Build());
             }
         }
         private static string GetFactionImage(string faction)

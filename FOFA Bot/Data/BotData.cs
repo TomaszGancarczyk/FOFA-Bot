@@ -55,6 +55,10 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"    Found Nade Channel: {channel.Name}");
             return channel;
         }
+        internal static ulong GetStatsChannelId()
+        {
+            return JsonBotData.StatsChannelId;
+        }
 
         internal static double GetTournamentHour()
         {
@@ -119,12 +123,12 @@ namespace FOFA_Bot.Data
 
         internal static string GetExboClientID()
         {
-            Logger.LogInformation($"Getting Exbo Client ID");
+            Logger.LogInformation($"    Getting Exbo Client ID");
             return JsonBotData.ExboClientID;
         }
         internal static string GetExboClientSecret()
         {
-            Logger.LogInformation($"Getting Exbo Client Secret");
+            Logger.LogInformation($"    Getting Exbo Client Secret");
             return JsonBotData.ExboClientSecret;
         }
     }

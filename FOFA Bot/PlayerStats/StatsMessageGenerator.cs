@@ -166,8 +166,3 @@ namespace FOFA_Bot.PlayerStats
         }
     }
 }
-
-//TODO message
-// K/D/A maybe
-// check faction names
-// add command
