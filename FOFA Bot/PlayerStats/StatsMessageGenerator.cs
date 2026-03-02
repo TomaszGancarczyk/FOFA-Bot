@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 
 
 namespace FOFA_Bot.PlayerStats
@@ -44,44 +43,117 @@ namespace FOFA_Bot.PlayerStats
                 $"- Last login: {stats.lastLogin}",
                 IsInline = false,
             };
-            EmbedFieldBuilder PveField = new()
-            {
-                Name = $"PVE",
-                Value = $"- NPC Kills: {stats.stats.First(stat => stat.id == "npc-kil").value.ToString()}\n" +
-                $"- MutantKills: {stats.stats.First(stat => stat.id == "mut-kil").value.ToString()}",
-                IsInline = false,
-            };
             long kills = (long)stats.stats.First(stat => stat.id == "kil").value;
             long deaths = (long)stats.stats.First(stat => stat.id == "dea").value;
             double KD = (double)kills / (double)deaths;
-            long sessionKills = (long)stats.stats.First(stat => stat.id == "kills-bf").value;
-            long sessionDeaths = (long)stats.stats.First(stat => stat.id == "deaths-bf").value;
-            double sessionKD = (double)sessionKills / (double)sessionDeaths;
-            EmbedFieldBuilder PvpField = new()
+            EmbedFieldBuilder PveField = new()
             {
-                Name = $"PVP",
-                Value = $"- Kills: {kills}\n" +
+                Name = $"Player",
+                Value =
+                $"- Kills: {kills}\n" +
                 $"- Deaths: {deaths}\n" +
+                $"- K/D: {Math.Round(KD, 2)}\n" +
                 $"- Assists: {stats.stats.First(stat => stat.id == "ast").value.ToString()}\n" +
                 $"- Suicides: {stats.stats.First(stat => stat.id == "suicides").value.ToString()}\n" +
-                $"- Total K/D: {Math.Round(KD, 2)}\n" +
-                $"- Session Kills: {sessionKills}\n" +
-                $"- Session Deaths: {sessionDeaths}\n" +
-                $"- Session K/D: {Math.Round(sessionKD, 2)}",
-                IsInline = false,
+                $"- NPC Kills: {stats.stats.First(stat => stat.id == "npc-kil").value.ToString()}\n" +
+                $"- MutantKills: {stats.stats.First(stat => stat.id == "mut-kil").value.ToString()}",
+                IsInline = true,
             };
+            EmbedFieldBuilder SessionsField = new()
+            {
+                Name = $"Sessions",
+                IsInline = true
+
+            };
+            try
+            {
+                long sessionKills = (long)stats.stats.First(stat => stat.id == "kills-bf").value;
+                long sessionDeaths = (long)stats.stats.First(stat => stat.id == "deaths-bf").value;
+                double sessionKD = (double)sessionKills / (double)sessionDeaths;
+                double sessionWinrate = Math.Round((double)(long)stats.stats.First(stat => stat.id == "won-bf").value / (double)(long)stats.stats.First(stat => stat.id == "part-bf").value * 100);
+
+                SessionsField.Value =
+                    $"- Kills: {sessionKills}\n" +
+                    $"- Deaths: {sessionDeaths}\n" +
+                    $"- K/D: {Math.Round(sessionKD, 2)}\n" +
+                    $"- Sessions Played: {stats.stats.First(stat => stat.id == "part-bf").value.ToString()}\n" +
+                    $"- Won Sessions: {stats.stats.First(stat => stat.id == "won-bf").value.ToString()}\n" +
+                    $"- Lost Sessions: {stats.stats.First(stat => stat.id == "lost-bf").value.ToString()}\n" +
+                    $"- Win %: {sessionWinrate}%";
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"    Run into problem when creating sessions field:\n{e}");
+                SessionsField.Value = 
+                    $"Player has not played any Session Battles";
+            }
+            string highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
+            string formattedHighestMoney = highestMoney.Substring(0, highestMoney.Length % 3);
+            for (int i = 0; i < (highestMoney.Length / 3); i++)
+            {
+                formattedHighestMoney += "." + highestMoney.Substring(highestMoney.Length % 3 + i * 3, 3);
+            }
+            if (highestMoney.Length % 3 == 0)
+                formattedHighestMoney = formattedHighestMoney.Substring(1);
+
             EmbedFieldBuilder OtherField = new()
             {
                 Name = $"Other",
-                Value = $"- Highest Money: {stats.stats.First(stat => stat.id == "max-mon-amo").value}\n" +
+                Value = $"- Highest Money: {formattedHighestMoney}\n" +
                 $"- Artifacts Found: {stats.stats.First(stat => stat.id == "art-col").value.ToString()}\n" +
                 $"- Bolts Thrown: {stats.stats.First(stat => stat.id == "scr-thr").value.ToString()}\n" +
                 $"- Deliveries Made: {stats.stats.First(stat => stat.id == "tpacks-delivered").value.ToString()}\n" +
                 $"- Caches Found: {stats.stats.First(stat => stat.id == "mining-count").value.ToString()}\n" +
                 $"- Signals Found: {stats.stats.First(stat => stat.id == "sgn-fnd").value.ToString()}",
-                IsInline = false,
+                IsInline = true,
             };
-
+            EmbedFieldBuilder OpsField = new()
+            {
+                Name = $"Operations",
+                IsInline = true
+            };
+            string bigCleanupOps = "";
+            string focusOps = "";
+            try
+            {
+                bigCleanupOps =
+                    $"- Big Cleanup Completed: {stats.stats.First(stat => stat.id == "big-cleanup-completed-ops").value.ToString()}\n" +
+                    $"- Big Cleanup Highest: {stats.stats.First(stat => stat.id == "big-cleanup-max-key-ops").value.ToString()}\n";
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"    Run into problem when getting Big Cleanup ops:\n{e}");
+            }
+            try
+            {
+                focusOps =
+                    $"- Focus Completed: {stats.stats.First(stat => stat.id == "focus-completed-ops").value.ToString()}\n" +
+                    $"- Focus Highest: {stats.stats.First(stat => stat.id == "focus-max-key-ops").value.ToString()}\n";
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"    Run into problem when getting Focus ops:\n{e}");
+            }
+            try
+            {
+                OpsField.Value =
+                    $"- Operations Played: {stats.stats.First(stat => stat.id == "completed-ops").value.ToString()}\n" +
+                    $"- Kills: {stats.stats.First(stat => stat.id == "kills-ops").value.ToString()}\n" +
+                    $"{bigCleanupOps}" +
+                    $"{focusOps}";
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"    Run into problem when creating ops field:\n{e}");
+                OpsField.Value =
+                    $"Player has not played any operations";
+            }
+            EmbedFieldBuilder Breakfield = new()
+            {
+                Name = "--------------------------------------------------",
+                Value = "--------------------------------------------------",
+                IsInline = false
+            };
             if (stats.clan != null)
                 clanString = $"**{stats.clan.member.rank} of [{stats.clan.info.tag}] {stats.clan.info.name}**\n";
             //if (stats.TimesJoinedClan > 0)
@@ -90,16 +162,8 @@ namespace FOFA_Bot.PlayerStats
             embed
                 .WithTitle($"{faction} **member** {stats.username}")
                 .WithDescription($"{clanString}" + $"{clansJoinedString}")
-                .WithFields(GameTimeField, PvpField, PveField, OtherField)
-                .WithImageUrl($"attachment://{stats.alliance.ToLower()}.webp");
+                .WithFields(GameTimeField, Breakfield, PveField, SessionsField, Breakfield, OtherField, OpsField);
 
-            return embed;
-        }
-        internal static EmbedBuilder CreateStatsErrorMessage(SocketSlashCommand command)
-        {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Red)
-                .WithTitle($"Couldn't find player {command.Data.Options.First().Value.ToString()}");
             return embed;
         }
     }
@@ -107,7 +171,4 @@ namespace FOFA_Bot.PlayerStats
 
 //TODO message
 // K/D/A maybe
-// inline fields
-// operations field
-// fix image placement
 // check faction names

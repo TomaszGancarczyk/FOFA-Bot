@@ -17,7 +17,7 @@ namespace FOFA_Bot.Bot
         {
             Discord = discord;
             //TODO remove after testing
-            await StatsMessage.SendStatsMessage("Stagnant_Water");
+            //await StatsMessage.SendStatsMessage("Stagnant_Water");
             //TODO remove after testing
             while (true)
             {
