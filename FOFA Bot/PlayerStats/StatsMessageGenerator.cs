@@ -5,8 +5,10 @@ namespace FOFA_Bot.PlayerStats
 {
     internal class StatsMessageGenerator
     {
+        private static PlayerStats? Stats;
         internal static EmbedBuilder CreateStatsMessage(PlayerStats stats)
         {
+            Stats = stats;
             string faction = "";
             EmbedBuilder embed = new();
             switch (stats.alliance)
@@ -21,15 +23,19 @@ namespace FOFA_Bot.PlayerStats
                     break;
                 case "covenant":
                     embed.WithColor(Color.Purple);
+                    faction = "Covenant";
                     break;
-                case "mercenaries":
+                case "merc":
                     embed.WithColor(Color.Blue);
+                    faction = "Mercenary";
                     break;
                 case "stalkers":
                     embed.WithColor(Color.Gold);
+                    faction = "Stalker";
                     break;
                 case "bandits":
                     embed.WithColor(Color.LightGrey);
+                    faction = "Bandit";
                     break;
             }
             string clanString = "";
@@ -53,10 +59,10 @@ namespace FOFA_Bot.PlayerStats
                 $"- Kills: {kills}\n" +
                 $"- Deaths: {deaths}\n" +
                 $"- K/D: {Math.Round(KD, 2)}\n" +
-                $"- Assists: {stats.stats.First(stat => stat.id == "ast").value.ToString()}\n" +
-                $"- Suicides: {stats.stats.First(stat => stat.id == "suicides").value.ToString()}\n" +
-                $"- NPC Kills: {stats.stats.First(stat => stat.id == "npc-kil").value.ToString()}\n" +
-                $"- MutantKills: {stats.stats.First(stat => stat.id == "mut-kil").value.ToString()}",
+                GetStatLineFromId("Assists", "ast") +
+                GetStatLineFromId("Suicides", "suicides") +
+                GetStatLineFromId("NPC Kills", "npc-kil") +
+                GetStatLineFromId("Mutant Kills", "mut-kil"),
                 IsInline = true,
             };
             EmbedFieldBuilder SessionsField = new()
@@ -76,15 +82,15 @@ namespace FOFA_Bot.PlayerStats
                     $"- Kills: {sessionKills}\n" +
                     $"- Deaths: {sessionDeaths}\n" +
                     $"- K/D: {Math.Round(sessionKD, 2)}\n" +
-                    $"- Sessions Played: {stats.stats.First(stat => stat.id == "part-bf").value.ToString()}\n" +
-                    $"- Won Sessions: {stats.stats.First(stat => stat.id == "won-bf").value.ToString()}\n" +
-                    $"- Lost Sessions: {stats.stats.First(stat => stat.id == "lost-bf").value.ToString()}\n" +
+                    GetStatLineFromId("Sessions Played", "part-bf") +
+                    GetStatLineFromId("Won Sessions", "won-bf") +
+                    GetStatLineFromId("Lost Sessions", "lost-bf") +
                     $"- Win %: {sessionWinrate}%";
             }
             catch (Exception e)
             {
                 Logger.LogWarning($"    Run into problem when creating sessions field:\n{e}");
-                SessionsField.Value = 
+                SessionsField.Value =
                     $"Player has not played any Session Battles";
             }
             string highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
@@ -100,11 +106,11 @@ namespace FOFA_Bot.PlayerStats
             {
                 Name = $"Other",
                 Value = $"- Highest Money: {formattedHighestMoney}\n" +
-                $"- Artifacts Found: {stats.stats.First(stat => stat.id == "art-col").value.ToString()}\n" +
-                $"- Bolts Thrown: {stats.stats.First(stat => stat.id == "scr-thr").value.ToString()}\n" +
-                $"- Deliveries Made: {stats.stats.First(stat => stat.id == "tpacks-delivered").value.ToString()}\n" +
-                $"- Caches Found: {stats.stats.First(stat => stat.id == "mining-count").value.ToString()}\n" +
-                $"- Signals Found: {stats.stats.First(stat => stat.id == "sgn-fnd").value.ToString()}",
+                GetStatLineFromId("Artifacts Found", "art-col") +
+                GetStatLineFromId("Bolts Thrown", "scr-thr") +
+                GetStatLineFromId("Deliveries Made", "tpacks-delivered") +
+                GetStatLineFromId("Caches Found", "mining-count") +
+                GetStatLineFromId("Signals Found", "sgn-fnd"),
                 IsInline = true,
             };
             EmbedFieldBuilder OpsField = new()
@@ -112,35 +118,15 @@ namespace FOFA_Bot.PlayerStats
                 Name = $"Operations",
                 IsInline = true
             };
-            string bigCleanupOps = "";
-            string focusOps = "";
-            try
-            {
-                bigCleanupOps =
-                    $"- Big Cleanup Completed: {stats.stats.First(stat => stat.id == "big-cleanup-completed-ops").value.ToString()}\n" +
-                    $"- Big Cleanup Highest: {stats.stats.First(stat => stat.id == "big-cleanup-max-key-ops").value.ToString()}\n";
-            }
-            catch (Exception e)
-            {
-                Logger.LogWarning($"    Run into problem when getting Big Cleanup ops:\n{e}");
-            }
-            try
-            {
-                focusOps =
-                    $"- Focus Completed: {stats.stats.First(stat => stat.id == "focus-completed-ops").value.ToString()}\n" +
-                    $"- Focus Highest: {stats.stats.First(stat => stat.id == "focus-max-key-ops").value.ToString()}\n";
-            }
-            catch (Exception e)
-            {
-                Logger.LogWarning($"    Run into problem when getting Focus ops:\n{e}");
-            }
             try
             {
                 OpsField.Value =
                     $"- Operations Played: {stats.stats.First(stat => stat.id == "completed-ops").value.ToString()}\n" +
                     $"- Kills: {stats.stats.First(stat => stat.id == "kills-ops").value.ToString()}\n" +
-                    $"{bigCleanupOps}" +
-                    $"{focusOps}";
+                GetStatLineFromId("Big Cleanup Completed", "big-cleanup-completed-ops") +
+                GetStatLineFromId("Big Cleanup Highest", "big-cleanup-max-key-ops") +
+                GetStatLineFromId("Focus Completed", "focus-completed-ops") +
+                GetStatLineFromId("Focus Highest", "focus-max-key-ops");
             }
             catch (Exception e)
             {
@@ -150,8 +136,8 @@ namespace FOFA_Bot.PlayerStats
             }
             EmbedFieldBuilder Breakfield = new()
             {
-                Name = "--------------------------------------------------",
-                Value = "--------------------------------------------------",
+                Name = "-------------------------------------------------",
+                Value = "-------------------------------------------------",
                 IsInline = false
             };
             if (stats.clan != null)
@@ -166,9 +152,22 @@ namespace FOFA_Bot.PlayerStats
 
             return embed;
         }
+
+        private static string GetStatLineFromId(string message, string id)
+        {
+            try
+            {
+                return $"- {message}: {Stats.stats.First(stat => stat.id == id).value.ToString()}\n";
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
     }
 }
 
 //TODO message
 // K/D/A maybe
 // check faction names
+// add command

@@ -17,7 +17,13 @@ namespace FOFA_Bot.Bot
         {
             Discord = discord;
             //TODO remove after testing
-            //await StatsMessage.SendStatsMessage("Stagnant_Water");
+            await StatsMessage.SendStatsMessage("Stagnant_Water");
+            await StatsMessage.SendStatsMessage("miki_mus");
+            await StatsMessage.SendStatsMessage("YmMingg");
+            await StatsMessage.SendStatsMessage("monker");
+            await StatsMessage.SendStatsMessage("JasperG");
+            await StatsMessage.SendStatsMessage("Monker_ZXC");
+            await StatsMessage.SendStatsMessage("asdasdasdasd");
             //TODO remove after testing
             while (true)
             {
