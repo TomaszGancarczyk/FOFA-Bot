@@ -10,5 +10,6 @@ namespace FOFA_Bot.Attendance
         internal ComponentBuilder messageButtons = new();
         internal DateTime? Date;
         internal IMessage? discordMessage;
+        internal bool Reminder = false;
     }
 }

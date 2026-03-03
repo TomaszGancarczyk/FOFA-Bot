@@ -49,20 +49,17 @@ namespace FOFA_Bot.PlayerStats
                 $"- Last login: {stats.lastLogin}",
                 IsInline = false,
             };
-            long kills = (long)stats.stats.First(stat => stat.id == "kil").value;
-            long deaths = (long)stats.stats.First(stat => stat.id == "dea").value;
-            double KD = (double)kills / (double)deaths;
             EmbedFieldBuilder PveField = new()
             {
                 Name = $"Player",
                 Value =
-                $"- Kills: {kills}\n" +
-                $"- Deaths: {deaths}\n" +
-                $"- K/D: {Math.Round(KD, 2)}\n" +
-                GetStatLineFromId("Assists", "ast") +
-                GetStatLineFromId("Suicides", "suicides") +
-                GetStatLineFromId("NPC Kills", "npc-kil") +
-                GetStatLineFromId("Mutant Kills", "mut-kil"),
+                    GetStatLineFromId("Kills", "kil") +
+                    GetStatLineFromId("Deaths", "dea") +
+                    GetKDString("kil", "dea") +
+                    GetStatLineFromId("Assists", "ast") +
+                    GetStatLineFromId("Suicides", "suicides") +
+                    GetStatLineFromId("NPC Kills", "npc-kil") +
+                    GetStatLineFromId("Mutant Kills", "mut-kil"),
                 IsInline = true,
             };
             EmbedFieldBuilder SessionsField = new()
@@ -73,15 +70,12 @@ namespace FOFA_Bot.PlayerStats
             };
             try
             {
-                long sessionKills = (long)stats.stats.First(stat => stat.id == "kills-bf").value;
-                long sessionDeaths = (long)stats.stats.First(stat => stat.id == "deaths-bf").value;
-                double sessionKD = (double)sessionKills / (double)sessionDeaths;
                 double sessionWinrate = Math.Round((double)(long)stats.stats.First(stat => stat.id == "won-bf").value / (double)(long)stats.stats.First(stat => stat.id == "part-bf").value * 100);
 
                 SessionsField.Value =
-                    $"- Kills: {sessionKills}\n" +
-                    $"- Deaths: {sessionDeaths}\n" +
-                    $"- K/D: {Math.Round(sessionKD, 2)}\n" +
+                    GetStatLineFromId("Kills", "kills-bf") +
+                    GetStatLineFromId("Deaths", "deaths-bf") +
+                    GetKDString("kills-bf", "deaths-bf") +
                     GetStatLineFromId("Sessions Played", "part-bf") +
                     GetStatLineFromId("Won Sessions", "won-bf") +
                     GetStatLineFromId("Lost Sessions", "lost-bf") +
@@ -93,14 +87,19 @@ namespace FOFA_Bot.PlayerStats
                 SessionsField.Value =
                     $"Player has not played any Session Battles";
             }
-            string highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
-            string formattedHighestMoney = highestMoney.Substring(0, highestMoney.Length % 3);
-            for (int i = 0; i < (highestMoney.Length / 3); i++)
+            string formattedHighestMoney = "0";
+            try
             {
-                formattedHighestMoney += "." + highestMoney.Substring(highestMoney.Length % 3 + i * 3, 3);
+                string highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
+                formattedHighestMoney = highestMoney.Substring(0, highestMoney.Length % 3);
+                for (int i = 0; i < (highestMoney.Length / 3); i++)
+                {
+                    formattedHighestMoney += "." + highestMoney.Substring(highestMoney.Length % 3 + i * 3, 3);
+                }
+                if (highestMoney.Length % 3 == 0)
+                    formattedHighestMoney = formattedHighestMoney.Substring(1);
             }
-            if (highestMoney.Length % 3 == 0)
-                formattedHighestMoney = formattedHighestMoney.Substring(1);
+            catch (Exception) { }
 
             EmbedFieldBuilder OtherField = new()
             {
@@ -142,8 +141,6 @@ namespace FOFA_Bot.PlayerStats
             };
             if (stats.clan != null)
                 clanString = $"**{stats.clan.member.rank} of [{stats.clan.info.tag}] {stats.clan.info.name}**\n";
-            //if (stats.TimesJoinedClan > 0)
-            //    clansJoinedString = $"and member of {stats.TimesJoinedClan - 1} clans before that\n";
 
             embed
                 .WithTitle($"{faction} **member** {stats.username}")
@@ -158,6 +155,20 @@ namespace FOFA_Bot.PlayerStats
             try
             {
                 return $"- {message}: {Stats.stats.First(stat => stat.id == id).value.ToString()}\n";
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
+        private static string GetKDString(string killsId, string deathsId)
+        {
+            try
+            {
+                long kills = (long)Stats.stats.First(stat => stat.id == killsId).value;
+                long deaths = (long)Stats.stats.First(stat => stat.id == deathsId).value;
+                double KD = (double)kills / (double)deaths;
+                return $"- K/D: {Math.Round(KD, 2).ToString()}\n";
             }
             catch (Exception)
             {

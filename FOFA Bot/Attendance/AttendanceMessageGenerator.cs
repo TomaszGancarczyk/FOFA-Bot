@@ -19,6 +19,7 @@ namespace FOFA_Bot.Attendance
                 case "Tournament":
                     eventDateTime = GetEventDateTime(BotData.GetTournamentHour());
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.DarkGreen);
+                    AttendanceMessage.Reminder = true;
                     break;
                 case "Brawl":
                     eventDateTime = GetEventDateTime(BotData.GetBrawlHour());
@@ -27,14 +28,16 @@ namespace FOFA_Bot.Attendance
                 case "Base Capture":
                     eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
+                    AttendanceMessage.Reminder = true;
                     break;
-                case "Stillwaters Chrono/Pulpe/Drops":
+                case "New North":
                     eventDateTime = GetEventDateTime(BotData.GetStillwatersHour());
-                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
+                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Magenta);
                     break;
                 case "Golden Drop":
                     eventDateTime = GetEventDateTime(BotData.GetGoldenDropHour());
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Gold);
+                    AttendanceMessage.Reminder = true;
                     break;
             }
             if (EmbedMessage == null)

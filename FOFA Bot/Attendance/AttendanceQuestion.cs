@@ -81,8 +81,8 @@ namespace FOFA_Bot.Attendance
                 component.WithButton("Base Capture", "baseCaptureButton", emote: new Emoji("👑"));
             if (BrawlDays.Contains(eventDayOfWeek))
                 component.WithButton("Brawl", "brawlButton", emote: new Emoji("💵"));
-            component.WithButton("Golden Drop", "goldenDropButton", emote: new Emoji("💵"));
-            component.WithButton("Stillwaters Chrono/Pulpe/Drops", "stillwatersButton", emote: new Emoji("📦"));
+            component.WithButton("Golden Drop", "goldenDropButton", emote: new Emoji("📦"));
+            component.WithButton("New North", "stillwatersButton", emote: new Emoji("🌳"));
             component.WithButton("Day Off", "dayOffButton", emote: new Emoji("🏖️"));
             return component;
         }

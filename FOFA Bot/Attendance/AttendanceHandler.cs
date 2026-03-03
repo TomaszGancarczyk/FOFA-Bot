@@ -70,9 +70,12 @@ namespace FOFA_Bot.Attendance
             bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.discordMessage.Id);
             if (localCurrentMessage != null && CurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
             {
-                string reminderMessage = CreateReminderMessage();
-                if (reminderMessage != string.Empty)
-                    await CurrentMessage.signupsChannel.SendMessageAsync(reminderMessage);
+                if (CurrentMessage.Reminder)
+                {
+                    string reminderMessage = CreateReminderMessage();
+                    if (reminderMessage != string.Empty)
+                        await CurrentMessage.signupsChannel.SendMessageAsync(reminderMessage);
+                }
             }
 
             DateTime eventCloseTime = CurrentMessage.Date.Value.AddMinutes(-EventCloseMinutes);
