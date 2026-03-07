@@ -120,8 +120,8 @@ namespace FOFA_Bot.PlayerStats
             try
             {
                 OpsField.Value =
-                    $"- Operations Played: {stats.stats.First(stat => stat.id == "completed-ops").value.ToString()}\n" +
-                    $"- Kills: {stats.stats.First(stat => stat.id == "kills-ops").value.ToString()}\n" +
+                    $"- Operations Finished: {stats.stats.First(stat => stat.id == "completed-ops").value.ToString()}\n" +
+                GetStatLineFromId("Kills", "kills-ops") +
                 GetStatLineFromId("Big Cleanup Completed", "big-cleanup-completed-ops") +
                 GetStatLineFromId("Big Cleanup Highest", "big-cleanup-max-key-ops") +
                 GetStatLineFromId("Focus Completed", "focus-completed-ops") +

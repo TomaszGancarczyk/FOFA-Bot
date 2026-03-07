@@ -46,6 +46,21 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"    Found Signups Channel: {channel.Name}");
             return channel;
         }
+        internal static IMessageChannel GetAnnoucmentChannel()
+        {
+            Logger.LogInformation($"    Getting Annoucment Channel Id");
+            ulong channelId = JsonBotData.AnnoucmentChannelId;
+            Logger.LogInformation($"    Getting Annoucment Channel");
+            IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
+            Logger.LogInformation($"    Found Annoucment Channel: {channel.Name}");
+            return channel;
+        }
+        internal static ulong GetClanWarChannelId()
+        {
+            Logger.LogInformation($"    Getting Annoucment Channel Id");
+            ulong channelId = JsonBotData.ClanWarChannelId;
+            return channelId;
+        }
         internal static IMessageChannel GetNadeChannel()
         {
             Logger.LogInformation($"    Getting Nade Channel Id");

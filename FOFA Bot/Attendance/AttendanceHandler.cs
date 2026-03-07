@@ -64,7 +64,7 @@ namespace FOFA_Bot.Attendance
             if (CurrentMessage.Date == null)
                 return;
 
-            DateTime eventReminderTime = CurrentMessage.Date.Value.AddMinutes(-EventReminderMinutes);
+            DateTime eventReminderTime = CurrentMessage.Date.AddMinutes(-EventReminderMinutes);
             while (DateTime.Now < eventReminderTime)
                 Task.Delay(60000).Wait();
             bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.discordMessage.Id);
@@ -78,9 +78,16 @@ namespace FOFA_Bot.Attendance
                 }
             }
 
-            DateTime eventCloseTime = CurrentMessage.Date.Value.AddMinutes(-EventCloseMinutes);
+            DateTime eventCloseTime = CurrentMessage.Date.AddMinutes(-EventCloseMinutes);
             while (DateTime.Now < eventCloseTime)
                 Task.Delay(60000).Wait();
+            if (localCurrentMessage != null && CurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+            {
+                string annoucmentMessage = CreateAnnoucmentMessage();
+                if (annoucmentMessage != string.Empty)
+                    await BotData.GetAnnoucmentChannel().SendMessageAsync(annoucmentMessage);
+            }
+
             if (localCurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
                 AttendanceGoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
             if (localCurrentMessage != null && localCurrentMessage.Id == CurrentMessage.discordMessage.Id)
@@ -115,6 +122,13 @@ namespace FOFA_Bot.Attendance
             foreach (var member in members) if (member.status == null && member.discordUser != null)
                     reminderMessage += "\n" + MentionUtils.MentionUser(member.discordUser.Id);
             return reminderMessage;
+        }
+        private static string CreateAnnoucmentMessage()
+        {
+            ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
+            string[] eventParts = CurrentMessage.discordMessage.Embeds.First().Title.Split(" ");
+            string annoucmentMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {CurrentMessage.discordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId())}";
+            return annoucmentMessage;
         }
 
         internal static ulong? GetCurrentMessageId()
