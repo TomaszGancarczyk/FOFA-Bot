@@ -8,9 +8,9 @@ namespace FOFA_Bot.Bot
 {
     internal class PlannerGoogleSheet
     {
-        internal static Dictionary<string, string> GetInGameNames()
+        internal static List<PlannerData> GetPlannerData()
         {
-            Dictionary<string, string> inGameNames = [];
+            List<PlannerData> data = [];
             string sheetId = BotData.GetPlannerSheetId();
             SheetsService? service = GetSheetService();
             string range = "A2:B";
@@ -18,9 +18,16 @@ namespace FOFA_Bot.Bot
             var requestResponse = request.Execute().Values;
             foreach (var value in requestResponse) if (value != null && value[0] != null && value[1] != null)
                 {
-                    inGameNames.Add(value[0].ToString(), value[1].ToString());
+                    PlannerData newData = new(value[0].ToString(), value[1].ToString());
+                    try
+                    {
+                        if (value[3] != null && value[3] != string.Empty)
+                            newData.priority = (int)value[3];
+                    }
+                    catch (Exception) { newData.priority = 0; }
+                    data.Add(newData);
                 }
-            return inGameNames;
+            return data;
         }
         private static SheetsService? GetSheetService()
         {

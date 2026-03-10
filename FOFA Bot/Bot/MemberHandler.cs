@@ -7,7 +7,7 @@ namespace FOFA_Bot.Bot
     {
         private static List<SocketGuildUser> DiscordMembers = [];
         private static List<Member> Members = [];
-        private static Dictionary<string, string> InGameNames = [];
+        private static List<PlannerData> PlannerDatas = [];
 
         internal static void CreateMembersList()
         {
@@ -50,7 +50,7 @@ namespace FOFA_Bot.Bot
         {
             Logger.LogInformation($"    Creating Members from Discord");
             DiscordMembers = [];
-            InGameNames = PlannerGoogleSheet.GetInGameNames();
+            PlannerDatas = PlannerGoogleSheet.GetPlannerData();
             SocketGuild guild = BotData.GetGuild();
             string roleName = BotData.GetRofaRoleName();
             DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
@@ -69,7 +69,6 @@ namespace FOFA_Bot.Bot
                 int? tempSquad = member.squad;
                 if (member.discordUser != null)
                 {
-
                     member.squad = GetMemberSquad(member.discordUser, false);
                     if (member.squad != tempSquad) Logger.LogInformation($"      {member.discordUser.Username} changed squad from {tempSquad} to {member.squad}");
                 }
@@ -87,10 +86,13 @@ namespace FOFA_Bot.Bot
                 return null;
             }
             string? inGameName = null;
-            if (InGameNames.TryGetValue(guildUser.Username, out string? value))
+            int priority = 0;
+            if (PlannerDatas.Any(name => name.discordName == guildUser.Username))
             {
-                inGameName = value;
-                Logger.LogInformation($"      Got {inGameName} name for {guildUser.Username}");
+                PlannerData data = PlannerDatas.First(name => name.discordName == guildUser.Username);
+                inGameName = data.inGameName;
+                priority = data.priority;
+                Logger.LogInformation($"      Got {inGameName} name for {guildUser.Username} and priority {priority}");
             }
             int squad = GetMemberSquad(guildUser, skipUnassigned);
             if (squad == 0) return null;
@@ -99,18 +101,19 @@ namespace FOFA_Bot.Bot
                 discordUser = guildUser,
                 squad = squad,
                 inGameName = inGameName,
-                status = status
+                status = status,
+                priority = priority
             };
             return member;
         }
         private static int GetMemberSquad(SocketGuildUser user, bool skipUnassigned)
         {
-            for (int i = 1; i <= 6; i++)
+            for (int i = 1; i <= 10; i++)
             {
-                if (user.Roles.Contains(GetRoleByName($"Rofa-Sq{i}")))
+                if (user.Roles.Any(id => id.Id == GetRoleByName($"Rofa-Sq{i}").Id))
                     return i;
             }
-            if (user.Roles.Contains(GetRoleByName("Rofa-Reserve")))
+            if (user.Roles.Any(id => id.Id == GetRoleByName("Rofa-Reserve").Id))
                 return 7; //reserve
             else if (!skipUnassigned) return 8; //unassigned
             return 0; //skip
