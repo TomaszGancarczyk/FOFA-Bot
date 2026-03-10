@@ -13,7 +13,7 @@ namespace FOFA_Bot.Bot
             List<PlannerData> data = [];
             string sheetId = BotData.GetPlannerSheetId();
             SheetsService? service = GetSheetService();
-            string range = "A2:B";
+            string range = "A2:C";
             var request = service.Spreadsheets.Values.Get(sheetId, range);
             var requestResponse = request.Execute().Values;
             foreach (var value in requestResponse) if (value != null && value[0] != null && value[1] != null)
@@ -21,8 +21,10 @@ namespace FOFA_Bot.Bot
                     PlannerData newData = new(value[0].ToString(), value[1].ToString());
                     try
                     {
-                        if (value[3] != null && value[3] != string.Empty)
-                            newData.priority = (int)value[3];
+                        if (value[2] != null && value[2].ToString() != string.Empty)
+                        {
+                            newData.priority = Int32.Parse(value[2].ToString());
+                        }
                     }
                     catch (Exception) { newData.priority = 0; }
                     data.Add(newData);

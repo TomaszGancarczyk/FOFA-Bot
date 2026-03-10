@@ -109,7 +109,7 @@ namespace FOFA_Bot.Bot
         }
         private static int GetMemberSquad(SocketGuildUser user, bool skipUnassigned)
         {
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= 6; i++)
             {
                 if (user.Roles.Any(id => id.Id == GetRoleByName($"Rofa-Sq{i}").Id))
                     return i;
