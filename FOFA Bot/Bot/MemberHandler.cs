@@ -12,15 +12,16 @@ namespace FOFA_Bot.Bot
         internal static void CreateMembersList()
         {
             Logger.LogInformation($"    Creating attendance Members");
-            Members = [];
+            List<Member> tempMembers = [];
             CreateDiscordMembers();
             foreach (SocketGuildUser discordMember in DiscordMembers)
             {
                 Member? member = CreateMember(discordMember, null, true);
                 if (member == null || member.discordUser == null) continue;
-                Members.Add(member);
+                tempMembers.Add(member);
                 Logger.LogInformation($"    Added {member.discordUser.Username} to member list to squad {member.squad}");
             }
+            Members = tempMembers.OrderByDescending(p => p.priority).ToList();
         }
         internal static void UpdateMemberStatus(SocketUser user, bool status)
         {
