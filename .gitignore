@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /FOFA Bot/Data/Settings.json
 /FOFA Bot/Data/Settings.json
+/FOFA Bot/Data/BackupMessage.json
