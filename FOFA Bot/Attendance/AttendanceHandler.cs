@@ -64,6 +64,7 @@ namespace FOFA_Bot.Attendance
             if (CurrentMessage.Date == null)
                 return;
 
+            AttendanceBackup.SaveBuckup(CurrentMessage);
             DateTime eventReminderTime = CurrentMessage.Date.AddMinutes(-EventReminderMinutes);
             while (DateTime.Now < eventReminderTime)
                 Task.Delay(60000).Wait();
@@ -95,7 +96,7 @@ namespace FOFA_Bot.Attendance
             CurrentMessage = null;
         }
 
-        private static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
+        internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
         {
             IMessageChannel channel = BotData.GetSignupsChannel();
             IMessage msg = await channel.GetMessageAsync(messageId);

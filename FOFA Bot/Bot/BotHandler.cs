@@ -15,25 +15,12 @@ namespace FOFA_Bot.Bot
         internal static async Task Run(DiscordSocketClient discord)
         {
             Discord = discord;
+            await AttendanceBackup.ReadBackup();
             while (true)
             {
-                //_ = CheckNadeMessage();
-
                 _ = CheckSignupMessage();
 
                 Task.Delay(60000).Wait();
-            }
-        }
-        private static async Task CheckNadeMessage()
-        {
-            if (!NadeMessageRunning && SettingsHandler.GetAutomnaticNadeMessage())
-            {
-                if (DateTime.Now.DayOfWeek == DayOfWeek.Sunday && DateTime.Now.Hour == 22)
-                {
-                    NadeMessageRunning = true;
-                    await NadeHandler.StartNadeEvent();
-                    NadeMessageRunning = false;
-                }
             }
         }
         private static async Task CheckSignupMessage()

@@ -12,4 +12,10 @@ namespace FOFA_Bot.Attendance
         internal IMessage? discordMessage;
         internal bool Reminder = false;
     }
+    internal class AttendanceMessageBackup
+    {
+        public DateTime Date;
+        public ulong discordMessageId;
+        public bool Reminder;
+    }
 }
