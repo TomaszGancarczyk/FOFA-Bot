@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using FOFA_Bot.Attendance;
 using FOFA_Bot.Data;
-using FOFA_Bot.Nades;
 
 namespace FOFA_Bot.Bot
 {

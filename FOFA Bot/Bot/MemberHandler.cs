@@ -131,5 +131,17 @@ namespace FOFA_Bot.Bot
                 return null;
             }
         }
+
+        internal static void UpdateBackupMembers(Dictionary<ulong, bool?> members)
+        {
+            foreach (Member member in Members)
+            {
+                foreach (KeyValuePair<ulong, bool?> backupMember in members)
+                {
+                    if (member.discordUser.Id == backupMember.Key)
+                        member.status = backupMember.Value;
+                }
+            }
+        }
     }
 }

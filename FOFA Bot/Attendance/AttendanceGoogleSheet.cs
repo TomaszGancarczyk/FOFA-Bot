@@ -34,7 +34,7 @@ namespace FOFA_Bot.Attendance
             {
                 request.Execute();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.LogCritical($"    Run into error when execuring sheet update:\n{e}");
             }

@@ -44,7 +44,7 @@ namespace FOFA_Bot.Attendance
             {
                 return null;
             }
-            AttendanceMessage.embedMessage = EmbedMessage;
+            AttendanceMessage.EmbedMessage = EmbedMessage;
             AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
@@ -55,13 +55,13 @@ namespace FOFA_Bot.Attendance
             EmbedMessage = GenerateMessageFromData(EventName, eventDateTime, Color.Green);
             if (EmbedMessage == null)
                 return null;
-            AttendanceMessage.embedMessage = EmbedMessage;
+            AttendanceMessage.EmbedMessage = EmbedMessage;
             AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
 
 
-        private static EmbedBuilder? GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
+        internal static EmbedBuilder? GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
         {
             Logger.LogInformation($"[message] Creating {EventName} attendance message");
             EmbedMessage = null;
@@ -180,7 +180,7 @@ namespace FOFA_Bot.Attendance
                 .WithButton("Present", "presentButton", ButtonStyle.Success)
                 .WithButton("Absent", "absentButton", ButtonStyle.Danger);
             Logger.LogInformation($"    Created buttons");
-            message.messageButtons = buttons;
+            message.MessageButtons = buttons;
             return message;
         }
     }

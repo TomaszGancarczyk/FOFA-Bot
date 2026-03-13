@@ -1,6 +1,4 @@
-﻿using Discord;
-
-namespace FOFA_Bot.Data
+﻿namespace FOFA_Bot.Data
 {
     internal class PlannerData(string discordName, string inGameName)
     {
