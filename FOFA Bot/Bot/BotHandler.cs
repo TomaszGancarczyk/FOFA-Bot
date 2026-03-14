@@ -9,7 +9,6 @@ namespace FOFA_Bot.Bot
     {
         private static DiscordSocketClient? Discord;
         private static bool SignupMessageRunning = false;
-        private static bool NadeMessageRunning = false;
 
         internal static async Task Run(DiscordSocketClient discord)
         {

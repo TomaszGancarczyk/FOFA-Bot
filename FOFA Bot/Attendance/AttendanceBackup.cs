@@ -8,12 +8,12 @@ namespace FOFA_Bot.Attendance
 {
     internal class AttendanceBackup
     {
-        private static JsonSerializerOptions Options = new JsonSerializerOptions { IncludeFields = true, ReferenceHandler = ReferenceHandler.Preserve };
+        private static readonly JsonSerializerOptions Options = new() { IncludeFields = true, ReferenceHandler = ReferenceHandler.Preserve };
         internal static void SaveBuckup(AttendanceMessage message)
         {
             Logger.LogInformation($"    Saving backup message");
-            string jsonMessage = "";
-            Dictionary<ulong, bool?> members = new();
+            string jsonMessage;
+            Dictionary<ulong, bool?> members = [];
             foreach (Member member in MemberHandler.GetMembers())
             {
                 members.Add(member.discordUser.Id, member.status);
@@ -51,7 +51,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogError($"    Couldnt find the backup message\n{e}");
                 return;
             }
-            AttendanceMessageBackup? backupMessage = null;
+            AttendanceMessageBackup? backupMessage;
             try
             {
                 backupMessage = JsonSerializer.Deserialize<AttendanceMessageBackup?>(json, Options);
@@ -62,7 +62,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogError($"    Couldnt read the backup message:\n{e}");
                 return;
             }
-            if (backupMessage == null || backupMessage.DiscordMessageId == null || backupMessage.Date < DateTime.Now || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
+            if (backupMessage == null || backupMessage.Date < DateTime.Now || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
             {
                 Logger.LogWarning($"    Message is incorrect. dropping");
                 return;
@@ -73,10 +73,8 @@ namespace FOFA_Bot.Attendance
         private static async Task HandleMessage(AttendanceMessageBackup backupMessage)
         {
             BotHandler.SetSignupMessageRunning(true);
-            IMessageChannel channel = BotData.GetSignupsChannel();
-            TimeSpan eventCloseTime = ConvertToAttendanceMessage(backupMessage).Result.Date - DateTime.Now;
-            Logger.LogInformation($"    Event closes in {eventCloseTime}");
-            Task.Delay(eventCloseTime).Wait();
+            await ConvertToAttendanceMessage(backupMessage);
+            await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
             BotHandler.SetSignupMessageRunning(false);
         }
 

@@ -37,7 +37,8 @@ namespace FOFA_Bot.PlayerStats
                 Logger.LogInformation($"    Successfully obtained API Access token");
                 string jsonContent = response.Content.ReadAsStringAsync().Result;
                 ApiToken? responseBody = JsonConvert.DeserializeObject<ApiToken>(jsonContent);
-                TokenExpirationTime = DateTime.Now.AddMilliseconds(responseBody.ExpiresIn);
+                if (responseBody == null) { return null; }
+                TokenExpirationTime = DateTime.Now.AddMilliseconds(responseBody.ExpiresIn - 60000);
                 Logger.LogInformation($"    Token expires in {TokenExpirationTime - DateTime.Now}");
                 Token = responseBody;
                 return Token;

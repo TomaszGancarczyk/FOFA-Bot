@@ -5,7 +5,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class SlashAttendanceHandler
     {
-        internal async static Task<EmbedBuilder?> CreateSignupTemplate(long templateOption)
+        internal static EmbedBuilder? CreateSignupTemplate(long templateOption)
         {
             string template = "";
             switch (templateOption)
@@ -43,7 +43,7 @@ namespace FOFA_Bot.Attendance
             _ = AttendanceHandler.SendAttendanceMessage();
         }
 
-        internal async static Task<EmbedBuilder> CreateSignupCustom(string eventName, string date)
+        internal static EmbedBuilder CreateSignupCustom(string eventName, string date)
         {
             BotHandler.SetSignupMessageRunning(true);
             string[] dateParts = date.Split('.');

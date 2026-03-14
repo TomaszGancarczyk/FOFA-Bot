@@ -91,13 +91,13 @@ namespace FOFA_Bot.PlayerStats
             try
             {
                 string highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
-                formattedHighestMoney = highestMoney.Substring(0, highestMoney.Length % 3);
+                formattedHighestMoney = highestMoney[..(highestMoney.Length % 3)];
                 for (int i = 0; i < (highestMoney.Length / 3); i++)
                 {
-                    formattedHighestMoney += "." + highestMoney.Substring(highestMoney.Length % 3 + i * 3, 3);
+                    formattedHighestMoney += string.Concat(".", highestMoney.AsSpan(highestMoney.Length % 3 + i * 3, 3));
                 }
                 if (highestMoney.Length % 3 == 0)
-                    formattedHighestMoney = formattedHighestMoney.Substring(1);
+                    formattedHighestMoney = formattedHighestMoney[1..];
             }
             catch (Exception) { }
 
@@ -120,7 +120,7 @@ namespace FOFA_Bot.PlayerStats
             try
             {
                 OpsField.Value =
-                    $"- Operations Finished: {stats.stats.First(stat => stat.id == "completed-ops").value.ToString()}\n" +
+                    $"- Operations Finished: {stats.stats.First(stat => stat.id == "completed-ops").value}\n" +
                 GetStatLineFromId("Kills", "kills-ops") +
                 GetStatLineFromId("Big Cleanup Completed", "big-cleanup-completed-ops") +
                 GetStatLineFromId("Big Cleanup Highest", "big-cleanup-max-key-ops") +
@@ -154,7 +154,7 @@ namespace FOFA_Bot.PlayerStats
         {
             try
             {
-                return $"- {message}: {Stats.stats.First(stat => stat.id == id).value.ToString()}\n";
+                return $"- {message}: {Stats.stats.First(stat => stat.id == id).value}\n";
             }
             catch (Exception)
             {
@@ -168,7 +168,7 @@ namespace FOFA_Bot.PlayerStats
                 long kills = (long)Stats.stats.First(stat => stat.id == killsId).value;
                 long deaths = (long)Stats.stats.First(stat => stat.id == deathsId).value;
                 double KD = (double)kills / (double)deaths;
-                return $"- K/D: {Math.Round(KD, 2).ToString()}\n";
+                return $"- K/D: {Math.Round(KD, 2)}\n";
             }
             catch (Exception)
             {

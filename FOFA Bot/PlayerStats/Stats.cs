@@ -1,40 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace FOFA_Bot.PlayerStats
 {
-    //internal class Stats
-    //{
-    //    internal required string Uuid { get; set; }
-    //    //image
-    //    internal required string Username { get; set; }
-    //    internal required string Faction { get; set; }
-    //    internal required string Clan { get; set; }
-    //    internal required string ClanTag { get; set; }
-    //    internal required string ClanRank { get; set; }
-    //    internal required int TimesJoinedClan { get; set; }
-    //    internal required int PlaytimeHours { get; set; }
-    //    internal required DateOnly JoinedGame { get; set; }
-    //    internal required DateOnly LastLogin { get; set; }
-    //    internal required int Kills { get; set; }
-    //    internal required int Deaths { get; set; }
-    //    internal required int Assists { get; set; }
-    //    internal double TotalKD { get; set; }
-    //    internal double SessionKD { get; set; }
-    //    internal required int Suicides { get; set; }
-    //    internal required int ArtifactsFound { get; set; }
-    //    internal required int HighestMoney { get; set; }
-    //    internal required int BoltsThrown { get; set; }
-    //    internal required int MutantKills { get; set; }
-    //    internal required int NpcKills { get; set; }
-    //    internal required int DeliveriesMade { get; set; }
-    //    internal required int CachesFound { get; set; }
-    //    internal required int SignalsFound { get; set; }
-    //}
+#pragma warning disable IDE1006
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
     public class PlayerStats
     {
         public string username { get; set; }
@@ -80,5 +49,6 @@ namespace FOFA_Bot.PlayerStats
         public string type { get; set; }
         public object value { get; set; }
     }
-
+#pragma warning restore IDE1006
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 }

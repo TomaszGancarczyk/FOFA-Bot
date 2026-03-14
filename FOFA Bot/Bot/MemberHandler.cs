@@ -21,7 +21,7 @@ namespace FOFA_Bot.Bot
                 tempMembers.Add(member);
                 Logger.LogInformation($"    Added {member.discordUser.Username} to member list to squad {member.squad}");
             }
-            Members = tempMembers.OrderByDescending(p => p.priority).ToList();
+            Members = [.. tempMembers.OrderByDescending(p => p.priority)];
         }
         internal static void UpdateMemberStatus(SocketUser user, bool status)
         {

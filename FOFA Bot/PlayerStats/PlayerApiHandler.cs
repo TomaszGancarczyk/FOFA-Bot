@@ -9,14 +9,14 @@ namespace FOFA_Bot.PlayerStats
         internal static async Task<PlayerStats?> GetPlayerStats(string playerName)
         {
             Logger.LogInformation($"    Calling API for {playerName}");
-            var apitoken = await APIAccessToken.GetApiAcessToken();
-
+            var apiToken = await APIAccessToken.GetApiAcessToken();
+            if (apiToken == null) return null;
             HttpClient client = new()
             {
                 BaseAddress = new Uri("https://eapi.stalcraft.net/eu/character/by-name/")
             };
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", apitoken.AccessToken);
+                new AuthenticationHeaderValue("Bearer", apiToken.AccessToken);
             client.DefaultRequestHeaders.Accept
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync($"{playerName}/profile").Result;
@@ -47,7 +47,7 @@ namespace FOFA_Bot.PlayerStats
         {
             try
             {
-                PlayerStats stats = JsonConvert.DeserializeObject<PlayerStats>(jsonString);
+                PlayerStats? stats = JsonConvert.DeserializeObject<PlayerStats>(jsonString);
                 return stats;
             }
             catch (Exception e)

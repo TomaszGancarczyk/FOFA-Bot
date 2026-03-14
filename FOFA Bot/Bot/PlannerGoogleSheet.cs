@@ -16,7 +16,9 @@ namespace FOFA_Bot.Bot
             string range = "A2:C";
             var request = service.Spreadsheets.Values.Get(sheetId, range);
             var requestResponse = request.Execute().Values;
-            foreach (var value in requestResponse) if (value != null && value[0] != null && value[1] != null)
+            foreach (var value in requestResponse)
+            {
+                try
                 {
                     PlannerData newData = new(value[0].ToString(), value[1].ToString());
                     try
@@ -29,6 +31,8 @@ namespace FOFA_Bot.Bot
                     catch (Exception) { newData.priority = 0; }
                     data.Add(newData);
                 }
+                catch (Exception) { }
+            }
             return data;
         }
         private static SheetsService? GetSheetService()

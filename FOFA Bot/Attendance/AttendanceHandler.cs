@@ -61,37 +61,46 @@ namespace FOFA_Bot.Attendance
                 $"<@&{pingMessage}>"
                 , false, CurrentMessage.EmbedMessage.Build(), null, null, null, CurrentMessage.MessageButtons.Build());
             CurrentMessage.DiscordMessage = localCurrentMessage;
-            if (CurrentMessage.Date == null)
-                return;
-
             AttendanceBackup.SaveBuckup(CurrentMessage);
+            await HandleMessageRunning(localCurrentMessage.Id);
+        }
+
+        internal static async Task HandleMessageRunning(ulong messageId)
+        {
             DateTime eventReminderTime = CurrentMessage.Date.AddMinutes(-EventReminderMinutes);
-            while (DateTime.Now < eventReminderTime)
-                Task.Delay(60000).Wait();
-            bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.DiscordMessage.Id);
-            if (localCurrentMessage != null && CurrentMessage != null && localCurrentMessage.Id == CurrentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+            if (DateTime.Now < eventReminderTime)
             {
-                if (CurrentMessage.Reminder)
+                while (DateTime.Now < eventReminderTime)
+                    Task.Delay(60000).Wait();
+                bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.DiscordMessage.Id);
+                if (CurrentMessage != null && messageId == CurrentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    string reminderMessage = CreateReminderMessage();
-                    if (reminderMessage != string.Empty)
-                        await CurrentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
+                    if (CurrentMessage.Reminder)
+                    {
+                        string reminderMessage = CreateReminderMessage();
+                        if (reminderMessage != string.Empty)
+                            await CurrentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
+                    }
                 }
             }
 
             DateTime eventCloseTime = CurrentMessage.Date.AddMinutes(-EventCloseMinutes);
-            while (DateTime.Now < eventCloseTime)
-                Task.Delay(60000).Wait();
-            if (localCurrentMessage != null && CurrentMessage != null && localCurrentMessage.Id == CurrentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+            if (DateTime.Now < eventCloseTime)
             {
-                string annoucmentMessage = CreateAnnoucmentMessage();
-                if (annoucmentMessage != string.Empty)
-                    await BotData.GetAnnoucmentChannel().SendMessageAsync(annoucmentMessage);
+                while (DateTime.Now < eventCloseTime)
+                    Task.Delay(60000).Wait();
+                bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.DiscordMessage.Id);
+                if (CurrentMessage != null && messageId == CurrentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+                {
+                    string annoucmentMessage = CreateAnnoucmentMessage();
+                    if (annoucmentMessage != string.Empty)
+                        await BotData.GetAnnoucmentChannel().SendMessageAsync(annoucmentMessage);
+                }
             }
 
-            if (localCurrentMessage != null && localCurrentMessage.Id == CurrentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
+            if (CurrentMessage != null && CurrentMessage.DiscordMessage != null && messageId == CurrentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
                 AttendanceGoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
-            if (localCurrentMessage != null && localCurrentMessage.Id == CurrentMessage.DiscordMessage.Id)
+            if (CurrentMessage != null && CurrentMessage.DiscordMessage != null && messageId == CurrentMessage.DiscordMessage.Id)
                 BotHandler.SetSignupMessageRunning(false);
             CurrentMessage = null;
         }
@@ -104,7 +113,7 @@ namespace FOFA_Bot.Attendance
                 IMessage msg = await channel.GetMessageAsync(messageId);
                 return false;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Logger.LogInformation($"    Message got deleted, skipping");
                 return true;
@@ -141,9 +150,7 @@ namespace FOFA_Bot.Attendance
         internal static ulong? GetCurrentMessageId()
         {
             if (CurrentMessage != null) if (CurrentMessage.DiscordMessage != null) return CurrentMessage.DiscordMessage.Id;
-                else return null;
-            else return null;
-
+            return null;
         }
         internal static EmbedBuilder ChangeAutomaticReminder(bool status)
         {

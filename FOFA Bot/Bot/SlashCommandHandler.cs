@@ -11,7 +11,7 @@ namespace FOFA_Bot.Bot
         private readonly static ulong StatsChannelId = BotData.GetStatsChannelId();
         public static async Task Handle(SocketSlashCommand command)
         {
-            EmbedBuilder? embed = null;
+            EmbedBuilder? embed;
             switch (command.Data.Name)
             {
                 case "create-signup-template":
@@ -19,8 +19,8 @@ namespace FOFA_Bot.Bot
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
                     if (command.Data.Options.Count > 0)
-                        embed = await SlashAttendanceHandler.CreateSignupTemplate((Int64)command.Data.Options.First().Value);
-                    else embed = await SlashAttendanceHandler.CreateSignupTemplate(10);
+                        embed = SlashAttendanceHandler.CreateSignupTemplate((Int64)command.Data.Options.First().Value);
+                    else embed = SlashAttendanceHandler.CreateSignupTemplate(10);
                     if (embed != null)
                         await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
@@ -29,7 +29,7 @@ namespace FOFA_Bot.Bot
                     Logger.LogInformation($"[command] User {command.User.Username} used create-signup-custom");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
-                    embed = await SlashAttendanceHandler.CreateSignupCustom((string)command.Data.Options.First().Value, (string)command.Data.Options.Last().Value);
+                    embed = SlashAttendanceHandler.CreateSignupCustom((string)command.Data.Options.First().Value, (string)command.Data.Options.Last().Value);
                     if (embed != null)
                         await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;

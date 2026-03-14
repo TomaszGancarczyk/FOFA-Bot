@@ -17,6 +17,6 @@ namespace FOFA_Bot.Attendance
         public DateTime Date;
         public ulong DiscordMessageId;
         public bool Reminder;
-        public Dictionary<ulong, bool?> Members;
+        public Dictionary<ulong, bool?> Members = [];
     }
 }
