@@ -56,6 +56,7 @@ namespace FOFA_Bot.PlayerStats
                     GetStatLineFromId("Kills", "kil") +
                     GetStatLineFromId("Deaths", "dea") +
                     GetKDString("kil", "dea") +
+                    GetHsString("sho-hea", "sho-hit") +
                     GetStatLineFromId("Assists", "ast") +
                     GetStatLineFromId("Suicides", "suicides") +
                     GetStatLineFromId("NPC Kills", "npc-kil") +
@@ -79,7 +80,8 @@ namespace FOFA_Bot.PlayerStats
                     GetStatLineFromId("Sessions Played", "part-bf") +
                     GetStatLineFromId("Won Sessions", "won-bf") +
                     GetStatLineFromId("Lost Sessions", "lost-bf") +
-                    $"- Win %: {sessionWinrate}%";
+                    $"- Win %: {sessionWinrate}%\n" +
+                    $"- " + Format.Italics("Yes I know win % kaput");
             }
             catch (Exception e)
             {
@@ -120,12 +122,14 @@ namespace FOFA_Bot.PlayerStats
             try
             {
                 OpsField.Value =
-                    $"- Operations Finished: {stats.stats.First(stat => stat.id == "completed-ops").value}\n" +
+                    $"- Operations Done: {stats.stats.First(stat => stat.id == "completed-ops").value}\n" +
                 GetStatLineFromId("Kills", "kills-ops") +
-                GetStatLineFromId("Big Cleanup Completed", "big-cleanup-completed-ops") +
-                GetStatLineFromId("Big Cleanup Highest", "big-cleanup-max-key-ops") +
+                GetStatLineFromId("Cleanup Completed", "big-cleanup-completed-ops") +
+                GetStatLineFromId("Cleanup Highest", "big-cleanup-max-key-ops") +
                 GetStatLineFromId("Focus Completed", "focus-completed-ops") +
-                GetStatLineFromId("Focus Highest", "focus-max-key-ops");
+                GetStatLineFromId("Focus Highest", "focus-max-key-ops") +
+                GetStatLineFromId("Exclusion Completed", "sea-anienation-completed-ops") +
+                GetStatLineFromId("Exclusion Highest", "sea-alienation-max-key-ops");
             }
             catch (Exception e)
             {
@@ -172,6 +176,21 @@ namespace FOFA_Bot.PlayerStats
             }
             catch (Exception)
             {
+                return "";
+            }
+        }
+        private static string GetHsString(string headshotsId, string hitsId)
+        {
+            try
+            {
+                long headshots = (long)Stats.stats.First(stat => stat.id == headshotsId).value;
+                long hits = (long)Stats.stats.First(stat => stat.id == hitsId).value;
+                double hsRate = (double)headshots / (double)hits * 100;
+                return $"- HS rate: {Math.Round(hsRate, 0)}%\n";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 return "";
             }
         }
