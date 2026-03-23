@@ -23,7 +23,7 @@ namespace FOFA_Bot.Attendance
                     template = "Golden Drop";
                     break;
                 case 4:
-                    template = "New North";
+                    template = "Wild North";
                     break;
                 case 10:
                     _ = HandleSlashQuestion();

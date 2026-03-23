@@ -30,7 +30,7 @@ namespace FOFA_Bot.Attendance
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
                     AttendanceMessage.Reminder = true;
                     break;
-                case "New North":
+                case "Wild North":
                     eventDateTime = GetEventDateTime(BotData.GetStillwatersHour());
                     EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Magenta);
                     break;

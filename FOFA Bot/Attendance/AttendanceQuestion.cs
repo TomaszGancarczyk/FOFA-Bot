@@ -82,7 +82,7 @@ namespace FOFA_Bot.Attendance
             if (BrawlDays.Contains(eventDayOfWeek))
                 component.WithButton("Brawl", "brawlButton", emote: new Emoji("💵"));
             component.WithButton("Golden Drop", "goldenDropButton", emote: new Emoji("📦"));
-            component.WithButton("New North", "stillwatersButton", emote: new Emoji("🌳"));
+            component.WithButton("Wild North", "stillwatersButton", emote: new Emoji("🌳"));
             component.WithButton("Day Off", "dayOffButton", emote: new Emoji("🏖️"));
             return component;
         }

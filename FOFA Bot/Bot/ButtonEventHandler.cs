@@ -34,7 +34,7 @@ namespace FOFA_Bot.Bot
                     break;
                 case "stillwatersButton":
                     Logger.LogInformation($"    Got stillwaters response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "New North");
+                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Wild North");
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "dayOffButton":

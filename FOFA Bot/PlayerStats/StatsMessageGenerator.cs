@@ -80,8 +80,7 @@ namespace FOFA_Bot.PlayerStats
                     GetStatLineFromId("Sessions Played", "part-bf") +
                     GetStatLineFromId("Won Sessions", "won-bf") +
                     GetStatLineFromId("Lost Sessions", "lost-bf") +
-                    $"- Win %: {sessionWinrate}%\n" +
-                    $"- " + Format.Italics("Yes I know win % kaput");
+                    $"- Win %: {sessionWinrate}%\n";
             }
             catch (Exception e)
             {

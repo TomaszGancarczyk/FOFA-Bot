@@ -60,7 +60,7 @@ namespace FOFA_Bot
                         .AddChoice("Brawl", 1)
                         .AddChoice("Base Capture", 2)
                         .AddChoice("Golden Drop", 3)
-                        .AddChoice("New North", 4)
+                        .AddChoice("Wild North", 4)
                         .WithType(ApplicationCommandOptionType.Integer)
                     );
                 SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
