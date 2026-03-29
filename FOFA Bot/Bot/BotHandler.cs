@@ -9,6 +9,7 @@ namespace FOFA_Bot.Bot
     {
         private static DiscordSocketClient? Discord;
         private static bool SignupMessageRunning = false;
+        private static bool ActivityMessageRunning = false;
 
         internal static async Task Run(DiscordSocketClient discord)
         {
@@ -18,12 +19,30 @@ namespace FOFA_Bot.Bot
             {
                 _ = CheckSignupMessage();
 
+                //_ = CheckActivityMessage();
+                //TODO auto daily events
+                //wekend 3h before cw golden drop + wild north
+                //weekdays 2h before cw wild north
+                //daily posting
+
                 Task.Delay(60000).Wait();
             }
         }
+
+        //private static async Task CheckActivityMessage()
+        //{
+        //    if (!ActivityMessageRunning && SettingsHandler.GetAutomnaticSignupMessage())
+        //    {
+        //        ActivityMessageRunning = true;
+        //        //TODO auto daily events
+        //        await AttendanceHandler.StartQuestionAttendanceEvent();
+        //        Logger.LogInformation($"    Attendance event finished");
+        //    }
+        //}
+
         private static async Task CheckSignupMessage()
         {
-            if (!SignupMessageRunning && DateTime.Now.Hour == 20 && SettingsHandler.GetAutomnaticSignupMessage())
+            if (!SignupMessageRunning && DateTime.Now.Hour == 21 && SettingsHandler.GetAutomnaticSignupMessage())
             {
                 SignupMessageRunning = true;
                 await AttendanceHandler.StartQuestionAttendanceEvent();
