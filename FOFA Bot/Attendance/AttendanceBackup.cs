@@ -85,11 +85,11 @@ namespace FOFA_Bot.Attendance
             IMessage discordMessage = await channel.GetMessageAsync(backupMessage.DiscordMessageId);
             Logger.LogInformation($"    Getting event title");
             string eventName = string.Join(" ", discordMessage.Embeds.First().Title.Split(" ").Skip(1));
-            Logger.LogInformation($"    Converting members from backup");
             Logger.LogInformation($"    Creating attendance message");
             AttendanceMessage response = AttendanceMessageGenerator.CreateCustomAttendanceMessage(eventName, backupMessage.Date);
             response.Reminder = backupMessage.Reminder;
             response.DiscordMessage = discordMessage;
+            Logger.LogInformation($"    Converting members from backup");
             MemberHandler.UpdateBackupMembers(backupMessage.Members);
             AttendanceHandler.UpdateBackupAttendanceMessage(response);
             Logger.LogInformation($"    Message converted");

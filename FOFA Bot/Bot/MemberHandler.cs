@@ -132,11 +132,11 @@ namespace FOFA_Bot.Bot
             }
         }
 
-        internal static void UpdateBackupMembers(Dictionary<ulong, bool?> members)
+        internal static void UpdateBackupMembers(Dictionary<ulong, bool?> backupMembers)
         {
             foreach (Member member in Members)
             {
-                foreach (KeyValuePair<ulong, bool?> backupMember in members)
+                foreach (KeyValuePair<ulong, bool?> backupMember in backupMembers)
                 {
                     if (member.discordUser.Id == backupMember.Key)
                         member.status = backupMember.Value;

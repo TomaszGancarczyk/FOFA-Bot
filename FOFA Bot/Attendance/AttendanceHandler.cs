@@ -128,6 +128,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Refreshing attendance message fields");
             CurrentMessage.EmbedMessage = AttendanceMessageGenerator.AddMessageFields(CurrentMessage.EmbedMessage);
             CurrentMessage.EmbedMessage = AttendanceMessageGenerator.AddFooterMessage(CurrentMessage.EmbedMessage);
+            AttendanceBackup.SaveBuckup(CurrentMessage);
             return CurrentMessage.EmbedMessage;
         }
 
