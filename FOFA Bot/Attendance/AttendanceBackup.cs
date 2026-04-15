@@ -74,6 +74,7 @@ namespace FOFA_Bot.Attendance
         {
             BotHandler.SetSignupMessageRunning(true);
             await ConvertToAttendanceMessage(backupMessage);
+            AttendanceHandler.RefreshSignupMessage();
             await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
             BotHandler.SetSignupMessageRunning(false);
         }
