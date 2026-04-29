@@ -77,7 +77,7 @@ namespace FOFA_Bot.Attendance
                 {
                     if (CurrentMessage.Reminder)
                     {
-                        string reminderMessage = CreateReminderMessage();
+                        string? reminderMessage = CreateReminderMessage();
                         if (reminderMessage != string.Empty)
                             await CurrentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
                     }
@@ -132,12 +132,17 @@ namespace FOFA_Bot.Attendance
             return CurrentMessage.EmbedMessage;
         }
 
-        private static string CreateReminderMessage()
+        private static string? CreateReminderMessage()
         {
             string reminderMessage = "## Don't forget to signup!";
             List<Member> members = MemberHandler.GetMembers();
+            int nullmbmers = 0;
             foreach (var member in members) if (member.status == null && member.discordUser != null)
+                {
                     reminderMessage += "\n" + MentionUtils.MentionUser(member.discordUser.Id);
+                    nullmbmers++;
+                }
+            if (nullmbmers == 0) return null;
             return reminderMessage;
         }
         private static string CreateAnnoucmentMessage()
