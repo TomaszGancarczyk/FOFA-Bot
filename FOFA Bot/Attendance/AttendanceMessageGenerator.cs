@@ -158,10 +158,10 @@ namespace FOFA_Bot.Attendance
             List<IEmote> squadEmotes = [];
             squadEmotes.Add(new Emoji("🟦")); //1
             squadEmotes.Add(new Emoji("🟥")); //2
-            squadEmotes.Add(new Emoji("🟧")); //3
-            squadEmotes.Add(new Emoji("🟩")); //4
-            squadEmotes.Add(new Emoji("🟨")); //5
-            squadEmotes.Add(new Emoji("🟪")); //6
+            squadEmotes.Add(new Emoji("🟩")); //3
+            squadEmotes.Add(new Emoji("🟪")); //4
+            squadEmotes.Add(new Emoji("🟧")); //5
+            squadEmotes.Add(new Emoji("🐈‍")); //6
             squadEmotes.Add(new Emoji("⬜")); //7 - Reseve
             squadEmotes.Add(new Emoji("🔳")); //8 - Unassigned
             return squadEmotes;
