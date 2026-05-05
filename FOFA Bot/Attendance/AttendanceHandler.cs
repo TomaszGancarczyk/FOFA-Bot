@@ -6,7 +6,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class AttendanceHandler
     {
-        private static AttendanceMessage? CurrentMessage;
+        private static List<AttendanceMessage?> CurrentMessages = [];
         private readonly static int EventReminderMinutes = 90;
         private readonly static int EventCloseMinutes = 30;
         internal static async Task StartQuestionAttendanceEvent()
@@ -17,18 +17,18 @@ namespace FOFA_Bot.Attendance
             if (template == "Day Off")
             {
                 Task.Delay(3600000).Wait();
-                BotHandler.SetSignupMessageRunning(false);
+                BotHandler.RemoveSignupMessageRunning();
                 return;
             }
             if (template == "Next Message")
             {
-                BotHandler.SetSignupMessageRunning(false);
+                BotHandler.RemoveSignupMessageRunning();
                 return;
             }
-            CreateAttendanceEvent(null, null, template);
-            await SendAttendanceMessage();
+            AttendanceMessage? message = CreateAttendanceEvent(null, null, template);
+            await SendAttendanceMessage(message);
         }
-        internal static void CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
+        internal static AttendanceMessage? CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
         {
             Logger.LogInformation($"    Creating attendance event");
             AttendanceMessage? tempCurrentMessage;
@@ -39,70 +39,67 @@ namespace FOFA_Bot.Attendance
             else
             {
                 Logger.LogError($"    Wrong data for message creation, returning");
-                return;
+                return null;
             }
             if (tempCurrentMessage == null)
             {
                 Logger.LogError($"    Cloudn't create attendance message, returning");
-                return;
+                return null;
             }
-            CurrentMessage = tempCurrentMessage;
+            return tempCurrentMessage;
         }
-        internal static async Task SendAttendanceMessage()
+        internal static async Task SendAttendanceMessage(AttendanceMessage? currentMessage)
         {
-            if (CurrentMessage == null)
-            {
-                Logger.LogError($"    Attendance message not found, cannot send it");
-                return;
-            }
-            Logger.LogInformation($"    Sending attendance message to {CurrentMessage.SignupsChannel.Name}");
+            Logger.LogInformation($"    Sending attendance message to {currentMessage.SignupsChannel.Name}");
             ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
-            IMessage localCurrentMessage = await CurrentMessage.SignupsChannel.SendMessageAsync(
+            IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
                 $"<@&{pingMessage}>"
-                , false, CurrentMessage.EmbedMessage.Build(), null, null, null, CurrentMessage.MessageButtons.Build());
-            CurrentMessage.DiscordMessage = localCurrentMessage;
-            AttendanceBackup.SaveBuckup(CurrentMessage);
+                , false, currentMessage.EmbedMessage.Build(), null, null, null, currentMessage.MessageButtons.Build());
+            currentMessage.DiscordMessage = localCurrentMessage;
+            AttendanceBackup.SaveBuckup(currentMessage);
+            CurrentMessages.Add(currentMessage);
             await HandleMessageRunning(localCurrentMessage.Id);
         }
 
         internal static async Task HandleMessageRunning(ulong messageId)
         {
-            DateTime eventReminderTime = CurrentMessage.Date.AddMinutes(-EventReminderMinutes);
+            AttendanceMessage currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
+            DateTime eventReminderTime = currentMessage.Date.AddMinutes(-EventReminderMinutes);
             if (DateTime.Now < eventReminderTime)
             {
                 while (DateTime.Now < eventReminderTime)
                     Task.Delay(60000).Wait();
-                bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.DiscordMessage.Id);
-                if (CurrentMessage != null && messageId == CurrentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+                bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
+                if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    if (CurrentMessage.Reminder)
+                    if (currentMessage.Reminder)
                     {
                         string? reminderMessage = CreateReminderMessage();
                         if (reminderMessage != string.Empty)
-                            await CurrentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
+                            await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
                     }
                 }
             }
 
-            DateTime eventCloseTime = CurrentMessage.Date.AddMinutes(-EventCloseMinutes);
+            DateTime eventCloseTime = currentMessage.Date.AddMinutes(-EventCloseMinutes);
             if (DateTime.Now < eventCloseTime)
             {
                 while (DateTime.Now < eventCloseTime)
                     Task.Delay(60000).Wait();
-                bool isMessageDeleted = await CheckIfMessageIsDeleted(CurrentMessage.DiscordMessage.Id);
-                if (CurrentMessage != null && messageId == CurrentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+                bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
+                if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    string annoucmentMessage = CreateAnnoucmentMessage();
+                    string annoucmentMessage = CreateAnnoucmentMessage(messageId);
                     if (annoucmentMessage != string.Empty)
                         await BotData.GetAnnoucmentChannel().SendMessageAsync(annoucmentMessage);
                 }
             }
 
-            if (CurrentMessage != null && CurrentMessage.DiscordMessage != null && messageId == CurrentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
+            if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
                 AttendanceGoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
-            if (CurrentMessage != null && CurrentMessage.DiscordMessage != null && messageId == CurrentMessage.DiscordMessage.Id)
-                BotHandler.SetSignupMessageRunning(false);
-            CurrentMessage = null;
+            if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
+                BotHandler.RemoveSignupMessageRunning();
+            CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
         }
 
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
@@ -120,16 +117,17 @@ namespace FOFA_Bot.Attendance
             }
         }
 
-        internal static EmbedBuilder? RefreshSignupMessage()
+        internal static EmbedBuilder? RefreshSignupMessage(ulong? messageId)
         {
-            if (CurrentMessage == null) return null;
+            AttendanceMessage currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
+            if (CurrentMessages.Count <= 0) return null;
             Logger.LogInformation($"    Refreshing attendance message members");
             MemberHandler.RefreshMemberSquads();
             Logger.LogInformation($"    Refreshing attendance message fields");
-            CurrentMessage.EmbedMessage = AttendanceMessageGenerator.AddMessageFields(CurrentMessage.EmbedMessage);
-            CurrentMessage.EmbedMessage = AttendanceMessageGenerator.AddFooterMessage(CurrentMessage.EmbedMessage);
-            AttendanceBackup.SaveBuckup(CurrentMessage);
-            return CurrentMessage.EmbedMessage;
+            currentMessage.EmbedMessage = AttendanceMessageGenerator.AddMessageFields(currentMessage.EmbedMessage);
+            currentMessage.EmbedMessage = AttendanceMessageGenerator.AddFooterMessage(currentMessage.EmbedMessage);
+            AttendanceBackup.SaveBuckup(currentMessage);
+            return currentMessage.EmbedMessage;
         }
 
         private static string? CreateReminderMessage()
@@ -145,17 +143,20 @@ namespace FOFA_Bot.Attendance
             if (nullmbmers == 0) return null;
             return reminderMessage;
         }
-        private static string CreateAnnoucmentMessage()
+        private static string CreateAnnoucmentMessage(ulong? messageId)
         {
+            AttendanceMessage currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
-            string[] eventParts = CurrentMessage.DiscordMessage.Embeds.First().Title.Split(" ");
-            string annoucmentMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {CurrentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId())}";
+            string[] eventParts = currentMessage.DiscordMessage.Embeds.First().Title.Split(" ");
+            string annoucmentMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {currentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId())}";
             return annoucmentMessage;
         }
 
-        internal static ulong? GetCurrentMessageId()
+        internal static List<ulong?>? GetCurrentMessagesIds()
         {
-            if (CurrentMessage != null) if (CurrentMessage.DiscordMessage != null) return CurrentMessage.DiscordMessage.Id;
+            List<ulong?> response = [];
+            if (CurrentMessages.Count > 0) foreach (AttendanceMessage message in CurrentMessages) response.Add(message.DiscordMessage.Id);
+            if (response.Count > 0) return response;
             return null;
         }
         internal static EmbedBuilder ChangeAutomaticReminder(bool status)
@@ -167,6 +168,6 @@ namespace FOFA_Bot.Attendance
             else embed = AttendanceMessageResponse.CreateNegativeStatusResponse();
             return embed;
         }
-        internal static void UpdateBackupAttendanceMessage(AttendanceMessage messsage) => CurrentMessage = messsage;
+        internal static void UpdateBackupAttendanceMessage(AttendanceMessage messsage) => CurrentMessages.Add(messsage);
     }
 }

@@ -25,7 +25,7 @@ namespace FOFA_Bot.Data
         internal static SocketGuild GetGuild()
         {
             ulong guildId = JsonBotData.GuildId;
-            SocketGuild guild = BotHandler.GetDiscord().GetGuild(guildId);
+            SocketGuild? guild = BotHandler.GetDiscord().GetGuild(guildId);
             return guild;
         }
         internal static IMessageChannel GetQuestionChannel()

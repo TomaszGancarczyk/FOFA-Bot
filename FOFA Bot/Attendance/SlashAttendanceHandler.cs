@@ -29,29 +29,29 @@ namespace FOFA_Bot.Attendance
                     _ = HandleSlashQuestion();
                     return SuccessQuestionMessage();
             }
-            BotHandler.SetSignupMessageRunning(true);
-            AttendanceHandler.CreateAttendanceEvent(null, null, template);
-            _ = AttendanceHandler.SendAttendanceMessage();
+            BotHandler.AddSignupMessageRunning();
+            AttendanceMessage? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            _ = AttendanceHandler.SendAttendanceMessage(message);
             return SuccessSignupMessage();
         }
         private async static Task HandleSlashQuestion()
         {
             Logger.LogInformation($"    Handling question event from slash command");
             string template = await AttendanceQuestion.Handle();
-            BotHandler.SetSignupMessageRunning(true);
-            AttendanceHandler.CreateAttendanceEvent(null, null, template);
-            _ = AttendanceHandler.SendAttendanceMessage();
+            BotHandler.AddSignupMessageRunning();
+            AttendanceMessage? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            _ = AttendanceHandler.SendAttendanceMessage(message);
         }
 
         internal static EmbedBuilder CreateSignupCustom(string eventName, string date)
         {
-            BotHandler.SetSignupMessageRunning(true);
+            BotHandler.AddSignupMessageRunning();
             string[] dateParts = date.Split('.');
             DateTime? formatedDate;
             if (dateParts.Length != 2 && dateParts.Length != 5)
             {
                 Logger.LogWarning($"    Incorrect date used for custom signup: {date}");
-                BotHandler.SetSignupMessageRunning(false);
+                BotHandler.RemoveSignupMessageRunning();
                 return DateErrorMessage($"Wrong date for event, please use [day.month.year.hour.minute] of the event or [hours.minutes] untill the event");
             }
             else formatedDate = FormatDate(dateParts);
@@ -65,8 +65,8 @@ namespace FOFA_Bot.Attendance
                 Logger.LogWarning($"    Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage("The date provided for event already passed");
             }
-            AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
-            _ = AttendanceHandler.SendAttendanceMessage();
+            AttendanceMessage? message = AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
+            _ = AttendanceHandler.SendAttendanceMessage(message);
             return SuccessSignupMessage();
         }
 

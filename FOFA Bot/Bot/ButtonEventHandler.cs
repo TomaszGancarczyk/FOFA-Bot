@@ -9,7 +9,7 @@ namespace FOFA_Bot.Bot
         public static async Task Handle(SocketMessageComponent component)
         {
             EmbedBuilder? updatedMessage;
-            ulong? currentMessageId;
+            List<ulong?>? currentMessageIds;
             switch (component.Data.CustomId)
             {
                 case "tournamentButton":
@@ -43,14 +43,14 @@ namespace FOFA_Bot.Bot
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "presentButton":
-                    currentMessageId = AttendanceHandler.GetCurrentMessageId();
-                    if (currentMessageId == null)
+                    currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
+                    if (currentMessageIds == null)
                         await AttendanceMessageResponse.RespondWithOldSignupError(component);
-                    else if (component.Message.Id == currentMessageId)
+                    else if (currentMessageIds.Contains(component.Message.Id))
                     {
                         Logger.LogInformation($"[button] {component.User.Username} clicked present on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, true);
-                        updatedMessage = AttendanceHandler.RefreshSignupMessage();
+                        updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
                         if (updatedMessage != null)
                         {
                             Logger.LogInformation($"    Updating discord attendance message");
@@ -62,14 +62,14 @@ namespace FOFA_Bot.Bot
                         await AttendanceMessageResponse.RespondWithOldSignupError(component);
                     break;
                 case "absentButton":
-                    currentMessageId = AttendanceHandler.GetCurrentMessageId();
-                    if (currentMessageId == null)
+                    currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
+                    if (currentMessageIds == null)
                         await AttendanceMessageResponse.RespondWithOldSignupError(component);
-                    else if (component.Message.Id == currentMessageId)
+                    else if (currentMessageIds.Contains(component.Message.Id))
                     {
                         Logger.LogInformation($"[button] {component.User.Username} clicked absent on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, false);
-                        updatedMessage = AttendanceHandler.RefreshSignupMessage();
+                        updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
                         if (updatedMessage != null)
                         {
                             Logger.LogInformation($"    Updating discord attendance message");

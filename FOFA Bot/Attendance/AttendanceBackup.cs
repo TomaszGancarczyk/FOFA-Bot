@@ -35,51 +35,56 @@ namespace FOFA_Bot.Attendance
                 Logger.LogError($"    Run into error when serializing class:\n{e}");
                 return;
             }
-            File.WriteAllText("..\\..\\..\\Data\\BackupMessage.json", jsonMessage);
+            File.WriteAllText($"..\\..\\..\\Data\\BackupMessages\\BackupMessage_{backupMessage.DiscordMessageId}", jsonMessage);
             Logger.LogInformation($"    Backup message saved");
         }
         internal static async Task ReadBackup()
         {
-            string json = "";
-            try
+            foreach (string filePath in Directory.GetFiles("..\\..\\..\\Data\\BackupMessages"))
             {
-                using StreamReader reader = new("..\\..\\..\\Data\\BackupMessage.json");
-                json = reader.ReadToEnd();
+                Console.WriteLine(filePath);
+                string json = "";
+                try
+                {
+                    using StreamReader reader = new(filePath);
+                    json = reader.ReadToEnd();
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"    Couldnt find the backup message\n{e}");
+                    return;
+                }
+                AttendanceMessageBackup? backupMessage;
+                try
+                {
+                    backupMessage = JsonSerializer.Deserialize<AttendanceMessageBackup?>(json, Options);
+                    Logger.LogInformation($"    Successfully read backup message");
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"    Couldnt read the backup message:\n{e}");
+                    return;
+                }
+                if (backupMessage == null || backupMessage.Date < DateTime.Now || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
+                {
+                    Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
+                    File.Delete(filePath);
+                    return;
+                }
+                Logger.LogInformation($"[backup message] Backup message is correct, handling");
+                _ = HandleMessage(backupMessage);
             }
-            catch (Exception e)
-            {
-                Logger.LogError($"    Couldnt find the backup message\n{e}");
-                return;
-            }
-            AttendanceMessageBackup? backupMessage;
-            try
-            {
-                backupMessage = JsonSerializer.Deserialize<AttendanceMessageBackup?>(json, Options);
-                Logger.LogInformation($"    Successfully read backup message");
-            }
-            catch (Exception e)
-            {
-                Logger.LogError($"    Couldnt read the backup message:\n{e}");
-                return;
-            }
-            if (backupMessage == null || backupMessage.Date < DateTime.Now || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
-            {
-                Logger.LogWarning($"    Message is incorrect. dropping");
-                return;
-            }
-            Logger.LogInformation($"[backup message] Backup message is correct, handling");
-            await HandleMessage(backupMessage);
         }
         private static async Task HandleMessage(AttendanceMessageBackup backupMessage)
         {
-            BotHandler.SetSignupMessageRunning(true);
+            BotHandler.AddSignupMessageRunning();
             await ConvertToAttendanceMessage(backupMessage);
-            AttendanceHandler.RefreshSignupMessage();
+            AttendanceHandler.RefreshSignupMessage(backupMessage.DiscordMessageId);
             await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
-            BotHandler.SetSignupMessageRunning(false);
+            BotHandler.RemoveSignupMessageRunning();
         }
 
-        private static async Task<AttendanceMessage> ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
+        private static async Task<AttendanceMessage?> ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
         {
             Logger.LogInformation($"    Getting discord message from backup");
             IMessageChannel channel = BotData.GetSignupsChannel();
@@ -87,7 +92,8 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Getting event title");
             string eventName = string.Join(" ", discordMessage.Embeds.First().Title.Split(" ").Skip(1));
             Logger.LogInformation($"    Creating attendance message");
-            AttendanceMessage response = AttendanceMessageGenerator.CreateCustomAttendanceMessage(eventName, backupMessage.Date);
+            AttendanceMessage? response = AttendanceMessageGenerator.CreateCustomAttendanceMessage(eventName, backupMessage.Date);
+            if (response == null) return null;
             response.Reminder = backupMessage.Reminder;
             response.DiscordMessage = discordMessage;
             Logger.LogInformation($"    Converting members from backup");
