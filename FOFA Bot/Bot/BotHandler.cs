@@ -13,7 +13,7 @@ namespace FOFA_Bot.Bot
         internal static async Task Run(DiscordSocketClient discord)
         {
             Discord = discord;
-            await AttendanceBackup.ReadBackup();
+            await Backup.ReadBackup();
             while (true)
             {
                 _ = CheckSignupMessage();
@@ -53,8 +53,8 @@ namespace FOFA_Bot.Bot
             EmbedBuilder embed;
             SettingsHandler.SetAutomnaticSignupMessage(status);
             if (SettingsHandler.GetAutomnaticSignupMessage() == status)
-                embed = AttendanceMessageResponse.CreatePositiveStatusResponse(status);
-            else embed = AttendanceMessageResponse.CreateNegativeStatusResponse();
+                embed = MessageResponse.CreatePositiveStatusResponse(status);
+            else embed = MessageResponse.CreateNegativeStatusResponse();
             return embed;
         }
         internal static void AddSignupMessageRunning() => ++SignupMessageRunning;

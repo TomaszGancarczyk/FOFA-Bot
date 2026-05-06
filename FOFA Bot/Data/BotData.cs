@@ -110,16 +110,6 @@ namespace FOFA_Bot.Data
             return JsonBotData.PrivilegedRoleNames.ToObject<string[]>();
         }
 
-        internal static string GetSheetClientId()
-        {
-            Logger.LogInformation($"    Getting Sheet Client Id");
-            return JsonBotData.SheetClientId;
-        }
-        internal static string GetSheetClientSecret()
-        {
-            Logger.LogInformation($"    Getting Sheet Client Secret");
-            return JsonBotData.SheetClientSecret;
-        }
         internal static string GetSignupSheetId()
         {
             Logger.LogInformation($"    Getting Signup Sheet Id");

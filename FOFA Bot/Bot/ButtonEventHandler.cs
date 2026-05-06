@@ -45,7 +45,7 @@ namespace FOFA_Bot.Bot
                 case "presentButton":
                     currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
                     if (currentMessageIds == null)
-                        await AttendanceMessageResponse.RespondWithOldSignupError(component);
+                        await MessageResponse.RespondWithOldSignupError(component);
                     else if (currentMessageIds.Contains(component.Message.Id))
                     {
                         Logger.LogInformation($"[button] {component.User.Username} clicked present on the signup");
@@ -55,16 +55,16 @@ namespace FOFA_Bot.Bot
                         {
                             Logger.LogInformation($"    Updating discord attendance message");
                             await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
-                            await AttendanceMessageResponse.RespondWithSignupStatus(component, true);
+                            await MessageResponse.RespondWithSignupStatus(component, true);
                         }
                     }
                     else
-                        await AttendanceMessageResponse.RespondWithOldSignupError(component);
+                        await MessageResponse.RespondWithOldSignupError(component);
                     break;
                 case "absentButton":
                     currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
                     if (currentMessageIds == null)
-                        await AttendanceMessageResponse.RespondWithOldSignupError(component);
+                        await MessageResponse.RespondWithOldSignupError(component);
                     else if (currentMessageIds.Contains(component.Message.Id))
                     {
                         Logger.LogInformation($"[button] {component.User.Username} clicked absent on the signup");
@@ -74,11 +74,11 @@ namespace FOFA_Bot.Bot
                         {
                             Logger.LogInformation($"    Updating discord attendance message");
                             await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
-                            await AttendanceMessageResponse.RespondWithSignupStatus(component, false);
+                            await MessageResponse.RespondWithSignupStatus(component, false);
                         }
                     }
                     else
-                        await AttendanceMessageResponse.RespondWithOldSignupError(component);
+                        await MessageResponse.RespondWithOldSignupError(component);
                     break;
             }
         }

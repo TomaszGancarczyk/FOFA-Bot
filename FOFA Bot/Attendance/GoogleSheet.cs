@@ -4,11 +4,10 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
-using Google.Apis.Util.Store;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class AttendanceGoogleSheet
+    internal class GoogleSheet
     {
         internal static void HandleUnsignedUsers(List<Member> members)
         {
@@ -55,28 +54,22 @@ namespace FOFA_Bot.Attendance
 
         private static SheetsService? GetSheetService()
         {
-            Logger.LogInformation($"    Getting signup sheet service");
-            string clientId = BotData.GetSheetClientId();
-            string clientSecret = BotData.GetSheetClientSecret();
-            string[] scopes = [SheetsService.Scope.Spreadsheets];
-            UserCredential? credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                new ClientSecrets
-                {
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                },
-                scopes,
-                "FOFA Bot",
-                CancellationToken.None,
-                new FileDataStore("GoogleToken"))
-                .Result;
+
+            using var stream = new FileStream("..\\..\\..\\Data\\fofa-bot-cred.json", FileMode.Open, FileAccess.Read);
+            var credential = ServiceAccountCredential.FromServiceAccountData(stream);
+            credential.Scopes =
+            [
+                SheetsService.Scope.Spreadsheets,
+                SheetsService.Scope.Drive
+            ];
             SheetsService? service = new(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
-                ApplicationName = "FOFA Bot"
+                ApplicationName = "fofa-bot"
             });
             return service;
         }
+
         private static string GetRange(int numberOfCollumns)
         {
             string isBigChar = "";

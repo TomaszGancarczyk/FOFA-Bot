@@ -6,10 +6,10 @@ using System.Text.Json.Serialization;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class AttendanceBackup
+    internal class Backup
     {
         private static readonly JsonSerializerOptions Options = new() { IncludeFields = true, ReferenceHandler = ReferenceHandler.Preserve };
-        internal static void SaveBuckup(AttendanceMessage message)
+        internal static void SaveBuckup(Message message)
         {
             Logger.LogInformation($"    Saving backup message");
             string jsonMessage;
@@ -42,7 +42,6 @@ namespace FOFA_Bot.Attendance
         {
             foreach (string filePath in Directory.GetFiles("..\\..\\..\\Data\\BackupMessages"))
             {
-                Console.WriteLine(filePath);
                 string json = "";
                 try
                 {
@@ -52,7 +51,7 @@ namespace FOFA_Bot.Attendance
                 catch (Exception e)
                 {
                     Logger.LogError($"    Couldnt find the backup message\n{e}");
-                    return;
+                    continue;
                 }
                 AttendanceMessageBackup? backupMessage;
                 try
@@ -63,13 +62,13 @@ namespace FOFA_Bot.Attendance
                 catch (Exception e)
                 {
                     Logger.LogError($"    Couldnt read the backup message:\n{e}");
-                    return;
+                    continue;
                 }
                 if (backupMessage == null || backupMessage.Date < DateTime.Now || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
                 {
                     Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
                     File.Delete(filePath);
-                    return;
+                    continue;
                 }
                 Logger.LogInformation($"[backup message] Backup message is correct, handling");
                 _ = HandleMessage(backupMessage);
@@ -84,7 +83,7 @@ namespace FOFA_Bot.Attendance
             BotHandler.RemoveSignupMessageRunning();
         }
 
-        private static async Task<AttendanceMessage?> ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
+        private static async Task<Message?> ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
         {
             Logger.LogInformation($"    Getting discord message from backup");
             IMessageChannel channel = BotData.GetSignupsChannel();
@@ -92,7 +91,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Getting event title");
             string eventName = string.Join(" ", discordMessage.Embeds.First().Title.Split(" ").Skip(1));
             Logger.LogInformation($"    Creating attendance message");
-            AttendanceMessage? response = AttendanceMessageGenerator.CreateCustomAttendanceMessage(eventName, backupMessage.Date);
+            Message? response = MessageGenerator.CreateCustomAttendanceMessage(eventName, backupMessage.Date);
             if (response == null) return null;
             response.Reminder = backupMessage.Reminder;
             response.DiscordMessage = discordMessage;

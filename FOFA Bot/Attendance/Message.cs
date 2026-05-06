@@ -3,7 +3,7 @@ using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class AttendanceMessage
+    internal class Message
     {
         internal readonly IMessageChannel SignupsChannel = BotData.GetSignupsChannel();
         internal EmbedBuilder EmbedMessage = new();

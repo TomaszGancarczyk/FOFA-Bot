@@ -3,7 +3,7 @@ using Discord.WebSocket;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class AttendanceMessageResponse
+    internal class MessageResponse
     {
         internal static async Task RespondWithOldSignupError(SocketMessageComponent component)
         {

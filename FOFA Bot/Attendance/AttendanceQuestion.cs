@@ -31,7 +31,7 @@ namespace FOFA_Bot.Attendance
             CurrentQuestionMessage = null;
             QuestionResponse = null;
             IMessageChannel questionChannel = BotData.GetQuestionChannel();
-            EventDateTime = AttendanceMessageGenerator.GetEventDateTime(20);
+            EventDateTime = MessageGenerator.GetEventDateTime(20);
             Logger.LogInformation($"[question] Creating attendance event question");
 
             string questionMessageContent;

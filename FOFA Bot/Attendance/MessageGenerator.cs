@@ -4,11 +4,11 @@ using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class AttendanceMessageGenerator
+    internal class MessageGenerator
     {
         private static EmbedBuilder? EmbedMessage;
-        private static AttendanceMessage? AttendanceMessage;
-        internal static AttendanceMessage? CreateAttendanceMessageFromTemplate(string template)
+        private static Message? AttendanceMessage;
+        internal static Message? CreateAttendanceMessageFromTemplate(string template)
         {
             Logger.LogInformation($"    Creating attendance message from template");
             AttendanceMessage = new();
@@ -48,7 +48,7 @@ namespace FOFA_Bot.Attendance
             AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
-        internal static AttendanceMessage? CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
+        internal static Message? CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
         {
             Logger.LogInformation($"    Creating custom attendance message");
             AttendanceMessage = new();
@@ -173,7 +173,7 @@ namespace FOFA_Bot.Attendance
             else if (status == false) return $"{new Emoji("🔴")} {displayName}\n";
             return null;
         }
-        internal static AttendanceMessage AddMessageButtons(AttendanceMessage message)
+        internal static Message AddMessageButtons(Message message)
         {
             Logger.LogInformation($"    Adding attendance buttons");
             ComponentBuilder buttons = new ComponentBuilder()

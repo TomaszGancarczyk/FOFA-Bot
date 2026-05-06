@@ -3,7 +3,7 @@ using FOFA_Bot.Bot;
 
 namespace FOFA_Bot.Attendance
 {
-    internal class SlashAttendanceHandler
+    internal class SlashHandler
     {
         internal static EmbedBuilder? CreateSignupTemplate(long templateOption)
         {
@@ -30,7 +30,7 @@ namespace FOFA_Bot.Attendance
                     return SuccessQuestionMessage();
             }
             BotHandler.AddSignupMessageRunning();
-            AttendanceMessage? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            Message? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
             _ = AttendanceHandler.SendAttendanceMessage(message);
             return SuccessSignupMessage();
         }
@@ -39,7 +39,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Handling question event from slash command");
             string template = await AttendanceQuestion.Handle();
             BotHandler.AddSignupMessageRunning();
-            AttendanceMessage? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            Message? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
             _ = AttendanceHandler.SendAttendanceMessage(message);
         }
 
@@ -65,7 +65,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogWarning($"    Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage("The date provided for event already passed");
             }
-            AttendanceMessage? message = AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
+            Message? message = AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
             _ = AttendanceHandler.SendAttendanceMessage(message);
             return SuccessSignupMessage();
         }
