@@ -52,7 +52,7 @@ namespace FOFA_Bot.Attendance
             return fullObject;
         }
 
-        private static SheetsService? GetSheetService()
+        internal static SheetsService? GetSheetService()
         {
 
             using var stream = new FileStream("..\\..\\..\\Data\\fofa-bot-cred.json", FileMode.Open, FileAccess.Read);

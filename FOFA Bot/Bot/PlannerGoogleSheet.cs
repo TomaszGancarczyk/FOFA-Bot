@@ -12,7 +12,7 @@ namespace FOFA_Bot.Bot
         {
             List<PlannerData> data = [];
             string sheetId = BotData.GetPlannerSheetId();
-            SheetsService? service = GetSheetService();
+            SheetsService? service = Attendance.GoogleSheet.GetSheetService();
             string range = "A2:C";
             var request = service.Spreadsheets.Values.Get(sheetId, range);
             var requestResponse = request.Execute().Values;
@@ -34,30 +34,6 @@ namespace FOFA_Bot.Bot
                 catch (Exception) { }
             }
             return data;
-        }
-        private static SheetsService? GetSheetService()
-        {
-            Logger.LogInformation($"    Getting signup sheet service");
-            string clientId = BotData.GetSheetClientId();
-            string clientSecret = BotData.GetSheetClientSecret();
-            string[] scopes = [SheetsService.Scope.Spreadsheets];
-            UserCredential? credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                new ClientSecrets
-                {
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                },
-                scopes,
-                "FOFA Bot",
-                CancellationToken.None,
-                new FileDataStore("GoogleToken"))
-                .Result;
-            SheetsService? service = new(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "FOFA Bot"
-            });
-            return service;
         }
     }
 }
