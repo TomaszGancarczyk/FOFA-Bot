@@ -88,12 +88,14 @@ namespace FOFA_Bot.Bot
             }
             string? inGameName = null;
             int priority = 0;
+            bool squadleader = false;
             if (PlannerDatas.Any(name => name.discordName == guildUser.Username))
             {
                 PlannerData data = PlannerDatas.First(name => name.discordName == guildUser.Username);
                 inGameName = data.inGameName;
                 priority = data.priority;
-                Logger.LogInformation($"      Got {inGameName} name for {guildUser.Username} and priority {priority}");
+                squadleader = data.squadleader;
+                Logger.LogInformation($"      Got {inGameName} name for {guildUser.Username}, priority {priority}, squadleader {squadleader}");
             }
             int squad = GetMemberSquad(guildUser, skipUnassigned);
             if (squad == 0) return null;
@@ -103,7 +105,8 @@ namespace FOFA_Bot.Bot
                 squad = squad,
                 inGameName = inGameName,
                 status = status,
-                priority = priority
+                priority = priority,
+                squadleader = squadleader
             };
             return member;
         }

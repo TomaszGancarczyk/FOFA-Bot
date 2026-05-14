@@ -9,5 +9,6 @@ namespace FOFA_Bot.Bot
         internal int? squad;
         internal bool? status;
         internal int priority = 0;
+        internal bool squadleader = false;
     }
 }

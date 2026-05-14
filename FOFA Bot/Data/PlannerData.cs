@@ -5,5 +5,6 @@
         internal string discordName = discordName;
         internal string inGameName = inGameName;
         internal int priority = 0;
+        internal bool squadleader = false;
     }
 }

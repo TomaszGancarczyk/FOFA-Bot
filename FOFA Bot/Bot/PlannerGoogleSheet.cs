@@ -1,8 +1,5 @@
 ﻿using FOFA_Bot.Data;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
-using Google.Apis.Util.Store;
 
 namespace FOFA_Bot.Bot
 {
@@ -13,7 +10,7 @@ namespace FOFA_Bot.Bot
             List<PlannerData> data = [];
             string sheetId = BotData.GetPlannerSheetId();
             SheetsService? service = Attendance.GoogleSheet.GetSheetService();
-            string range = "A2:C";
+            string range = "A2:D";
             var request = service.Spreadsheets.Values.Get(sheetId, range);
             var requestResponse = request.Execute().Values;
             foreach (var value in requestResponse)
@@ -29,6 +26,14 @@ namespace FOFA_Bot.Bot
                         }
                     }
                     catch (Exception) { newData.priority = 0; }
+                    try
+                    {
+                        if (value[3] != null && value[3].ToString() != string.Empty)
+                        {
+                            newData.squadleader = Convert.ToBoolean(value[3]);
+                        }
+                    }
+                    catch (Exception) { newData.squadleader = false; }
                     data.Add(newData);
                 }
                 catch (Exception) { }

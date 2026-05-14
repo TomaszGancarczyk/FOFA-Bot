@@ -106,8 +106,8 @@ namespace FOFA_Bot.Attendance
                     {
                         string? newMember = null;
                         if (member.discordUser == null) continue;
-                        if (member.inGameName != null) newMember = AddMemberAndStatus(member.inGameName, member.status);
-                        else newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status);
+                        if (member.inGameName != null) newMember = AddMemberAndStatus(member.inGameName, member.status, member.squadleader);
+                        else newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status, member.squadleader);
                         if (newMember == null)
                             continue;
                         squadMembers += newMember;
@@ -166,8 +166,9 @@ namespace FOFA_Bot.Attendance
             squadEmotes.Add(new Emoji("🔳")); //8 - Unassigned
             return squadEmotes;
         }
-        private static string? AddMemberAndStatus(string displayName, bool? status)
+        private static string? AddMemberAndStatus(string displayName, bool? status, bool squadleader)
         {
+            if (squadleader) displayName = $"**{displayName}**";
             if (status == null) return $"{new Emoji("⚫")} {displayName}\n";
             else if (status == true) return $"{new Emoji("🟢")} {displayName}\n";
             else if (status == false) return $"{new Emoji("🔴")} {displayName}\n";

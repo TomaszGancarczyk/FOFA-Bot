@@ -105,16 +105,13 @@ namespace FOFA_Bot.Attendance
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
         {
             IMessageChannel channel = BotData.GetSignupsChannel();
-            try
-            {
-                IMessage msg = await channel.GetMessageAsync(messageId);
-                return false;
-            }
-            catch (Exception)
+            IMessage discordMessage = await channel.GetMessageAsync(messageId);
+            if (discordMessage == null)
             {
                 Logger.LogInformation($"    Message got deleted, skipping");
                 return true;
             }
+            return false;
         }
 
         internal static EmbedBuilder? RefreshSignupMessage(ulong? messageId)
