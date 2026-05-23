@@ -7,7 +7,7 @@ namespace FOFA_Bot.Attendance
     internal class AttendanceHandler
     {
         private static List<Message?> CurrentMessages = [];
-        private readonly static int EventReminderMinutes = 90;
+        private readonly static int EventReminderMinutes = 150;
         private readonly static int EventCloseMinutes = 30;
         internal static async Task StartQuestionAttendanceEvent()
         {
