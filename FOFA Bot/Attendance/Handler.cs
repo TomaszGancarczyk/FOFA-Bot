@@ -12,6 +12,7 @@ namespace FOFA_Bot.Attendance
         internal static async Task StartQuestionAttendanceEvent()
         {
             Logger.LogInformation($"    Starting attendance question event");
+            BotHandler.ChangeSignupMessageRunning(1);
             Logger.LogInformation($"    HandlingEventQuestion");
             string template = await AttendanceQuestion.Handle();
             if (template == "Day Off")
@@ -24,6 +25,7 @@ namespace FOFA_Bot.Attendance
                 return;
             }
             Message? message = CreateAttendanceEvent(null, null, template);
+            BotHandler.ChangeSignupMessageRunning(-1);
             await SendAttendanceMessage(message);
         }
         internal static Message? CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
@@ -48,6 +50,7 @@ namespace FOFA_Bot.Attendance
         }
         internal static async Task SendAttendanceMessage(Message? currentMessage)
         {
+            BotHandler.ChangeSignupMessageRunning(1);
             Logger.LogInformation($"    Sending attendance message to {currentMessage.SignupsChannel.Name}");
             ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
             IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
@@ -61,7 +64,6 @@ namespace FOFA_Bot.Attendance
 
         internal static async Task HandleMessageRunning(ulong messageId)
         {
-            BotHandler.ChangeSignupMessageRunning(1);
             Message currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             DateTime eventReminderTime = currentMessage.Date.AddMinutes(-EventReminderMinutes);
             if (DateTime.Now < eventReminderTime)
