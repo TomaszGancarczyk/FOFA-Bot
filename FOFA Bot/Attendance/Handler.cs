@@ -17,12 +17,10 @@ namespace FOFA_Bot.Attendance
             if (template == "Day Off")
             {
                 Task.Delay(3600000).Wait();
-                BotHandler.RemoveSignupMessageRunning();
                 return;
             }
             if (template == "Next Message")
             {
-                BotHandler.RemoveSignupMessageRunning();
                 return;
             }
             Message? message = CreateAttendanceEvent(null, null, template);
@@ -63,6 +61,7 @@ namespace FOFA_Bot.Attendance
 
         internal static async Task HandleMessageRunning(ulong messageId)
         {
+            BotHandler.ChangeSignupMessageRunning(1);
             Message currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             DateTime eventReminderTime = currentMessage.Date.AddMinutes(-EventReminderMinutes);
             if (DateTime.Now < eventReminderTime)
@@ -98,17 +97,24 @@ namespace FOFA_Bot.Attendance
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
                 GoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
-                BotHandler.RemoveSignupMessageRunning();
+                BotHandler.ChangeSignupMessageRunning(-1);
             CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
         }
 
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
         {
             IMessageChannel channel = BotData.GetSignupsChannel();
-            IMessage discordMessage = await channel.GetMessageAsync(messageId);
-            if (discordMessage == null)
+            try
             {
-                Logger.LogInformation($"    Message got deleted, skipping");
+                if (await channel.GetMessageAsync(messageId) != null)
+                {
+                    Logger.LogInformation($"    Message got deleted, skipping");
+                    return true;
+                }
+            }
+            catch(Exception e) 
+            { 
+                Logger.LogError($"Error when getting message to check if it's deleted:\n{e}"); 
                 return true;
             }
             return false;

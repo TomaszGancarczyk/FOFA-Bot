@@ -8,7 +8,7 @@ namespace FOFA_Bot.Bot
     internal class BotHandler
     {
         private static DiscordSocketClient? Discord;
-        private static int SignupMessageRunning = 0;
+        private static int SignupMessageRunningCount = 0;
 
         internal static async Task Run(DiscordSocketClient discord)
         {
@@ -41,9 +41,8 @@ namespace FOFA_Bot.Bot
 
         private static async Task CheckSignupMessage()
         {
-            if (SignupMessageRunning == 0 && DateTime.Now.Hour == 21 && SettingsHandler.GetAutomnaticSignupMessage())
+            if (SignupMessageRunningCount == 0 && DateTime.Now.Hour == 21 && SettingsHandler.GetAutomnaticSignupMessage())
             {
-                AddSignupMessageRunning();
                 await AttendanceHandler.StartQuestionAttendanceEvent();
                 Logger.LogInformation($"    Attendance event finished");
             }
@@ -57,8 +56,11 @@ namespace FOFA_Bot.Bot
             else embed = MessageResponse.CreateNegativeStatusResponse();
             return embed;
         }
-        internal static void AddSignupMessageRunning() => ++SignupMessageRunning;
-        internal static void RemoveSignupMessageRunning() => --SignupMessageRunning;
+        internal static void ChangeSignupMessageRunning(int changeCount)
+        {
+            SignupMessageRunningCount = SignupMessageRunningCount + changeCount;
+            Logger.LogInformation($"Changed Signup Message count with count {changeCount}, current count: {SignupMessageRunningCount}");
+        }
         internal static DiscordSocketClient? GetDiscord() => Discord;
     }
 }

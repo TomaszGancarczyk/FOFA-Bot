@@ -76,11 +76,9 @@ namespace FOFA_Bot.Attendance
         }
         private static async Task HandleMessage(AttendanceMessageBackup backupMessage)
         {
-            BotHandler.AddSignupMessageRunning();
             await ConvertToAttendanceMessage(backupMessage);
             AttendanceHandler.RefreshSignupMessage(backupMessage.DiscordMessageId);
             await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
-            BotHandler.RemoveSignupMessageRunning();
         }
 
         private static async Task<Message?> ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
