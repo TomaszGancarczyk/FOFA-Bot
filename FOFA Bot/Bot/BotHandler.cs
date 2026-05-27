@@ -58,7 +58,7 @@ namespace FOFA_Bot.Bot
         }
         internal static void ChangeSignupMessageRunning(int changeCount)
         {
-            SignupMessageRunningCount = SignupMessageRunningCount + changeCount;
+            SignupMessageRunningCount += changeCount;
             Logger.LogInformation($"Changed Signup Message count with count {changeCount}, current count: {SignupMessageRunningCount}");
         }
         internal static DiscordSocketClient? GetDiscord() => Discord;
