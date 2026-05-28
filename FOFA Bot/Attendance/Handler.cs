@@ -111,7 +111,7 @@ namespace FOFA_Bot.Attendance
             IMessageChannel channel = BotData.GetSignupsChannel();
             try
             {
-                if (await channel.GetMessageAsync(messageId) != null)
+                if (await channel.GetMessageAsync(messageId) == null)
                 {
                     Logger.LogInformation($"    Message got deleted, skipping");
                     return true;
