@@ -50,7 +50,6 @@ namespace FOFA_Bot.Attendance
             if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
             {
                 Logger.LogInformation($"    Got response from question: {QuestionResponse}");
-                await CurrentQuestionMessage.DeleteAsync();
                 WaitingForQuestionResponse = true;
                 CurrentQuestionMessage = null;
                 return QuestionResponse;
