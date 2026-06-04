@@ -9,14 +9,14 @@ namespace FOFA_Bot.Attendance
 {
     internal class GoogleSheet
     {
-        internal static void HandleUnsignedUsers(List<Member> members)
+        internal static void HandleUnsignedUsers(string eventName, List<Member> members)
         {
             Logger.LogInformation($"[excel] Exporting unassigned users");
             string sheetId = BotData.GetSignupSheetId();
             SheetsService? service = GetSheetService();
             string range = GetRange(members.Count + 1);
             List<string> userNames = [.. members.Select(m => m.discordUser.Username)];
-            IList<IList<Object>> objRecords = GenerateData(userNames);
+            IList<IList<Object>> objRecords = GenerateData(eventName, userNames);
             if (service != null)
                 UpdateGoogleSheet(objRecords, sheetId, range, service);
             Logger.LogInformation($"    Finished updating attendance sheet");
@@ -40,12 +40,13 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Signup google sheet updated");
         }
 
-        private static List<IList<object>> GenerateData(List<string> userNames)
+        private static List<IList<object>> GenerateData(string eventName, List<string> userNames)
         {
             Logger.LogInformation($"    Generating data for the signup sheet");
             List<IList<Object>> fullObject = [];
             IList<Object> objectLine = [];
             objectLine.Add(DateTime.Now.ToString("dd/MM/yyyy"));
+            objectLine.Add(eventName);
             foreach (string userName in userNames)
                 objectLine.Add(userName);
             fullObject.Add(objectLine);

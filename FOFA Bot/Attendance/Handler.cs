@@ -98,9 +98,9 @@ namespace FOFA_Bot.Attendance
                         await BotData.GetAnnoucmentChannel().SendMessageAsync(annoucmentMessage);
                 }
             }
-
+            string eventName = string.Join(" ", currentMessage.EmbedMessage.Title.Split(" ").Skip(1));
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
-                GoogleSheet.HandleUnsignedUsers([.. MemberHandler.GetMembers().Where(m => m.status == null)]);
+                GoogleSheet.HandleUnsignedUsers(eventName ,[.. MemberHandler.GetMembers().Where(m => m.status == null)]);
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
                 BotHandler.ChangeSignupMessageRunning(-1);
             CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
