@@ -38,6 +38,7 @@ namespace FOFA_Bot
             {
                 Discord.ButtonExecuted += ButtonEventHandler.Handle;
                 Discord.SlashCommandExecuted += SlashCommandHandler.Handle;
+                Logger.LogInformation($"");
                 Logger.LogInformation($"[FOFA] Bot is running");
                 return Task.CompletedTask;
             };

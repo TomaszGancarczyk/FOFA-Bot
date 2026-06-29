@@ -18,7 +18,8 @@ namespace FOFA_Bot.Attendance
             template = await AttendanceQuestion.Handle();
             if (template == "Day Off")
             {
-                Task.Delay(3600000).Wait();
+                while (DateTime.Now.Hour == BotHandler.SignupQuestionHour)
+                    Task.Delay(60000).Wait();
                 BotHandler.ChangeSignupMessageRunning(-1);
                 return;
             }
