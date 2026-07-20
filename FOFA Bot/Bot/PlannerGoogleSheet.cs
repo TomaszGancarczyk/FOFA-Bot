@@ -1,4 +1,6 @@
 ﻿using FOFA_Bot.Data;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 
 namespace FOFA_Bot.Bot
@@ -9,7 +11,7 @@ namespace FOFA_Bot.Bot
         {
             List<PlannerData> data = [];
             string sheetId = BotData.GetPlannerSheetId();
-            SheetsService? service = Attendance.GoogleSheet.GetSheetService();
+            SheetsService? service = GetSheetService();
             string range = "A2:D";
             var request = service.Spreadsheets.Values.Get(sheetId, range);
             var requestResponse = request.Execute().Values;
@@ -39,6 +41,23 @@ namespace FOFA_Bot.Bot
                 catch (Exception) { }
             }
             return data;
+        }
+        private static SheetsService? GetSheetService()
+        {
+
+            using var stream = new FileStream("..\\..\\..\\Data\\fofa-bot-cred.json", FileMode.Open, FileAccess.Read);
+            var credential = ServiceAccountCredential.FromServiceAccountData(stream);
+            credential.Scopes =
+            [
+                SheetsService.Scope.Spreadsheets,
+                SheetsService.Scope.Drive
+            ];
+            SheetsService? service = new(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "fofa-bot"
+            });
+            return service;
         }
     }
 }

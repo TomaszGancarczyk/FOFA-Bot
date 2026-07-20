@@ -54,7 +54,15 @@ namespace FOFA_Bot.Bot
                         if (updatedMessage != null)
                         {
                             Logger.LogInformation($"    Updating discord attendance message");
-                            await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
+                            try
+                            {
+                                await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
+                                Logger.LogInformation($"    Attendance message updated");
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.LogError($"    Run into error when updating attendance message:\n{e}");
+                            }
                             await MessageResponse.RespondWithSignupStatus(component, true);
                         }
                     }
@@ -73,7 +81,15 @@ namespace FOFA_Bot.Bot
                         if (updatedMessage != null)
                         {
                             Logger.LogInformation($"    Updating discord attendance message");
-                            await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
+                            try
+                            {
+                                await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
+                                Logger.LogInformation($"    Attendance message updated");
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.LogError($"    Run into error when updating attendance message:\n{e}");
+                            }
                             await MessageResponse.RespondWithSignupStatus(component, false);
                         }
                     }

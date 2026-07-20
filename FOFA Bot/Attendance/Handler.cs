@@ -94,14 +94,19 @@ namespace FOFA_Bot.Attendance
                 bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    string annoucmentMessage = CreateAnnoucmentMessage(messageId);
-                    if (annoucmentMessage != string.Empty)
-                        await BotData.GetAnnoucmentChannel().SendMessageAsync(annoucmentMessage);
+                    string AnnouncementMessage = CreateAnnouncementMessage(messageId);
+                    if (AnnouncementMessage != string.Empty)
+                        try
+                        {
+                            await BotData.GetAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogError($"Error when sending annoucment message:\n{e}");
+                        }
                 }
             }
             string eventName = string.Join(" ", currentMessage.EmbedMessage.Title.Split(" ").Skip(1));
-            if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id && MemberHandler.GetMembers().Any(m => m.status == null))
-                GoogleSheet.HandleUnsignedUsers(eventName ,[.. MemberHandler.GetMembers().Where(m => m.status == null)]);
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
                 BotHandler.ChangeSignupMessageRunning(-1);
             CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
@@ -152,13 +157,13 @@ namespace FOFA_Bot.Attendance
             if (nullmbmers == 0) return null;
             return reminderMessage;
         }
-        private static string CreateAnnoucmentMessage(ulong? messageId)
+        private static string CreateAnnouncementMessage(ulong? messageId)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
             string[] eventParts = currentMessage.DiscordMessage.Embeds.First().Title.Split(" ");
-            string annoucmentMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {currentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId())}";
-            return annoucmentMessage;
+            string AnnouncementMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {currentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId())}";
+            return AnnouncementMessage;
         }
 
         internal static List<ulong?>? GetCurrentMessagesIds()

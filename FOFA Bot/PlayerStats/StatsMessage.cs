@@ -34,6 +34,7 @@ namespace FOFA_Bot.PlayerStats
         }
         private static EmbedBuilder GetErrorMessage(string playername)
         {
+            Logger.LogError($"Stats for player {playername} returned null, responding with error message");
             EmbedBuilder embed = new();
             embed.WithColor(Color.Red)
                 .WithTitle($"Couldn't find player {playername}");

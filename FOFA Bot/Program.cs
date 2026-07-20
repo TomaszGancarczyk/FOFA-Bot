@@ -38,7 +38,7 @@ namespace FOFA_Bot
             {
                 Discord.ButtonExecuted += ButtonEventHandler.Handle;
                 Discord.SlashCommandExecuted += SlashCommandHandler.Handle;
-                Logger.LogInformation($"");
+                Logger.LogInformation($"...");
                 Logger.LogInformation($"[FOFA] Bot is running");
                 return Task.CompletedTask;
             };
@@ -116,7 +116,6 @@ namespace FOFA_Bot
             {
                 Logger.LogCritical($"Run into problem when setting up commands:\n{e}");
             }
-            //TODO stats command locked to specific channel
         }
     }
 }
