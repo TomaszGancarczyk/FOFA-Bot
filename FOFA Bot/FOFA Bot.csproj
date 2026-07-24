@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Data\BackupMessages\" />
+    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>

@@ -42,7 +42,7 @@ namespace FOFA_Bot
                 Logger.LogInformation($"[FOFA] Bot is running");
                 return Task.CompletedTask;
             };
-            await Task.Delay(3000);
+            await Task.Delay(5000);
             await BotHandler.Run(Discord);
             await Task.Delay(-1);
         }

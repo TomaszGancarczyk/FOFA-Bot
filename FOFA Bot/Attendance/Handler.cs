@@ -95,14 +95,14 @@ namespace FOFA_Bot.Attendance
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
                     string AnnouncementMessage = CreateAnnouncementMessage(messageId);
-                    if (AnnouncementMessage != string.Empty)
+                    if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
                         try
                         {
                             await BotData.GetAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
                         }
                         catch (Exception e)
                         {
-                            Logger.LogError($"Error when sending annoucment message:\n{e}");
+                            Logger.LogError($"Error when sending announcement message:\n{e}");
                         }
                 }
             }

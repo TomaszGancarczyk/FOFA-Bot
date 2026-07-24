@@ -6,9 +6,9 @@ namespace FOFA_Bot
     internal class Logger
     {
         private static readonly Serilog.Core.Logger log = new LoggerConfiguration()
-            .WriteTo.File("log.txt", outputTemplate:
+            .WriteTo.File($"..\\..\\..\\Logs\\log_{DateTime.Now.Month}_{DateTime.Now.Year}.txt", outputTemplate:
         "[{Timestamp:dd:MM:yyyy HH:mm:ss}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .WriteTo.File("log_warnings.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, outputTemplate:
+            .WriteTo.File($"..\\..\\..\\Logs\\log_warnings_{DateTime.Now.Month}_{DateTime.Now.Year}.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, outputTemplate:
         "[{Timestamp:dd:MM:yyyy HH:mm:ss}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
             .WriteTo.Console(outputTemplate:
         "[{Timestamp:dd:MM:yyyy HH:mm:ss}] [{Level:u3}] {Message:lj}{NewLine}")
