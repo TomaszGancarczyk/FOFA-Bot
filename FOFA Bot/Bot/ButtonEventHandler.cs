@@ -44,9 +44,7 @@ namespace FOFA_Bot.Bot
                     break;
                 case "presentButton":
                     currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
-                    if (!currentMessageIds.Contains(component.Message.Id))
-                        await MessageResponse.RespondWithOldSignupError(component);
-                    else
+                    if (currentMessageIds.Contains(component.Message.Id))
                     {
                         Logger.LogInformation($"[button] {component.User.Username} clicked present on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, true);
@@ -66,12 +64,12 @@ namespace FOFA_Bot.Bot
                             await MessageResponse.RespondWithSignupStatus(component, true);
                         }
                     }
+                    else
+                        await MessageResponse.RespondWithOldSignupError(component);
                     break;
                 case "absentButton":
                     currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
-                    if (!currentMessageIds.Contains(component.Message.Id))
-                        await MessageResponse.RespondWithOldSignupError(component);
-                    else
+                    if (currentMessageIds.Contains(component.Message.Id))
                     {
                         Logger.LogInformation($"[button] {component.User.Username} clicked absent on the signup");
                         MemberHandler.UpdateMemberStatus(component.User, false);
@@ -91,6 +89,8 @@ namespace FOFA_Bot.Bot
                             await MessageResponse.RespondWithSignupStatus(component, false);
                         }
                     }
+                    else
+                        await MessageResponse.RespondWithOldSignupError(component);
                     break;
             }
         }
