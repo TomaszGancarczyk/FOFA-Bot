@@ -41,8 +41,16 @@ namespace FOFA_Bot.Attendance
 
             ComponentBuilder component = CreateQuestionButtons();
             Logger.LogInformation($"    Sending attendance question to {questionChannel.Name}");
-            IMessage? localCurrentQuestionMessage = await questionChannel.SendMessageAsync(questionMessageContent, components: component.Build());
-            CurrentQuestionMessage = localCurrentQuestionMessage;
+            IMessage? localCurrentQuestionMessage = null;
+            try
+            {
+                localCurrentQuestionMessage = await questionChannel.SendMessageAsync(questionMessageContent, components: component.Build());
+                CurrentQuestionMessage = localCurrentQuestionMessage;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"    Error when sending attendance question:\n{ex}");
+            }
             while (DateTime.Now < EventDateTime && WaitingForQuestionResponse)
             {
                 await Task.Delay(1000);
@@ -56,7 +64,8 @@ namespace FOFA_Bot.Attendance
             }
             else
             {
-                await CurrentQuestionMessage.DeleteAsync();
+                if (CurrentQuestionMessage != null)
+                    await CurrentQuestionMessage.DeleteAsync();
                 return "Next Message";
             }
         }

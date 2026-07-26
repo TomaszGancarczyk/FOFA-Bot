@@ -1,5 +1,4 @@
 ﻿using Discord;
-using FOFA_Bot.Bot;
 
 namespace FOFA_Bot.Attendance
 {

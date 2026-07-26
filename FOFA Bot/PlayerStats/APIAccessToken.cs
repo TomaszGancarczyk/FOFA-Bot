@@ -1,5 +1,4 @@
-﻿using Discord;
-using FOFA_Bot.Data;
+﻿using FOFA_Bot.Data;
 using Newtonsoft.Json;
 
 namespace FOFA_Bot.PlayerStats

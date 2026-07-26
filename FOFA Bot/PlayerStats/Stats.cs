@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace FOFA_Bot.PlayerStats
+﻿namespace FOFA_Bot.PlayerStats
 {
 #pragma warning disable IDE1006
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
