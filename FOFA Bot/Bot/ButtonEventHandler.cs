@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using FOFA_Bot.Attendance;
 
@@ -6,10 +7,18 @@ namespace FOFA_Bot.Bot
 {
     internal class ButtonEventHandler
     {
+        private static readonly Embed PositiveEmbed = new EmbedBuilder
+        {
+            Color = Color.Green,
+            Title = "Registered for event"
+        }.Build();
+        private static readonly Embed NegativeEmbed = new EmbedBuilder
+        {
+            Color = Color.Red,
+            Title = "Unregistered for event"
+        }.Build();
         public static async Task Handle(SocketMessageComponent component)
         {
-            EmbedBuilder? updatedMessage;
-            List<ulong?>? currentMessageIds;
             switch (component.Data.CustomId)
             {
                 case "tournamentButton":
@@ -43,56 +52,52 @@ namespace FOFA_Bot.Bot
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "presentButton":
-                    currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
-                    if (currentMessageIds.Contains(component.Message.Id))
-                    {
-                        Logger.LogInformation($"[button] {component.User.Username} clicked present on the signup");
-                        MemberHandler.UpdateMemberStatus(component.User, true);
-                        updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
-                        if (updatedMessage != null)
-                        {
-                            Logger.LogInformation($"    Updating discord attendance message");
-                            try
-                            {
-                                await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
-                                Logger.LogInformation($"    Attendance message updated");
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.LogError($"    Run into error when updating attendance message:\n{e}");
-                            }
-                            await MessageResponse.RespondWithSignupStatus(component, true);
-                        }
-                    }
-                    else
-                        await MessageResponse.RespondWithOldSignupError(component);
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, true),
+                        Task.Delay(TimeSpan.FromSeconds(5))
+                        );
                     break;
                 case "absentButton":
-                    currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
-                    if (currentMessageIds.Contains(component.Message.Id))
-                    {
-                        Logger.LogInformation($"[button] {component.User.Username} clicked absent on the signup");
-                        MemberHandler.UpdateMemberStatus(component.User, false);
-                        updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
-                        if (updatedMessage != null)
-                        {
-                            Logger.LogInformation($"    Updating discord attendance message");
-                            try
-                            {
-                                await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
-                                Logger.LogInformation($"    Attendance message updated");
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.LogError($"    Run into error when updating attendance message:\n{e}");
-                            }
-                            await MessageResponse.RespondWithSignupStatus(component, false);
-                        }
-                    }
-                    else
-                        await MessageResponse.RespondWithOldSignupError(component);
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, false),
+                        Task.Delay(TimeSpan.FromSeconds(5))
+                        );
                     break;
             }
+        }
+        private static async Task HandleAttendanceButton(SocketMessageComponent component, bool status)
+        {
+            Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup");
+            List<ulong?>? currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
+            if (currentMessageIds != null && currentMessageIds.Contains(component.Message.Id))
+            {
+                MemberHandler.UpdateMemberStatus(component.User, status);
+                EmbedBuilder? updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
+                try
+                {
+                    Logger.LogInformation($"    Updating discord attendance message");
+                    await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
+                    Logger.LogInformation($"    Attendance message updated");
+                }
+                catch (HttpException e)
+                {
+                    Logger.LogError("1");
+                    if (e.DiscordCode == DiscordErrorCode.InteractionHasAlreadyBeenAcknowledged) return;
+                    Logger.LogError($"    Run into error when updating attendance message:\n{e.Reason}");
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("2");
+                    Logger.LogError($"    Run into error when updating attendance message:\n{e}");
+                }
+                if (status)
+                    await component.FollowupAsync(embed: PositiveEmbed, ephemeral: true);
+                else
+                    await component.FollowupAsync(embed: NegativeEmbed, ephemeral: true);
+            }
+            else
+                await MessageResponse.RespondWithOldSignupError(component);
+
         }
     }
 }

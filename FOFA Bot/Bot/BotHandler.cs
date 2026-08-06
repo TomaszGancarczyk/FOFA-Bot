@@ -13,6 +13,7 @@ namespace FOFA_Bot.Bot
 
         internal static async Task Run(DiscordSocketClient discord)
         {
+            Logger.LogInformation("Starting program...");
             Discord = discord;
             await Backup.ReadBackup();
             while (true)
