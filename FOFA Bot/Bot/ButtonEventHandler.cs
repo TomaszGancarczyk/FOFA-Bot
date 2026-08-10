@@ -90,8 +90,18 @@ namespace FOFA_Bot.Bot
                     await component.FollowupAsync(embed: NegativeEmbed, ephemeral: true);
             }
             else
-                await MessageResponse.RespondWithOldSignupError(component);
+                await RespondWithOldSignupError(component);
 
+        }
+        private static async Task RespondWithOldSignupError(SocketMessageComponent component)
+        {
+            Logger.LogWarning($"    {component.User.Username} interacted with old signup");
+            EmbedBuilder embed = new()
+            {
+                Color = Color.DarkerGrey,
+                Title = $"This is signup is closed"
+            };
+            await component.RespondAsync(embed: embed.Build(), ephemeral: true);
         }
     }
 }

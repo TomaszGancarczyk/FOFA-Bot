@@ -4,7 +4,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class SlashHandler
     {
-        internal static EmbedBuilder? CreateSignupTemplate(long templateOption)
+        internal static Task<Embed> CreateSignupFromSlashCommand(long templateOption)
         {
             string template = "";
             switch (templateOption)
@@ -25,22 +25,15 @@ namespace FOFA_Bot.Attendance
                     template = "Wild North";
                     break;
                 case 10:
-                    _ = HandleSlashQuestion();
-                    return SuccessQuestionMessage();
+                    _ = AttendanceHandler.StartQuestionAttendanceEvent();
+                    return Task.FromResult(SuccessSignupMessage());
             }
             Message? message = AttendanceHandler.CreateAttendanceEvent(template: template);
             _ = AttendanceHandler.SendAttendanceMessage(message);
-            return SuccessSignupMessage();
-        }
-        private static async Task HandleSlashQuestion()
-        {
-            Logger.LogInformation($"    Handling question event from slash command");
-            string template = await AttendanceQuestion.Handle();
-            Message? message = AttendanceHandler.CreateAttendanceEvent(template: template);
-            _ = AttendanceHandler.SendAttendanceMessage(message);
+            return Task.FromResult(SuccessSignupMessage());
         }
 
-        internal static EmbedBuilder CreateSignupCustom(string eventName, string date)
+        internal static Embed CreateSignupCustom(string eventName, string date)
         {
             string[] dateParts = date.Split('.');
             DateTime? formatedDate;
@@ -121,26 +114,23 @@ namespace FOFA_Bot.Attendance
             return eventDateTime;
         }
 
-        private static EmbedBuilder SuccessSignupMessage()
+        private static Embed SuccessSignupMessage()
         {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Green);
-            embed.WithTitle($"Successfully created signup message");
-            return embed;
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Green,
+                Title = "Successfully created signup message"
+            };
+            return embed.Build();
         }
-        private static EmbedBuilder SuccessQuestionMessage()
+        private static Embed DateErrorMessage(string message)
         {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Green);
-            embed.WithTitle($"Successfully created signup question");
-            return embed;
-        }
-        private static EmbedBuilder DateErrorMessage(string message)
-        {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Red);
-            embed.WithTitle(message);
-            return embed;
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Red,
+                Title = message
+            };
+            return embed.Build();
         }
     }
 }

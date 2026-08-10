@@ -30,15 +30,6 @@ namespace FOFA_Bot.Bot
                 Logger.LogInformation($"    Attendance event finished");
             }
         }
-        internal static EmbedBuilder ChangeAutomnaticSignupMessage(bool status)
-        {
-            EmbedBuilder embed;
-            SettingsHandler.SetAutomnaticSignupMessage(status);
-            if (SettingsHandler.GetAutomnaticSignupMessage() == status)
-                embed = MessageResponse.CreatePositiveStatusResponse(status);
-            else embed = MessageResponse.CreateNegativeStatusResponse();
-            return embed;
-        }
         internal static void ChangeSignupMessageRunning(int changeCount)
         {
             SignupMessageRunningCount += changeCount;

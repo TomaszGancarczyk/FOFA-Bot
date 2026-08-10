@@ -11,48 +11,41 @@ namespace FOFA_Bot.Data
             string json = reader.ReadToEnd();
             JsonBotData = JObject.Parse(json);
         }
-        internal static bool GetAutomaticReminder()
-        {
-            LoadJson();
-            return JsonBotData.AutomaticReminder;
-        }
         internal static bool GetAutomnaticSignupMessage()
         {
             LoadJson();
-            return JsonBotData.AutomnaticSignupMessage;
+            return JsonBotData.signups;
         }
         internal static bool GetAutomaticSignupQuestion()
         {
             LoadJson();
-            return JsonBotData.AutomaticSignupQuestion;
+            return JsonBotData.questions;
         }
-        internal static bool GetAutomnaticNadeMessage()
+        internal static bool GetAutomaticReminder()
         {
             LoadJson();
-            return JsonBotData.AutomnaticNadeMessage;
+            return JsonBotData.reminders;
         }
-        internal static void SetAutomaticReminder(bool status)
+        internal static Dictionary<string, bool> GetAutomaticSettingsRofa()
+        {
+            Logger.LogInformation("    Getting settings data");
+            LoadJson();
+            Logger.LogInformation(" 1");
+            Dictionary<string, bool> dict = new()
+            {
+                { "signups", (bool)JsonBotData.signups},
+                { "questions", (bool)JsonBotData.questions},
+                { "reminders", (bool)JsonBotData.reminders},
+            };
+            Logger.LogInformation("  2");
+            return dict;
+        }
+        internal static void SetAutomaticSettingsRofa(Dictionary<string, bool> settings)
         {
             LoadJson();
-            JsonBotData.AutomaticReminder = status;
-            File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
-        }
-        internal static void SetAutomnaticSignupMessage(bool status)
-        {
-            LoadJson();
-            JsonBotData.AutomnaticSignupMessage = status;
-            File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
-        }
-        internal static void SetAutomaticSignupQuestion(bool status)
-        {
-            LoadJson();
-            JsonBotData.AutomaticSignupQuestion = status;
-            File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
-        }
-        internal static void SetAutomnaticNadeMessage(bool status)
-        {
-            LoadJson();
-            JsonBotData.AutomnaticNadeMessage = status;
+            JsonBotData.signups = settings["signups"];
+            JsonBotData.questions = settings["questions"];
+            JsonBotData.reminders = settings["reminders"];
             File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
         }
     }

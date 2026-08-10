@@ -79,33 +79,26 @@ namespace FOFA_Bot
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.String)
                     );
-                SlashCommandBuilder? changeAutomnaticSignupMessage = new SlashCommandBuilder()
-                    .WithName("automatic-signups-message")
-                    .WithDescription("Do you want to change automatic signup messages?")
+
+                SlashCommandBuilder? changeAutomnaticSettingsROFA = new SlashCommandBuilder()
+                    .WithName("settings-automatic-rofa")
+                    .WithDescription("Do you want to change automatic settings for ROFA?")
                     .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("change")
-                        .WithDescription("yes or no")
-                        .WithRequired(true)
-                        .WithType(ApplicationCommandOptionType.Boolean)
-                    );
-                SlashCommandBuilder? changeAutomnaticSignupQuestion = new SlashCommandBuilder()
-                    .WithName("automatic-signups-question")
-                    .WithDescription("Do you want to change automatic signup questions?")
+                        .WithName("signups")
+                        .WithDescription("post or not")
+                        .WithRequired(false)
+                        .WithType(ApplicationCommandOptionType.Boolean))
                     .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("change")
-                        .WithDescription("yes or no")
-                        .WithRequired(true)
-                        .WithType(ApplicationCommandOptionType.Boolean)
-                    );
-                SlashCommandBuilder? changeAutomnaticSignupReminder = new SlashCommandBuilder()
-                    .WithName("automatic-signups-reminder")
-                    .WithDescription("Do you want to change automatic signup reminders?")
+                        .WithName("questions")
+                        .WithDescription("post or not")
+                        .WithRequired(false)
+                        .WithType(ApplicationCommandOptionType.Boolean))
                     .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("change")
-                        .WithDescription("yes or no")
-                        .WithRequired(true)
-                        .WithType(ApplicationCommandOptionType.Boolean)
-                    );
+                        .WithName("reminders")
+                        .WithDescription("post or not")
+                        .WithRequired(false)
+                        .WithType(ApplicationCommandOptionType.Boolean));
+
                 SlashCommandBuilder? stats = new SlashCommandBuilder()
                     .WithName("stats")
                     .WithDescription("Show player stats")
@@ -117,9 +110,7 @@ namespace FOFA_Bot
                     );
                 await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
-                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
-                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupQuestion.Build());
-                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSettingsROFA.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(stats.Build());
             }
             catch (Exception e)

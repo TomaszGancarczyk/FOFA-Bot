@@ -1,6 +1,8 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
+using Newtonsoft.Json.Converters;
 
 namespace FOFA_Bot.Attendance
 {
@@ -189,24 +191,30 @@ namespace FOFA_Bot.Attendance
             if (response.Count > 0) return response;
             return null;
         }
-        internal static EmbedBuilder ChangeAutomaticReminder(bool status)
-        {
-            EmbedBuilder embed;
-            SettingsHandler.SetAutomaticReminder(status);
-            if (SettingsHandler.GetAutomaticReminder() == status)
-                embed = MessageResponse.CreatePositiveStatusResponse(status);
-            else embed = MessageResponse.CreateNegativeStatusResponse();
-            return embed;
-        }
         internal static void UpdateBackupAttendanceMessage(Message messsage) => CurrentMessages.Add(messsage);
-        internal static EmbedBuilder ChangeAutomnaticSignupQuestion(bool status)
+        internal static Embed ChangeRofaAutomnaticSettings(IReadOnlyCollection<SocketSlashCommandDataOption> options)
         {
-            EmbedBuilder embed;
-            SettingsHandler.SetAutomaticSignupQuestion(status);
-            if (SettingsHandler.GetAutomaticSignupQuestion() == status)
-                embed = MessageResponse.CreatePositiveStatusResponse(status);
-            else embed = MessageResponse.CreateNegativeStatusResponse();
-            return embed;
+            Logger.LogInformation("    Changing settings");
+            string message = "";
+
+            Dictionary<string, bool> oldSettings = SettingsHandler.GetAutomaticSettingsRofa();
+            Dictionary<string, bool> settings = [];
+            foreach (SocketSlashCommandDataOption option in options)
+            {
+                settings[option.Name] = (bool)option.Value;
+                message += $"{option.Name[0].ToString().ToUpper()}{option.Name.AsSpan(1)}: {oldSettings[option.Name]} -> {option.Value}\n";
+                oldSettings.Remove(option.Name);
+            }
+            foreach (KeyValuePair<string, bool> setting in oldSettings)
+                message += $"{setting.Key[0].ToString().ToUpper()}{setting.Key.AsSpan(1)}: {setting.Value}";
+            SettingsHandler.SetAutomaticSettingsRofa(settings);
+
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Green,
+                Title = message
+            };
+            return embed.Build();
         }
     }
 }

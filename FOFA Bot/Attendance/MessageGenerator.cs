@@ -83,12 +83,14 @@ namespace FOFA_Bot.Attendance
         private static EmbedBuilder CreateBaseMessage(string EventName, DateTime eventDateTime, Color color)
         {
             Logger.LogInformation($"    Creating base message");
-            EmbedBuilder embedMessage = new();
             long eventUnix = GetUnixFromDateTime(eventDateTime);
-            embedMessage.WithTitle($"{eventDateTime.DayOfWeek} {EventName}")
-                .WithDescription($"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
-                $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n")
-                .WithColor(color);
+            EmbedBuilder embedMessage = new()
+            {
+                Color = color,
+                Title = $"{eventDateTime.DayOfWeek} {EventName}",
+                Description = $"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
+                $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n"
+            };
             return embedMessage;
         }
         internal static EmbedBuilder AddMessageFields(EmbedBuilder embedMessage)

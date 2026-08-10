@@ -10,14 +10,14 @@ namespace FOFA_Bot.PlayerStats
             string playername = command.Data.Options.First().Value.ToString();
             if (playername == null)
             {
-                await command.RespondAsync(embed: GetErrorMessage("").Build());
+                await command.RespondAsync(embed: GetErrorMessage(""));
                 return;
             }
             var stats = await PlayerApiHandler.GetPlayerStats(playername);
             EmbedBuilder message;
             if (stats == null)
             {
-                await command.RespondAsync(embed: GetErrorMessage(playername).Build());
+                await command.RespondAsync(embed: GetErrorMessage(playername));
             }
             else
             {
@@ -32,13 +32,15 @@ namespace FOFA_Bot.PlayerStats
             string factionImage = $"attachment://..\\..\\..\\..\\Images\\{faction.ToLower()}.webp";
             return factionImage;
         }
-        private static EmbedBuilder GetErrorMessage(string playername)
+        private static Embed GetErrorMessage(string playername)
         {
             Logger.LogError($"Stats for player {playername} returned null, responding with error message");
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Red)
-                .WithTitle($"Couldn't find player {playername}");
-            return embed;
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Red,
+                Title = $"Couldn't find player {playername}"
+            };
+            return embed.Build();
         }
     }
 }

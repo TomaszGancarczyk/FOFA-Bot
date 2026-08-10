@@ -11,7 +11,7 @@ namespace FOFA_Bot.Bot
         private static readonly ulong StatsChannelId = BotData.GetStatsChannelId();
         public static async Task Handle(SocketSlashCommand command)
         {
-            EmbedBuilder? embed;
+            Embed? embed;
             switch (command.Data.Name)
             {
                 case "create-signup-template":
@@ -19,10 +19,10 @@ namespace FOFA_Bot.Bot
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
                     if (command.Data.Options.Count > 0)
-                        embed = SlashHandler.CreateSignupTemplate((Int64)command.Data.Options.First().Value);
-                    else embed = SlashHandler.CreateSignupTemplate(10);
+                        embed = await SlashHandler.CreateSignupFromSlashCommand((Int64)command.Data.Options.First().Value);
+                    else embed = await SlashHandler.CreateSignupFromSlashCommand(10);
                     if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
+                        await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
 
                 case "create-signup-custom":
@@ -31,34 +31,16 @@ namespace FOFA_Bot.Bot
                     if (!await CheckRofaPermission(command)) break;
                     embed = SlashHandler.CreateSignupCustom((string)command.Data.Options.First().Value, (string)command.Data.Options.Last().Value);
                     if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
+                        await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
 
-                case "automatic-signups-message":
-                    Logger.LogInformation($"[command] User {command.User.Username} used automatic-signups-message");
+                case "settings-automatic-rofa":
+                    Logger.LogInformation($"[command] User {command.User.Username} used settings-automatic-rofa");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
-                    embed = BotHandler.ChangeAutomnaticSignupMessage((bool)command.Data.Options.First().Value);
+                    embed = AttendanceHandler.ChangeRofaAutomnaticSettings(command.Data.Options);
                     if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
-                    break;
-
-                case "automatic-signups-question":
-                    Logger.LogInformation($"[command] User {command.User.Username} used automatic-signups-question");
-                    await command.DeferAsync(ephemeral: true);
-                    if (!await CheckRofaPermission(command)) break;
-                    embed = AttendanceHandler.ChangeAutomnaticSignupQuestion((bool)command.Data.Options.First().Value);
-                    if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
-                    break;
-
-                case "automatic-signups-reminder":
-                    Logger.LogInformation($"[command] User {command.User.Username} used automatic-signups-reminder");
-                    await command.DeferAsync(ephemeral: true);
-                    if (!await CheckRofaPermission(command)) break;
-                    embed = AttendanceHandler.ChangeAutomaticReminder((bool)command.Data.Options.First().Value);
-                    if (embed != null)
-                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
+                        await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
 
                 case "stats":
@@ -101,16 +83,20 @@ namespace FOFA_Bot.Bot
         }
         private static EmbedBuilder GetPermissionErrorMessage()
         {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Red);
-            embed.WithTitle($"You don't have permission to use this command");
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Red,
+                Title = $"You don't have permission to use this command"
+            };
             return embed;
         }
         private static EmbedBuilder GetStatsChannelErrorMessage()
         {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Red);
-            embed.WithTitle($"Please use this command in {MentionUtils.MentionChannel(StatsChannelId)} channel");
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Red,
+                Title = $"Please use this command in {MentionUtils.MentionChannel(StatsChannelId)} channel"
+            };
             return embed;
         }
     }
