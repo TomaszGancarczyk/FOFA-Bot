@@ -28,15 +28,15 @@ namespace FOFA_Bot.Attendance
                     _ = HandleSlashQuestion();
                     return SuccessQuestionMessage();
             }
-            Message? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            Message? message = AttendanceHandler.CreateAttendanceEvent(template: template);
             _ = AttendanceHandler.SendAttendanceMessage(message);
             return SuccessSignupMessage();
         }
-        private async static Task HandleSlashQuestion()
+        private static async Task HandleSlashQuestion()
         {
             Logger.LogInformation($"    Handling question event from slash command");
             string template = await AttendanceQuestion.Handle();
-            Message? message = AttendanceHandler.CreateAttendanceEvent(null, null, template);
+            Message? message = AttendanceHandler.CreateAttendanceEvent(template: template);
             _ = AttendanceHandler.SendAttendanceMessage(message);
         }
 
@@ -60,7 +60,7 @@ namespace FOFA_Bot.Attendance
                 Logger.LogWarning($"    Incorrect numbers used for custom signup: {date}");
                 return DateErrorMessage("The date provided for event already passed");
             }
-            Message? message = AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate, null);
+            Message? message = AttendanceHandler.CreateAttendanceEvent(eventName, formatedDate);
             _ = AttendanceHandler.SendAttendanceMessage(message);
             return SuccessSignupMessage();
         }
@@ -133,13 +133,6 @@ namespace FOFA_Bot.Attendance
             EmbedBuilder embed = new();
             embed.WithColor(Color.Green);
             embed.WithTitle($"Successfully created signup question");
-            return embed;
-        }
-        private static EmbedBuilder NameErrorMessage()
-        {
-            EmbedBuilder embed = new();
-            embed.WithColor(Color.Red);
-            embed.WithTitle($"Wrong name for event");
             return embed;
         }
         private static EmbedBuilder DateErrorMessage(string message)

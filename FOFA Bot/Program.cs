@@ -80,6 +80,15 @@ namespace FOFA_Bot
                         .WithType(ApplicationCommandOptionType.String)
                     );
                 SlashCommandBuilder? changeAutomnaticSignupMessage = new SlashCommandBuilder()
+                    .WithName("automatic-signups-message")
+                    .WithDescription("Do you want to change automatic signup messages?")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("change")
+                        .WithDescription("yes or no")
+                        .WithRequired(true)
+                        .WithType(ApplicationCommandOptionType.Boolean)
+                    );
+                SlashCommandBuilder? changeAutomnaticSignupQuestion = new SlashCommandBuilder()
                     .WithName("automatic-signups-question")
                     .WithDescription("Do you want to change automatic signup questions?")
                     .AddOption(new SlashCommandOptionBuilder()
@@ -109,6 +118,7 @@ namespace FOFA_Bot
                 await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupMessage.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupQuestion.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSignupReminder.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(stats.Build());
             }

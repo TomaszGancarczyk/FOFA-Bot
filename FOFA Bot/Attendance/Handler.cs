@@ -7,32 +7,48 @@ namespace FOFA_Bot.Attendance
     internal class AttendanceHandler
     {
         private static List<Message?> CurrentMessages = [];
-        private readonly static int EventReminderMinutes = 150;
-        private readonly static int EventCloseMinutes = 30;
+        private static readonly int EventReminderMinutes = 150;
+        private static readonly int EventCloseMinutes = 30;
+        private static readonly Dictionary<DayOfWeek, string> AutomaticSignupPosts = new()
+        {
+            { DayOfWeek.Monday, "Brawl" },
+            { DayOfWeek.Tuesday, "Brawl" },
+            { DayOfWeek.Wednesday, "Brawl" },
+            { DayOfWeek.Thursday, "Tournament" },
+            { DayOfWeek.Friday, "Tournament" },
+            { DayOfWeek.Saturday, "Tournament" },
+            { DayOfWeek.Sunday, "Base Capture" },
+        };
         internal static async Task StartQuestionAttendanceEvent()
         {
             Logger.LogInformation($"    Starting attendance question event");
             BotHandler.ChangeSignupMessageRunning(1);
-            Logger.LogInformation($"    HandlingEventQuestion");
             string template;
-            template = await AttendanceQuestion.Handle();
-            if (template == "Day Off")
+
+            if (SettingsHandler.GetAutomaticSignupQuestion())
             {
-                while (DateTime.Now.Hour == BotHandler.SignupQuestionHour)
-                    Task.Delay(60000).Wait();
-                BotHandler.ChangeSignupMessageRunning(-1);
-                return;
+                Logger.LogInformation($"    HandlingEventQuestion");
+                template = await AttendanceQuestion.Handle();
+                if (template == "Day Off")
+                {
+                    while (DateTime.Now.Hour == BotHandler.SignupQuestionHour)
+                        Task.Delay(60000).Wait();
+                    BotHandler.ChangeSignupMessageRunning(-1);
+                    return;
+                }
+                if (template == "Next Message")
+                {
+                    BotHandler.ChangeSignupMessageRunning(-1);
+                    return;
+                }
             }
-            if (template == "Next Message")
-            {
-                BotHandler.ChangeSignupMessageRunning(-1);
-                return;
-            }
-            Message? message = CreateAttendanceEvent(null, null, template);
+            else template = AutomaticSignupPosts[DateTime.Now.DayOfWeek];
+
+            Message? message = CreateAttendanceEvent(template: template);
             BotHandler.ChangeSignupMessageRunning(-1);
             await SendAttendanceMessage(message);
         }
-        internal static Message? CreateAttendanceEvent(string? EventName, DateTime? eventDate, string? template)
+        internal static Message? CreateAttendanceEvent(string? EventName = null, DateTime? eventDate = null, string? template = null)
         {
             Logger.LogInformation($"    Creating attendance event");
             Message? tempCurrentMessage;
@@ -183,5 +199,14 @@ namespace FOFA_Bot.Attendance
             return embed;
         }
         internal static void UpdateBackupAttendanceMessage(Message messsage) => CurrentMessages.Add(messsage);
+        internal static EmbedBuilder ChangeAutomnaticSignupQuestion(bool status)
+        {
+            EmbedBuilder embed;
+            SettingsHandler.SetAutomaticSignupQuestion(status);
+            if (SettingsHandler.GetAutomaticSignupQuestion() == status)
+                embed = MessageResponse.CreatePositiveStatusResponse(status);
+            else embed = MessageResponse.CreateNegativeStatusResponse();
+            return embed;
+        }
     }
 }

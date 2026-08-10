@@ -8,7 +8,7 @@ namespace FOFA_Bot.Bot
 {
     internal class SlashCommandHandler
     {
-        private readonly static ulong StatsChannelId = BotData.GetStatsChannelId();
+        private static readonly ulong StatsChannelId = BotData.GetStatsChannelId();
         public static async Task Handle(SocketSlashCommand command)
         {
             EmbedBuilder? embed;
@@ -34,11 +34,20 @@ namespace FOFA_Bot.Bot
                         await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
 
+                case "automatic-signups-message":
+                    Logger.LogInformation($"[command] User {command.User.Username} used automatic-signups-message");
+                    await command.DeferAsync(ephemeral: true);
+                    if (!await CheckRofaPermission(command)) break;
+                    embed = BotHandler.ChangeAutomnaticSignupMessage((bool)command.Data.Options.First().Value);
+                    if (embed != null)
+                        await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
+                    break;
+
                 case "automatic-signups-question":
                     Logger.LogInformation($"[command] User {command.User.Username} used automatic-signups-question");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
-                    embed = BotHandler.ChangeAutomnaticSignupMessage((bool)command.Data.Options.First().Value);
+                    embed = AttendanceHandler.ChangeAutomnaticSignupQuestion((bool)command.Data.Options.First().Value);
                     if (embed != null)
                         await command.FollowupAsync(embed: embed.Build(), ephemeral: true);
                     break;
@@ -65,7 +74,7 @@ namespace FOFA_Bot.Bot
             }
         }
 
-        private async static Task<bool> CheckRofaPermission(SocketSlashCommand command)
+        private static async Task<bool> CheckRofaPermission(SocketSlashCommand command)
         {
             string[] privilegedRoleNames = [];
             bool hasPermission = false;

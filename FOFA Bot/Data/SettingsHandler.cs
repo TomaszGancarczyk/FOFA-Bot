@@ -21,6 +21,11 @@ namespace FOFA_Bot.Data
             LoadJson();
             return JsonBotData.AutomnaticSignupMessage;
         }
+        internal static bool GetAutomaticSignupQuestion()
+        {
+            LoadJson();
+            return JsonBotData.AutomaticSignupQuestion;
+        }
         internal static bool GetAutomnaticNadeMessage()
         {
             LoadJson();
@@ -36,6 +41,12 @@ namespace FOFA_Bot.Data
         {
             LoadJson();
             JsonBotData.AutomnaticSignupMessage = status;
+            File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
+        }
+        internal static void SetAutomaticSignupQuestion(bool status)
+        {
+            LoadJson();
+            JsonBotData.AutomaticSignupQuestion = status;
             File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
         }
         internal static void SetAutomnaticNadeMessage(bool status)

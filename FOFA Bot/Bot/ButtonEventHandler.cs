@@ -81,13 +81,7 @@ namespace FOFA_Bot.Bot
                 }
                 catch (HttpException e)
                 {
-                    Logger.LogError("1");
                     if (e.DiscordCode == DiscordErrorCode.InteractionHasAlreadyBeenAcknowledged) return;
-                    Logger.LogError($"    Run into error when updating attendance message:\n{e.Reason}");
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("2");
                     Logger.LogError($"    Run into error when updating attendance message:\n{e}");
                 }
                 if (status)
