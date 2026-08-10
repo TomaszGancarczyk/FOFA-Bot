@@ -189,7 +189,7 @@ namespace FOFA_Bot.PlayerStats
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Logger.LogWarning(e);
                 return "";
             }
         }

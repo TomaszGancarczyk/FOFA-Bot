@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
-using Newtonsoft.Json.Converters;
 
 namespace FOFA_Bot.Attendance
 {
@@ -206,7 +205,10 @@ namespace FOFA_Bot.Attendance
                 oldSettings.Remove(option.Name);
             }
             foreach (KeyValuePair<string, bool> setting in oldSettings)
-                message += $"{setting.Key[0].ToString().ToUpper()}{setting.Key.AsSpan(1)}: {setting.Value}";
+            {
+                message += $"{setting.Key[0].ToString().ToUpper()}{setting.Key.AsSpan(1)}: {setting.Value}\n";
+                settings.Add(setting.Key, setting.Value);
+            }
             SettingsHandler.SetAutomaticSettingsRofa(settings);
 
             EmbedBuilder embed = new()

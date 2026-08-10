@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using FOFA_Bot.Attendance;
 using FOFA_Bot.Data;
 

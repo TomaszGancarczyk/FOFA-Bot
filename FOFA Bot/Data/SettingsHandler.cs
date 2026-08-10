@@ -30,14 +30,12 @@ namespace FOFA_Bot.Data
         {
             Logger.LogInformation("    Getting settings data");
             LoadJson();
-            Logger.LogInformation(" 1");
             Dictionary<string, bool> dict = new()
             {
                 { "signups", (bool)JsonBotData.signups},
                 { "questions", (bool)JsonBotData.questions},
                 { "reminders", (bool)JsonBotData.reminders},
             };
-            Logger.LogInformation("  2");
             return dict;
         }
         internal static void SetAutomaticSettingsRofa(Dictionary<string, bool> settings)
