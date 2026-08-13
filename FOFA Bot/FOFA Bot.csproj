@@ -9,6 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Data\BackupMessages\**" />
+    <Compile Remove="Logs\**" />
+    <EmbeddedResource Remove="Data\BackupMessages\**" />
+    <EmbeddedResource Remove="Logs\**" />
+    <None Remove="Data\BackupMessages\**" />
+    <None Remove="Logs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Data\fofa-bot-bfb16feebae2.json" />
   </ItemGroup>
 
@@ -20,11 +29,6 @@
     <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\BackupMessages\" />
-    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>

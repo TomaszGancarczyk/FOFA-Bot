@@ -17,6 +17,7 @@ namespace FOFA_Bot.Bot
             Color = Color.Red,
             Title = "Unregistered for event"
         }.Build();
+        private static List<string> signupActionNames = [];
         public static async Task Handle(SocketMessageComponent component)
         {
             switch (component.Data.CustomId)
@@ -52,15 +53,16 @@ namespace FOFA_Bot.Bot
                     component.Message.DeleteAsync().Wait();
                     break;
                 case "presentButton":
+                    signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
                         HandleAttendanceButton(component, true),
-                        Task.Delay(TimeSpan.FromSeconds(5))
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
                         );
                     break;
                 case "absentButton":
                     await Task.WhenAny(
                         HandleAttendanceButton(component, false),
-                        Task.Delay(TimeSpan.FromSeconds(5))
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
                         );
                     break;
             }
@@ -73,15 +75,25 @@ namespace FOFA_Bot.Bot
             {
                 MemberHandler.UpdateMemberStatus(component.User, status);
                 EmbedBuilder? updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
+                if (updatedMessage == null)
+                {
+                    Logger.LogWarning($"    Run into error when updating attendance message:\nupdatedMessage == null");
+                    return;
+                }
                 try
                 {
                     Logger.LogInformation($"    Updating discord attendance message");
                     await component.UpdateAsync(attendanceMessage => attendanceMessage.Embed = updatedMessage.Build());
+                    signupActionNames.Remove(component.User.GlobalName);
                     Logger.LogInformation($"    Attendance message updated");
                 }
                 catch (HttpException e)
                 {
-                    if (e.DiscordCode == DiscordErrorCode.InteractionHasAlreadyBeenAcknowledged) return;
+                    if (e.DiscordCode == DiscordErrorCode.InteractionHasAlreadyBeenAcknowledged)
+                    {
+                        Logger.LogWarning($"    Run into error when updating attendance message:\nInteractionHasAlreadyBeenAcknowledged");
+                        return;
+                    }
                     Logger.LogError($"    Run into error when updating attendance message:\n{e}");
                 }
                 if (status)
@@ -92,6 +104,15 @@ namespace FOFA_Bot.Bot
             else
                 await RespondWithOldSignupError(component);
 
+        }
+        private static async Task HandleTimeoutDelay(TimeSpan timeout, string nameId)
+        {
+            await Task.Delay(timeout);
+            if (signupActionNames.Contains(nameId))
+            {
+                signupActionNames.Remove(nameId);
+                Logger.LogWarning($"    Timeout reached for {nameId}");
+            }
         }
         private static async Task RespondWithOldSignupError(SocketMessageComponent component)
         {
