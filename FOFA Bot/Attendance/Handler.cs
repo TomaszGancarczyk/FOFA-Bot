@@ -32,7 +32,7 @@ namespace FOFA_Bot.Attendance
                 template = await AttendanceQuestion.Handle();
                 if (template == "Day Off")
                 {
-                    while (DateTime.Now.Hour == BotHandler.SignupQuestionHour)
+                    while (DateTime.Now.Hour == BotHandler.SignupHour)
                         Task.Delay(60000).Wait();
                     BotHandler.ChangeSignupMessageRunning(-1);
                     return;
@@ -190,7 +190,11 @@ namespace FOFA_Bot.Attendance
             if (response.Count > 0) return response;
             return null;
         }
-        internal static void UpdateBackupAttendanceMessage(Message messsage) => CurrentMessages.Add(messsage);
+        internal static void UpdateBackupAttendanceMessage(Message message)
+        {
+            CurrentMessages.Add(message);
+            Logger.LogInformation($"    Sucessfully added backup message for {message.Date}: {message.DiscordMessage.Id}");
+        }
         internal static Embed ChangeRofaAutomnaticSettings(IReadOnlyCollection<SocketSlashCommandDataOption> options)
         {
             Logger.LogInformation("    Changing settings");

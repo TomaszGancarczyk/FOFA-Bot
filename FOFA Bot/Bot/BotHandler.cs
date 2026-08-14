@@ -8,7 +8,8 @@ namespace FOFA_Bot.Bot
     {
         private static DiscordSocketClient? Discord;
         private static int SignupMessageRunningCount = 0;
-        internal static int SignupQuestionHour = 21;
+        internal static int SignupHour = 22;
+        internal static int SignupMinute = 30;
 
         internal static async Task Run(DiscordSocketClient discord)
         {
@@ -23,7 +24,7 @@ namespace FOFA_Bot.Bot
         }
         private static async Task CheckSignupMessage()
         {
-            if (SignupMessageRunningCount == 0 && DateTime.Now.Hour == SignupQuestionHour && SettingsHandler.GetAutomnaticSignupMessage())
+            if (SignupMessageRunningCount == 0 && DateTime.Now.Hour == SignupHour && DateTime.Now.Minute > SignupMinute && SettingsHandler.GetAutomnaticSignupMessage())
             {
                 await AttendanceHandler.StartQuestionAttendanceEvent();
                 Logger.LogInformation($"    Attendance event finished");
