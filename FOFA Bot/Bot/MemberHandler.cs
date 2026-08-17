@@ -53,7 +53,7 @@ namespace FOFA_Bot.Bot
             DiscordMembers = [];
             PlannerDatas = PlannerGoogleSheet.GetPlannerData();
             SocketGuild guild = BotData.GetGuild();
-            string roleName = BotData.GetRofaRoleName();
+            string roleName = BotData.GetROFARoleName();
             DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
             for (int i = (DiscordMembers.Count - 1); i >= 0; i--) if (DiscordMembers[i].IsBot)
                 {

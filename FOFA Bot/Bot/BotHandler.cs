@@ -8,7 +8,7 @@ namespace FOFA_Bot.Bot
     {
         private static DiscordSocketClient? Discord;
         private static int SignupMessageRunningCount = 0;
-        internal static int SignupHour = 22;
+        internal static int SignupHour = 21;
         internal static int SignupMinute = 30;
 
         internal static async Task Run(DiscordSocketClient discord)

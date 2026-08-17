@@ -85,7 +85,7 @@ namespace FOFA_Bot.Attendance
         private static async Task ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
         {
             Logger.LogInformation($"    Getting discord message from backup");
-            IMessageChannel channel = BotData.GetSignupsChannel();
+            IMessageChannel channel = BotData.GetROFASignupsChannel();
             IMessage discordMessage = await channel.GetMessageAsync(backupMessage.DiscordMessageId);
             Logger.LogInformation($"    Getting event title");
             string eventName = string.Join(" ", discordMessage.Embeds.First().Title.Split(" ").Skip(1));

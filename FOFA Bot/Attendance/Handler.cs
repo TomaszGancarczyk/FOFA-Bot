@@ -43,6 +43,7 @@ namespace FOFA_Bot.Attendance
                     return;
                 }
             }
+            else if (DateTime.Now.Hour < 20) template = AutomaticSignupPosts[DateTime.Now.AddDays(1).DayOfWeek];
             else template = AutomaticSignupPosts[DateTime.Now.DayOfWeek];
 
             Message? message = CreateAttendanceEvent(template: template);
@@ -73,7 +74,7 @@ namespace FOFA_Bot.Attendance
         {
             BotHandler.ChangeSignupMessageRunning(1);
             Logger.LogInformation($"    Sending attendance message to {currentMessage.SignupsChannel.Name}");
-            ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
+            ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id;
             IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
                 $"<@&{pingMessage}>"
                 , false, currentMessage.EmbedMessage.Build(), null, null, null, currentMessage.MessageButtons.Build());
@@ -115,7 +116,7 @@ namespace FOFA_Bot.Attendance
                     if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
                         try
                         {
-                            await BotData.GetAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
+                            await BotData.GetROFAAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
                         }
                         catch (Exception e)
                         {
@@ -131,7 +132,7 @@ namespace FOFA_Bot.Attendance
 
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
         {
-            IMessageChannel channel = BotData.GetSignupsChannel();
+            IMessageChannel channel = BotData.GetROFASignupsChannel();
             try
             {
                 if (await channel.GetMessageAsync(messageId) == null)
@@ -177,9 +178,9 @@ namespace FOFA_Bot.Attendance
         private static string CreateAnnouncementMessage(ulong? messageId)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
-            ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetRofaRoleName()).Id;
+            ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id;
             string[] eventParts = currentMessage.DiscordMessage.Embeds.First().Title.Split(" ");
-            string AnnouncementMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {currentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId())}";
+            string AnnouncementMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {currentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetROFAClanWarChannelId())}";
             return AnnouncementMessage;
         }
 

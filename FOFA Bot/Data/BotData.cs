@@ -28,47 +28,38 @@ namespace FOFA_Bot.Data
             SocketGuild? guild = BotHandler.GetDiscord().GetGuild(guildId);
             return guild;
         }
-        internal static IMessageChannel GetQuestionChannel()
+        internal static IMessageChannel GetROFAQuestionChannel()
         {
             Logger.LogInformation($"    Getting Question Channel Id");
-            ulong channelId = JsonBotData.QuestionChannelId;
+            ulong channelId = JsonBotData.ROFAQuestionChannelId;
             Logger.LogInformation($"    Getting Question Channel");
             IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
             Logger.LogInformation($"    Found Question Channel: {channel.Name}");
             return channel;
         }
-        internal static IMessageChannel GetSignupsChannel()
+        internal static IMessageChannel GetROFASignupsChannel()
         {
             Logger.LogInformation($"    Getting Signups Channel Id");
-            ulong channelId = JsonBotData.SignupsChannelId;
+            ulong channelId = JsonBotData.ROFASignupsChannelId;
             Logger.LogInformation($"    Getting Signups Channel");
             IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
             Logger.LogInformation($"    Found Signups Channel: {channel.Name}");
             return channel;
         }
-        internal static IMessageChannel GetAnnouncementChannel()
+        internal static IMessageChannel GetROFAAnnouncementChannel()
         {
             Logger.LogInformation($"    Getting Announcement Channel Id");
-            ulong channelId = JsonBotData.AnnouncementChannelId;
+            ulong channelId = JsonBotData.ROFAAnnouncementChannelId;
             Logger.LogInformation($"    Getting Announcement Channel");
             IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
             Logger.LogInformation($"    Found Announcement Channel: {channel.Name}");
             return channel;
         }
-        internal static ulong GetClanWarChannelId()
+        internal static ulong GetROFAClanWarChannelId()
         {
             Logger.LogInformation($"    Getting Announcement Channel Id");
-            ulong channelId = JsonBotData.ClanWarChannelId;
+            ulong channelId = JsonBotData.ROFAClanWarChannelId;
             return channelId;
-        }
-        internal static IMessageChannel GetNadeChannel()
-        {
-            Logger.LogInformation($"    Getting Nade Channel Id");
-            ulong channelId = JsonBotData.NadeChannelId;
-            Logger.LogInformation($"    Getting Nade Channel");
-            IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(channelId);
-            Logger.LogInformation($"    Found Nade Channel: {channel.Name}");
-            return channel;
         }
         internal static ulong GetStatsChannelId()
         {
@@ -101,25 +92,15 @@ namespace FOFA_Bot.Data
             Logger.LogInformation($"    Getting Stillwaters Hour");
             return JsonBotData.StillwatersHour;
         }
-        internal static string GetRofaRoleName()
+        internal static string GetROFARoleName()
         {
-            return JsonBotData.RofaRoleName;
+            return JsonBotData.ROFARoleName;
         }
         internal static string[] GetPrivilegedRoleNames()
         {
             return JsonBotData.PrivilegedRoleNames.ToObject<string[]>();
         }
 
-        internal static string GetSignupSheetId()
-        {
-            Logger.LogInformation($"    Getting Signup Sheet Id");
-            return JsonBotData.SignupSheetId;
-        }
-        internal static string GetNadeSheetId()
-        {
-            Logger.LogInformation($"    Getting Nade Sheet Id");
-            return JsonBotData.NadeSheetId;
-        }
         internal static string GetPlannerSheetId()
         {
             Logger.LogInformation($"    Getting Planner Sheet Id");
