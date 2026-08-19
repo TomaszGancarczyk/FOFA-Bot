@@ -43,7 +43,7 @@ namespace FOFA_Bot.Attendance
                     return;
                 }
             }
-            else if (DateTime.Now.Hour < 20) template = AutomaticSignupPosts[DateTime.Now.AddDays(1).DayOfWeek];
+            else if (DateTime.Now.Hour > 20) template = AutomaticSignupPosts[DateTime.Now.AddDays(1).DayOfWeek];
             else template = AutomaticSignupPosts[DateTime.Now.DayOfWeek];
 
             Message? message = CreateAttendanceEvent(template: template);
