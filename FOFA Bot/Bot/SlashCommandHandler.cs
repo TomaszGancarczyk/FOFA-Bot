@@ -14,22 +14,11 @@ namespace FOFA_Bot.Bot
             Embed? embed;
             switch (command.Data.Name)
             {
-                case "create-signup-template":
+                case "create-signup":
                     Logger.LogInformation($"[command] User {command.User.Username} used create-signup-template");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
-                    if (command.Data.Options.Count > 0)
-                        embed = await SlashHandler.CreateSignupFromSlashCommand((Int64)command.Data.Options.First().Value);
-                    else embed = await SlashHandler.CreateSignupFromSlashCommand(10);
-                    if (embed != null)
-                        await command.FollowupAsync(embed: embed, ephemeral: true);
-                    break;
-
-                case "create-signup-custom":
-                    Logger.LogInformation($"[command] User {command.User.Username} used create-signup-custom");
-                    await command.DeferAsync(ephemeral: true);
-                    if (!await CheckRofaPermission(command)) break;
-                    embed = SlashHandler.CreateSignupCustom((string)command.Data.Options.First().Value, (string)command.Data.Options.Last().Value);
+                    embed = await SlashHandler.CreateSignupFromSlashCommand();
                     if (embed != null)
                         await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;

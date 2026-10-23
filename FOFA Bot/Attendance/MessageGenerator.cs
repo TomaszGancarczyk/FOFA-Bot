@@ -1,6 +1,7 @@
 ﻿using Discord;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
+using System;
 
 namespace FOFA_Bot.Attendance
 {
@@ -8,38 +9,17 @@ namespace FOFA_Bot.Attendance
     {
         private static EmbedBuilder? EmbedMessage;
         private static Message? AttendanceMessage;
-        internal static Message? CreateAttendanceMessageFromTemplate(string template)
+        internal static Message? CreateAttendanceMessage()
         {
             Logger.LogInformation($"    Creating attendance message from template");
             AttendanceMessage = new();
             DateTime eventDateTime;
+            // TODO event hours
+            //eventDateTime = GetEventDateTime(BotData.GetTournamentHour());
+            //eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
 
-            switch (template)
-            {
-                case "Tournament":
-                    eventDateTime = GetEventDateTime(BotData.GetTournamentHour());
-                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.DarkGreen);
-                    AttendanceMessage.Reminder = true;
-                    break;
-                case "Brawl":
-                    eventDateTime = GetEventDateTime(BotData.GetBrawlHour());
-                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Green);
-                    break;
-                case "Base Capture":
-                    eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
-                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.LightOrange);
-                    AttendanceMessage.Reminder = true;
-                    break;
-                case "Wild North":
-                    eventDateTime = GetEventDateTime(BotData.GetStillwatersHour());
-                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Magenta);
-                    break;
-                case "Golden Drop":
-                    eventDateTime = GetEventDateTime(BotData.GetGoldenDropHour());
-                    EmbedMessage = GenerateMessageFromData(template, eventDateTime, Color.Gold);
-                    AttendanceMessage.Reminder = true;
-                    break;
-            }
+            EmbedMessage = GenerateMessageFromData();
+            AttendanceMessage.Reminder = true;
             if (EmbedMessage == null)
             {
                 return null;
@@ -48,31 +28,17 @@ namespace FOFA_Bot.Attendance
             AttendanceMessage = AddMessageButtons(AttendanceMessage);
             return AttendanceMessage;
         }
-        internal static Message? CreateCustomAttendanceMessage(string EventName, DateTime eventDateTime)
-        {
-            Logger.LogInformation($"    Creating custom attendance message");
-            AttendanceMessage = new();
-            EmbedMessage = GenerateMessageFromData(EventName, eventDateTime, Color.Green);
-            if (EmbedMessage == null)
-                return null;
-            AttendanceMessage.EmbedMessage = EmbedMessage;
-            AttendanceMessage = AddMessageButtons(AttendanceMessage);
-            return AttendanceMessage;
-        }
 
-
-        internal static EmbedBuilder? GenerateMessageFromData(string EventName, DateTime eventDateTime, Color color)
+        internal static EmbedBuilder? GenerateMessageFromData()
         {
-            Logger.LogInformation($"[message] Creating {EventName} attendance message");
+            Logger.LogInformation($"[message] Creating weekly attendance message");
             EmbedMessage = null;
             if (AttendanceMessage == null)
             {
                 Logger.LogError($"    Cannot find Attendance Message in GenerateMessageFromData, exiting...");
                 return null;
             }
-            AttendanceMessage.Date = eventDateTime;
-
-            EmbedBuilder embedMessage = CreateBaseMessage(EventName, eventDateTime, color);
+            EmbedBuilder embedMessage = CreateBaseMessage();
             MemberHandler.CreateMembersList();
             embedMessage = AddMessageFields(embedMessage);
             embedMessage = AddFooterMessage(embedMessage);
@@ -80,15 +46,30 @@ namespace FOFA_Bot.Attendance
             return embedMessage;
         }
 
-        private static EmbedBuilder CreateBaseMessage(string EventName, DateTime eventDateTime, Color color)
+        private static EmbedBuilder CreateBaseMessage()
         {
             Logger.LogInformation($"    Creating base message");
-            long eventUnix = GetUnixFromDateTime(eventDateTime);
+            DateTime nextThursday = new
+            (
+                DateTime.Today.Year,
+                DateTime.Today.Month,
+                DateTime.Today.Day + ((int)DayOfWeek.Thursday - (int)DateTime.Today.DayOfWeek + 7) % 7,
+                19,
+                0,
+                0
+            );
+            AttendanceMessage.ThursdayDate = nextThursday;
+            string descriptionString = "";
+            for (int i = 0; i<4; i++)
+            {
+                long eventUnix = GetUnixFromDateTime(nextThursday.AddDays(i));
+                descriptionString += $"{nextThursday.DayOfWeek}: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
+            }
             EmbedBuilder embedMessage = new()
             {
-                Color = color,
-                Title = $"{eventDateTime.DayOfWeek} {EventName}",
-                Description = $"<t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n" +
+                Color = Color.DarkGreen,
+                Title = $"{nextThursday:dd.MM} - {nextThursday.AddDays(3):dd.MM} Clan Wars",
+                Description = descriptionString +
                 $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n"
             };
             return embedMessage;
@@ -137,11 +118,17 @@ namespace FOFA_Bot.Attendance
         internal static EmbedBuilder AddFooterMessage(EmbedBuilder embedMessage)
         {
             Logger.LogInformation($"    Creating footer");
+            string footerString = ($"____________________________________________________________________________________________________");
             List<Member> members = MemberHandler.GetMembers();
-            int present = members.Where(m => m.status == true).Count();
-            int absent = members.Where(m => m.status == false).Count();
-            int usigned = members.Where(m => m.status == null).Count();
-            embedMessage.WithFooter($"____________________________________________________________________________________________________\n{present} Present, {absent} Absent, {usigned} Unsigned");
+            for (int i = 0; i < 4; i++)
+            {
+                int present = members.Where(m => m.status[i] == true).Count();
+                int absent = members.Where(m => m.status[i] == false).Count();
+                int usigned = members.Where(m => m.status == null).Count();
+                DayOfWeek weekday = DayOfWeek.Thursday + i;
+                footerString += $"\n *{weekday}* : {present} Present, {absent} Absent, {usigned} Unsigned";
+            }
+            embedMessage.WithFooter(footerString);
             return embedMessage;
         }
 
@@ -168,20 +155,29 @@ namespace FOFA_Bot.Attendance
             squadEmotes.Add(new Emoji("🔳")); //8 - Unassigned
             return squadEmotes;
         }
-        private static string? AddMemberAndStatus(string displayName, bool? status, bool squadleader)
+        private static string? AddMemberAndStatus(string displayName, bool?[] status, bool squadleader)
         {
             if (squadleader) displayName = $"**{displayName}**";
-            if (status == null) return $"{new Emoji("⚫")} {displayName}\n";
-            else if (status == true) return $"{new Emoji("🟢")} {displayName}\n";
-            else if (status == false) return $"{new Emoji("🔴")} {displayName}\n";
+            string memberRow = "";
+            foreach (bool? dayStatus in status)
+            {
+                if (dayStatus == null) memberRow += $"{new Emoji("⚫")} | ";
+                else if (dayStatus == true) memberRow += $"{new Emoji("🟢")} | ";
+                else if (dayStatus == false) memberRow += $"{new Emoji("🔴")} | ";
+            }
+            if (memberRow.Length > 0) return $"{memberRow} {displayName} \n";
             return null;
         }
         internal static Message AddMessageButtons(Message message)
         {
             Logger.LogInformation($"    Adding attendance buttons");
-            ComponentBuilder buttons = new ComponentBuilder()
-                .WithButton("Present", "presentButton", ButtonStyle.Success)
-                .WithButton("Absent", "absentButton", ButtonStyle.Danger);
+            ComponentBuilder buttons = new();
+            for (int i = 0; i < 4; i++)
+            {
+                buttons
+                    .WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"presentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Success)
+                    .WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"absentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Danger);
+            }
             Logger.LogInformation($"    Created buttons");
             message.MessageButtons = buttons;
             return message;

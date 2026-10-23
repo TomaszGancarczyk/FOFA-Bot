@@ -13,7 +13,7 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Saving backup message");
             string jsonMessage;
-            Dictionary<ulong, bool?> members = [];
+            Dictionary<ulong, bool[]?> members = [];
             foreach (Member member in MemberHandler.GetMembers())
             {
                 members.Add(member.discordUser.Id, member.status);
@@ -21,7 +21,7 @@ namespace FOFA_Bot.Attendance
 
             AttendanceMessageBackup backupMessage = new()
             {
-                Date = message.Date,
+                Date = message.ThursdayDate,
                 DiscordMessageId = message.DiscordMessage.Id,
                 Reminder = message.Reminder,
                 Members = members

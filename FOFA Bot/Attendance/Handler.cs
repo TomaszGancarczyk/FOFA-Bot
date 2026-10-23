@@ -10,65 +10,21 @@ namespace FOFA_Bot.Attendance
         private static List<Message?> CurrentMessages = [];
         private static readonly int EventReminderMinutes = 150;
         private static readonly int EventCloseMinutes = 30;
-        private static readonly Dictionary<DayOfWeek, string> AutomaticSignupPosts = new()
-        {
-            { DayOfWeek.Monday, "Brawl" },
-            { DayOfWeek.Tuesday, "Brawl" },
-            { DayOfWeek.Wednesday, "Brawl" },
-            { DayOfWeek.Thursday, "Tournament" },
-            { DayOfWeek.Friday, "Tournament" },
-            { DayOfWeek.Saturday, "Tournament" },
-            { DayOfWeek.Sunday, "Base Capture" },
-        };
-        internal static async Task StartQuestionAttendanceEvent()
-        {
-            Logger.LogInformation($"    Starting attendance question event");
-            BotHandler.ChangeSignupMessageRunning(1);
-            string template;
-
-            if (SettingsHandler.GetAutomaticSignupQuestion())
-            {
-                Logger.LogInformation($"    HandlingEventQuestion");
-                template = await AttendanceQuestion.Handle();
-                if (template == "Day Off")
-                {
-                    while (DateTime.Now.Hour == BotHandler.SignupHour)
-                        Task.Delay(60000).Wait();
-                    BotHandler.ChangeSignupMessageRunning(-1);
-                    return;
-                }
-                if (template == "Next Message")
-                {
-                    BotHandler.ChangeSignupMessageRunning(-1);
-                    return;
-                }
-            }
-            else if (DateTime.Now.Hour > 20) template = AutomaticSignupPosts[DateTime.Now.AddDays(1).DayOfWeek];
-            else template = AutomaticSignupPosts[DateTime.Now.DayOfWeek];
-
-            Message? message = CreateAttendanceEvent(template: template);
-            BotHandler.ChangeSignupMessageRunning(-1);
-            await SendAttendanceMessage(message);
-        }
-        internal static Message? CreateAttendanceEvent(string? EventName = null, DateTime? eventDate = null, string? template = null)
+        internal static void CreateAttendanceEvent()
         {
             Logger.LogInformation($"    Creating attendance event");
-            Message? tempCurrentMessage;
-            if (template != null)
-                tempCurrentMessage = MessageGenerator.CreateAttendanceMessageFromTemplate(template);
-            else if (EventName != null && eventDate != null)
-                tempCurrentMessage = MessageGenerator.CreateCustomAttendanceMessage(EventName, eventDate.Value);
-            else
-            {
-                Logger.LogError($"    Wrong data for message creation, returning");
-                return null;
-            }
+            BotHandler.ChangeSignupMessageRunning(1);
+            Message? tempCurrentMessage = MessageGenerator.CreateAttendanceMessage();
             if (tempCurrentMessage == null)
             {
                 Logger.LogError($"    Cloudn't create attendance message, returning");
-                return null;
+                return;
             }
-            return tempCurrentMessage;
+            Message? message = tempCurrentMessage;
+            BotHandler.ChangeSignupMessageRunning(-1);
+            SendAttendanceMessage(message);
+            Logger.LogInformation($"    Attendance event finished");
+            return;
         }
         internal static async Task SendAttendanceMessage(Message? currentMessage)
         {
@@ -87,7 +43,7 @@ namespace FOFA_Bot.Attendance
         internal static async Task HandleMessageRunning(ulong messageId)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
-            DateTime eventReminderTime = currentMessage.Date.AddMinutes(-EventReminderMinutes);
+            DateTime eventReminderTime = currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes);
             if (DateTime.Now < eventReminderTime)
             {
                 while (DateTime.Now < eventReminderTime)
@@ -104,7 +60,7 @@ namespace FOFA_Bot.Attendance
                 }
             }
 
-            DateTime eventCloseTime = currentMessage.Date.AddMinutes(-EventCloseMinutes);
+            DateTime eventCloseTime = currentMessage.ThursdayDate.AddMinutes(-EventCloseMinutes);
             if (DateTime.Now < eventCloseTime)
             {
                 while (DateTime.Now < eventCloseTime)
@@ -194,7 +150,7 @@ namespace FOFA_Bot.Attendance
         internal static void UpdateBackupAttendanceMessage(Message message)
         {
             CurrentMessages.Add(message);
-            Logger.LogInformation($"    Sucessfully added backup message for {message.Date}: {message.DiscordMessage.Id}");
+            Logger.LogInformation($"    Sucessfully added backup message for {message.ThursdayDate}: {message.DiscordMessage.Id}");
         }
         internal static Embed ChangeRofaAutomnaticSettings(IReadOnlyCollection<SocketSlashCommandDataOption> options)
         {

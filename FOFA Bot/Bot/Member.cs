@@ -7,7 +7,7 @@ namespace FOFA_Bot.Bot
         internal SocketGuildUser? discordUser;
         internal string? inGameName;
         internal int? squad;
-        internal bool? status;
+        internal bool?[] status = [null, null, null, null];
         internal int priority = 0;
         internal bool squadleader = false;
     }

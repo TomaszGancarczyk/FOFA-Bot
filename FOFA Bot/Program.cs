@@ -50,46 +50,15 @@ namespace FOFA_Bot
         {
             try
             {
-                SlashCommandBuilder? createTemplateSignupCommand = new SlashCommandBuilder()
-                    .WithName("create-signup-template")
-                    .WithDescription("Create new signup with template")
-                    .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("template")
-                        .WithDescription("Leave blank to create question in officer chat")
-                        .WithRequired(false)
-                        .AddChoice("Tournament", 0)
-                        .AddChoice("Brawl", 1)
-                        .AddChoice("Base Capture", 2)
-                        .AddChoice("Golden Drop", 3)
-                        .AddChoice("Wild North", 4)
-                        .WithType(ApplicationCommandOptionType.Integer)
-                    );
                 SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
-                    .WithName("create-signup-custom")
-                    .WithDescription("Create new custom signup")
-                    .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("name")
-                        .WithDescription("Name of the event")
-                        .WithRequired(true)
-                        .WithType(ApplicationCommandOptionType.String)
-                    )
-                    .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("when")
-                        .WithDescription("Date of the event - [day.month.year.hour.minute] of the event or [hours.minutes] untill the event")
-                        .WithRequired(true)
-                        .WithType(ApplicationCommandOptionType.String)
-                    );
+                    .WithName("create-signup")
+                    .WithDescription("Create new signup");
 
                 SlashCommandBuilder? changeAutomnaticSettingsROFA = new SlashCommandBuilder()
                     .WithName("settings-automatic-rofa")
                     .WithDescription("Do you want to change automatic settings for ROFA?")
                     .AddOption(new SlashCommandOptionBuilder()
                         .WithName("signups")
-                        .WithDescription("post or not")
-                        .WithRequired(false)
-                        .WithType(ApplicationCommandOptionType.Boolean))
-                    .AddOption(new SlashCommandOptionBuilder()
-                        .WithName("questions")
                         .WithDescription("post or not")
                         .WithRequired(false)
                         .WithType(ApplicationCommandOptionType.Boolean))
@@ -108,7 +77,6 @@ namespace FOFA_Bot
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.String)
                     );
-                await Discord.CreateGlobalApplicationCommandAsync(createTemplateSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSettingsROFA.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(stats.Build());
