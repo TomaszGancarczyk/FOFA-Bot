@@ -21,23 +21,28 @@ namespace FOFA_Bot.Attendance
                 return;
             }
             Message? message = tempCurrentMessage;
-            BotHandler.ChangeSignupMessageRunning(-1);
             SendAttendanceMessage(message);
             Logger.LogInformation($"    Attendance event finished");
             return;
         }
         internal static async Task SendAttendanceMessage(Message? currentMessage)
         {
-            BotHandler.ChangeSignupMessageRunning(1);
             Logger.LogInformation($"    Sending attendance message to {currentMessage.SignupsChannel.Name}");
             ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id;
-            IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
-                $"<@&{pingMessage}>"
-                , false, currentMessage.EmbedMessage.Build(), null, null, null, currentMessage.MessageButtons.Build());
-            currentMessage.DiscordMessage = localCurrentMessage;
-            Backup.SaveBuckup(currentMessage);
-            CurrentMessages.Add(currentMessage);
-            await HandleMessageRunning(localCurrentMessage.Id);
+            try
+            {
+                IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
+                    $"<@&{pingMessage}>"
+                    , false, currentMessage.EmbedMessage.Build(), null, null, null, currentMessage.MessageButtons.Build());
+                currentMessage.DiscordMessage = localCurrentMessage;
+                Backup.SaveBuckup(currentMessage);
+                CurrentMessages.Add(currentMessage);
+                await HandleMessageRunning(localCurrentMessage.Id);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Error while handling attendance message:\n{e}");
+            }
         }
 
         internal static async Task HandleMessageRunning(ulong messageId)
@@ -51,12 +56,9 @@ namespace FOFA_Bot.Attendance
                 bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    if (currentMessage.Reminder)
-                    {
-                        string? reminderMessage = CreateReminderMessage();
-                        if (reminderMessage != string.Empty)
-                            await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
-                    }
+                    string? reminderMessage = CreateReminderMessage();
+                    if (reminderMessage != string.Empty)
+                        await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
                 }
             }
 
@@ -82,8 +84,8 @@ namespace FOFA_Bot.Attendance
             }
             string eventName = string.Join(" ", currentMessage.EmbedMessage.Title.Split(" ").Skip(1));
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
-                BotHandler.ChangeSignupMessageRunning(-1);
             CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
+            BotHandler.ChangeSignupMessageRunning(-1);
         }
 
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)

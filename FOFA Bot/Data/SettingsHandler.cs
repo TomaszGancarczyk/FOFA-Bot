@@ -33,7 +33,6 @@ namespace FOFA_Bot.Data
             Dictionary<string, bool> dict = new()
             {
                 { "signups", (bool)JsonBotData.signups},
-                { "questions", (bool)JsonBotData.questions},
                 { "reminders", (bool)JsonBotData.reminders},
             };
             return dict;
@@ -42,7 +41,6 @@ namespace FOFA_Bot.Data
         {
             LoadJson();
             JsonBotData.signups = settings["signups"];
-            JsonBotData.questions = settings["questions"];
             JsonBotData.reminders = settings["reminders"];
             File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
         }

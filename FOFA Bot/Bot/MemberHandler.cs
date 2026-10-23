@@ -16,31 +16,33 @@ namespace FOFA_Bot.Bot
             CreateDiscordMembers();
             foreach (SocketGuildUser discordMember in DiscordMembers)
             {
-                Member? member = CreateMember(discordMember, null, true);
+                Member? member = CreateMember(discordMember, true);
                 if (member == null || member.discordUser == null) continue;
                 tempMembers.Add(member);
                 Logger.LogInformation($"    Added {member.discordUser.Username} to member list to squad {member.squad}");
             }
             Members = [.. tempMembers.OrderByDescending(p => p.priority)];
         }
-        internal static void UpdateMemberStatus(SocketUser user, bool status)
+        internal static void UpdateMemberStatus(SocketUser user, bool status, int dayOfWeek)
         {
             if (Members.Any(member => member.discordUser.Id == user.Id))
             {
                 Member? discordUser = Members.First(member => member.discordUser.Id == user.Id);
-                if (discordUser != null)
-                    if (discordUser.discordUser != null)
-                    {
-                        Logger.LogInformation($"    Updating status for {discordUser.discordUser.Username}: {status}");
-                        discordUser.status = status;
-                    }
+                if (discordUser != null && discordUser.discordUser != null)
+                {
+                    Logger.LogInformation($"    Updating status for {discordUser.discordUser.Username}: {status}");
+                    discordUser.status[dayOfWeek] = status;
+                }
             }
             else
             {
                 Logger.LogInformation($"    Cannot find {user.Username}, adding new member to list");
-                Member? member = CreateMember(user, status, false);
+                Member? member = CreateMember(user, false);
                 if (member != null)
+                {
+                    member.status[dayOfWeek] = status;
                     Members.Add(member);
+                }
             }
         }
         internal static List<Member> GetMembers()
@@ -77,7 +79,7 @@ namespace FOFA_Bot.Bot
 
         }
 
-        private static Member? CreateMember(SocketUser user, bool? status, bool skipUnassigned)
+        private static Member? CreateMember(SocketUser user, bool skipUnassigned)
         {
             SocketGuild guild = BotData.GetGuild();
             SocketGuildUser? guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
@@ -104,7 +106,7 @@ namespace FOFA_Bot.Bot
                 discordUser = guildUser,
                 squad = squad,
                 inGameName = inGameName,
-                status = status,
+                status = [null, null, null, null],
                 priority = priority,
                 squadleader = squadleader
             };
@@ -135,11 +137,11 @@ namespace FOFA_Bot.Bot
             }
         }
 
-        internal static void UpdateBackupMembers(Dictionary<ulong, bool?> backupMembers)
+        internal static void UpdateBackupMembers(Dictionary<ulong, bool?[]> backupMembers)
         {
             foreach (Member member in Members)
             {
-                foreach (KeyValuePair<ulong, bool?> backupMember in backupMembers)
+                foreach (KeyValuePair<ulong, bool?[]> backupMember in backupMembers)
                 {
                     if (member.discordUser.Id == backupMember.Key)
                         member.status = backupMember.Value;

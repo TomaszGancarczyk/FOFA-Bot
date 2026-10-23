@@ -7,16 +7,14 @@ namespace FOFA_Bot.Attendance
     {
         internal readonly IMessageChannel SignupsChannel = BotData.GetROFASignupsChannel();
         internal EmbedBuilder EmbedMessage = new();
-        internal ComponentBuilder MessageButtons = new();
+        internal ComponentBuilderV2 MessageButtons;
         internal DateTime ThursdayDate;
         internal IMessage? DiscordMessage;
-        internal bool Reminder = false;
     }
     internal class AttendanceMessageBackup
     {
-        public DateTime Date;
+        public DateTime ThursdayDate;
         public ulong DiscordMessageId;
-        public bool Reminder;
-        public Dictionary<ulong, bool[]?> Members = [];
+        public Dictionary<ulong, bool?[]> Members = [];
     }
 }

@@ -13,7 +13,7 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Saving backup message");
             string jsonMessage;
-            Dictionary<ulong, bool[]?> members = [];
+            Dictionary<ulong, bool?[]> members = [];
             foreach (Member member in MemberHandler.GetMembers())
             {
                 members.Add(member.discordUser.Id, member.status);
@@ -21,9 +21,8 @@ namespace FOFA_Bot.Attendance
 
             AttendanceMessageBackup backupMessage = new()
             {
-                Date = message.ThursdayDate,
+                ThursdayDate = message.ThursdayDate,
                 DiscordMessageId = message.DiscordMessage.Id,
-                Reminder = message.Reminder,
                 Members = members
             };
             try
@@ -64,7 +63,7 @@ namespace FOFA_Bot.Attendance
                     Logger.LogError($"    Couldnt read the backup message:\n{e}");
                     continue;
                 }
-                if (backupMessage == null || backupMessage.Date < DateTime.Now || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
+                if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
                 {
                     Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
                     File.Delete(filePath);
@@ -90,9 +89,8 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Getting event title");
             string eventName = string.Join(" ", discordMessage.Embeds.First().Title.Split(" ").Skip(1));
             Logger.LogInformation($"    Creating attendance message");
-            Message? response = MessageGenerator.CreateCustomAttendanceMessage(eventName, backupMessage.Date);
+            Message? response = MessageGenerator.CreateAttendanceMessage();
             if (response == null) return;
-            response.Reminder = backupMessage.Reminder;
             response.DiscordMessage = discordMessage;
             Logger.LogInformation($"    Converting members from backup");
             MemberHandler.UpdateBackupMembers(backupMessage.Members);

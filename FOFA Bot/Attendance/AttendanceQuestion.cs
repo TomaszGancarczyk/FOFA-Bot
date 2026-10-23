@@ -9,53 +9,17 @@ namespace FOFA_Bot.Attendance
         private static bool WaitingForQuestionResponse = true;
         private static string? QuestionResponse;
         private static DateTime EventDateTime;
-
-        private static readonly List<DayOfWeek> TournamentDays =
-        [
-            DayOfWeek.Thursday,
-            DayOfWeek.Friday,
-            DayOfWeek.Saturday
-        ];
-        private static readonly List<DayOfWeek> BaseCaptureDays =
-        [
-            DayOfWeek.Sunday
-        ];
-        private static readonly List<DayOfWeek> BrawlDays =
-        [
-            DayOfWeek.Monday,
-            DayOfWeek.Tuesday,
-            DayOfWeek.Wednesday,
-        ];
         internal static async Task<string> Handle()
         {
             CurrentQuestionMessage = null;
             QuestionResponse = null;
             IMessageChannel questionChannel = BotData.GetROFAQuestionChannel();
             EventDateTime = MessageGenerator.GetEventDateTime(20);
-            Logger.LogInformation($"[question] Creating attendance event question");
-
-            string questionMessageContent;
-            if (EventDateTime.DayOfWeek == DateTime.Now.DayOfWeek)
-                questionMessageContent = $"## What do we play today?";
-            else questionMessageContent = $"## What do we play tomorrow?";
-
-            ComponentBuilder component = CreateQuestionButtons();
-            Logger.LogInformation($"    Sending attendance question to {questionChannel.Name}");
-            IMessage? localCurrentQuestionMessage = null;
-            try
-            {
-                localCurrentQuestionMessage = await questionChannel.SendMessageAsync(questionMessageContent, components: component.Build());
-                CurrentQuestionMessage = localCurrentQuestionMessage;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"    Error when sending attendance question:\n{ex}");
-            }
             while (DateTime.Now < EventDateTime && WaitingForQuestionResponse)
             {
                 await Task.Delay(1000);
             }
-            if (CurrentQuestionMessage != null && QuestionResponse != null && localCurrentQuestionMessage.Id == CurrentQuestionMessage.Id)
+            if (CurrentQuestionMessage != null && QuestionResponse != null)
             {
                 Logger.LogInformation($"    Got response from question: {QuestionResponse}");
                 WaitingForQuestionResponse = true;
@@ -80,23 +44,6 @@ namespace FOFA_Bot.Attendance
                 }
                 else Logger.LogError($"    Got response from question message that has different ID than CurrentQuestionMessage");
             else Logger.LogError($"    CurrentQuestionMessage is null");
-        }
-
-        private static ComponentBuilder CreateQuestionButtons()
-        {
-            Logger.LogInformation($"    Creating attendance event question buttons");
-            DayOfWeek eventDayOfWeek = EventDateTime.DayOfWeek;
-            ComponentBuilder component = new();
-            if (TournamentDays.Contains(eventDayOfWeek))
-                component.WithButton("Tournament", "tournamentButton", emote: new Emoji("⚔️"));
-            if (BaseCaptureDays.Contains(eventDayOfWeek))
-                component.WithButton("Base Capture", "baseCaptureButton", emote: new Emoji("👑"));
-            if (BrawlDays.Contains(eventDayOfWeek))
-                component.WithButton("Brawl", "brawlButton", emote: new Emoji("💵"));
-            component.WithButton("Golden Drop", "goldenDropButton", emote: new Emoji("📦"));
-            component.WithButton("Wild North", "stillwatersButton", emote: new Emoji("🌳"));
-            component.WithButton("Day Off", "dayOffButton", emote: new Emoji("🏖️"));
-            return component;
         }
     }
 }

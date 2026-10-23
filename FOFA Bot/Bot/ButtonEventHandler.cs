@@ -7,16 +7,22 @@ namespace FOFA_Bot.Bot
 {
     internal class ButtonEventHandler
     {
-        private static readonly Embed PositiveEmbed = new EmbedBuilder
+        private static Embed CreatePositiveEmbed(DayOfWeek dayOfWeek)
         {
-            Color = Color.Green,
-            Title = "Registered for event"
-        }.Build();
-        private static readonly Embed NegativeEmbed = new EmbedBuilder
+            return new EmbedBuilder
+            {
+                Color = Color.Green,
+                Title = $"Registered for event on {dayOfWeek}"
+            }.Build();
+        }
+        private static Embed CreateNegativeEmbed(DayOfWeek dayOfWeek)
         {
-            Color = Color.Red,
-            Title = "Unregistered for event"
-        }.Build();
+            return new EmbedBuilder
+            {
+                Color = Color.Red,
+                Title = $"Unregistered for event on {dayOfWeek}"
+            }.Build();
+        }
         private static List<string> signupActionNames = [];
         public static async Task Handle(SocketMessageComponent component)
         {
@@ -52,28 +58,93 @@ namespace FOFA_Bot.Bot
                     AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Day Off");
                     component.Message.DeleteAsync().Wait();
                     break;
-                case "presentButton":
+
+                case "presentButton_Thursday":
                     signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
-                        HandleAttendanceButton(component, true),
+                        HandleAttendanceButton(component, true, 0),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
                         );
                     break;
-                case "absentButton":
+                case "absentButton_Thursday":
                     await Task.WhenAny(
-                        HandleAttendanceButton(component, false),
+                        HandleAttendanceButton(component, false, 0),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "presentButton_Friday":
+                    signupActionNames.Add(component.User.GlobalName);
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, true, 1),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "absentButton_Friday":
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, false, 1),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "presentButton_Saturday":
+                    signupActionNames.Add(component.User.GlobalName);
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, true, 2),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "absentButton_Saturday":
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, false, 2),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "presentButton_Sunday":
+                    signupActionNames.Add(component.User.GlobalName);
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, true, 3),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "absentButton_Sunday":
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, false, 3),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
                         );
                     break;
             }
         }
-        private static async Task HandleAttendanceButton(SocketMessageComponent component, bool status)
+        private static async Task HandleAttendanceButton(SocketMessageComponent component, bool status, int dayOfWeek)
         {
-            Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup");
+            DayOfWeek signupDayOfWeek = DayOfWeek.Thursday + dayOfWeek;
+            DateTime closedCheckTime = new
+            (
+                DateTime.Today.Year,
+                DateTime.Today.Month,
+                DateTime.Today.Day,
+                19,
+                30,
+                0
+            );
+            if (dayOfWeek == 3)
+            {
+                signupDayOfWeek = DayOfWeek.Sunday;
+                if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now > closedCheckTime.AddHours(-1))
+                {
+                    await RespondWithOldSignupError(component);
+                    return;
+                }
+            }
+            if (signupDayOfWeek != DayOfWeek.Sunday && signupDayOfWeek < DateTime.Now.DayOfWeek && DateTime.Now > closedCheckTime)
+            {
+                await RespondWithOldSignupError(component);
+                return;
+            }
+            if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now.Hour > 19)
+                Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayOfWeek}");
             List<ulong?>? currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
             if (currentMessageIds != null && currentMessageIds.Contains(component.Message.Id))
             {
-                MemberHandler.UpdateMemberStatus(component.User, status);
+                MemberHandler.UpdateMemberStatus(component.User, status, dayOfWeek);
                 EmbedBuilder? updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
                 if (updatedMessage == null)
                 {
@@ -97,9 +168,9 @@ namespace FOFA_Bot.Bot
                     Logger.LogError($"    Run into error when updating attendance message:\n{e}");
                 }
                 if (status)
-                    await component.FollowupAsync(embed: PositiveEmbed, ephemeral: true);
+                    await component.FollowupAsync(embed: CreatePositiveEmbed(signupDayOfWeek), ephemeral: true);
                 else
-                    await component.FollowupAsync(embed: NegativeEmbed, ephemeral: true);
+                    await component.FollowupAsync(embed: CreateNegativeEmbed(signupDayOfWeek), ephemeral: true);
             }
             else
                 await RespondWithOldSignupError(component);

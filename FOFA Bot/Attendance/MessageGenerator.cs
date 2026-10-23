@@ -1,7 +1,5 @@
 ﻿using Discord;
 using FOFA_Bot.Bot;
-using FOFA_Bot.Data;
-using System;
 
 namespace FOFA_Bot.Attendance
 {
@@ -19,7 +17,6 @@ namespace FOFA_Bot.Attendance
             //eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
 
             EmbedMessage = GenerateMessageFromData();
-            AttendanceMessage.Reminder = true;
             if (EmbedMessage == null)
             {
                 return null;
@@ -54,23 +51,29 @@ namespace FOFA_Bot.Attendance
                 DateTime.Today.Year,
                 DateTime.Today.Month,
                 DateTime.Today.Day + ((int)DayOfWeek.Thursday - (int)DateTime.Today.DayOfWeek + 7) % 7,
-                19,
+                20,
                 0,
                 0
             );
             AttendanceMessage.ThursdayDate = nextThursday;
             string descriptionString = "";
-            for (int i = 0; i<4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 long eventUnix = GetUnixFromDateTime(nextThursday.AddDays(i));
-                descriptionString += $"{nextThursday.DayOfWeek}: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
+                if (i == 3)
+                {
+                    eventUnix = GetUnixFromDateTime(nextThursday.AddDays(i).AddHours(-1));
+                    descriptionString += $"Sunday: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
+                }
+                else
+                    descriptionString += $"{nextThursday.DayOfWeek + i}: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
             }
             EmbedBuilder embedMessage = new()
             {
                 Color = Color.DarkGreen,
                 Title = $"{nextThursday:dd.MM} - {nextThursday.AddDays(3):dd.MM} Clan Wars",
                 Description = descriptionString +
-                $"Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n"
+                Format.Bold($"- Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n")
             };
             return embedMessage;
         }
@@ -98,15 +101,15 @@ namespace FOFA_Bot.Attendance
                     }
                 if (squadCount < 7 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}", squadMembers, true);
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}\nThu | Fri | Sat | Sun | Member", squadMembers, false);
                 }
                 else if (squadCount == 7 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve", squadMembers, true);
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve\nThu | Fri | Sat | Sun | Member", squadMembers, false);
                 }
                 else if (squadCount == 8 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned", squadMembers, true);
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned\nThu | Fri | Sat | Sun | Member", squadMembers, false);
                 }
             }
             if (members.Count > handledMembers.Count)
@@ -126,7 +129,8 @@ namespace FOFA_Bot.Attendance
                 int absent = members.Where(m => m.status[i] == false).Count();
                 int usigned = members.Where(m => m.status == null).Count();
                 DayOfWeek weekday = DayOfWeek.Thursday + i;
-                footerString += $"\n *{weekday}* : {present} Present, {absent} Absent, {usigned} Unsigned";
+                if (i == 3) weekday = DayOfWeek.Sunday;
+                footerString += $"\n{weekday}: {present} Present, {absent} Absent, {usigned} Unsigned";
             }
             embedMessage.WithFooter(footerString);
             return embedMessage;
@@ -161,9 +165,9 @@ namespace FOFA_Bot.Attendance
             string memberRow = "";
             foreach (bool? dayStatus in status)
             {
-                if (dayStatus == null) memberRow += $"{new Emoji("⚫")} | ";
-                else if (dayStatus == true) memberRow += $"{new Emoji("🟢")} | ";
-                else if (dayStatus == false) memberRow += $"{new Emoji("🔴")} | ";
+                if (dayStatus == null) memberRow += $"{new Emoji("⚫")} {Format.Bold("\\||")} ";
+                else if (dayStatus == true) memberRow += $"{new Emoji("🟢")} {Format.Bold("\\||")} ";
+                else if (dayStatus == false) memberRow += $"{new Emoji("🔴")} {Format.Bold("\\||")} ";
             }
             if (memberRow.Length > 0) return $"{memberRow} {displayName} \n";
             return null;
@@ -171,15 +175,28 @@ namespace FOFA_Bot.Attendance
         internal static Message AddMessageButtons(Message message)
         {
             Logger.LogInformation($"    Adding attendance buttons");
-            ComponentBuilder buttons = new();
+            ActionRowBuilder presentActionRow = new();
+            ActionRowBuilder absentActionRow = new();
             for (int i = 0; i < 4; i++)
             {
-                buttons
-                    .WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"presentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Success)
-                    .WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"absentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Danger);
+                if (i == 3)
+                {
+                    presentActionRow.WithButton($"{DayOfWeek.Sunday}", $"presentButton_Sunday", ButtonStyle.Success);
+                }
+                else presentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"presentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Success);
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                if (i == 3)
+                {
+                    absentActionRow.WithButton($"{DayOfWeek.Sunday}", $"absentButton_Sunday", ButtonStyle.Danger);
+                }
+                else absentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"absentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Danger);
             }
             Logger.LogInformation($"    Created buttons");
-            message.MessageButtons = buttons;
+            message.MessageButtons = new ComponentBuilderV2()
+                .WithActionRow(presentActionRow)
+                .WithActionRow(absentActionRow);
             return message;
         }
     }
