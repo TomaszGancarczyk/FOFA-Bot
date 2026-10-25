@@ -28,37 +28,6 @@ namespace FOFA_Bot.Bot
         {
             switch (component.Data.CustomId)
             {
-                case "tournamentButton":
-                    Logger.LogInformation($"    Got tournament response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Tournament");
-                    component.Message.DeleteAsync().Wait();
-                    break;
-                case "baseCaptureButton":
-                    Logger.LogInformation($"    Got base capture response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Base Capture");
-                    component.Message.DeleteAsync().Wait();
-                    break;
-                case "brawlButton":
-                    Logger.LogInformation($"    Got brawl response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Brawl");
-                    component.Message.DeleteAsync().Wait();
-                    break;
-                case "goldenDropButton":
-                    Logger.LogInformation($"    Got golden drop response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Golden Drop");
-                    component.Message.DeleteAsync().Wait();
-                    break;
-                case "stillwatersButton":
-                    Logger.LogInformation($"    Got stillwaters response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Wild North");
-                    component.Message.DeleteAsync().Wait();
-                    break;
-                case "dayOffButton":
-                    Logger.LogInformation($"    Got day off response to event question from {component.User.Username}");
-                    AttendanceQuestion.SetQuestionAnswear(component.Message.Id, "Day Off");
-                    component.Message.DeleteAsync().Wait();
-                    break;
-
                 case "presentButton_Thursday":
                     signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
@@ -115,26 +84,32 @@ namespace FOFA_Bot.Bot
         }
         private static async Task HandleAttendanceButton(SocketMessageComponent component, bool status, int dayOfWeek)
         {
-            DayOfWeek signupDayOfWeek = DayOfWeek.Thursday + dayOfWeek;
             DateTime closedCheckTime = new
             (
                 DateTime.Today.Year,
                 DateTime.Today.Month,
                 DateTime.Today.Day,
-                19,
+                18,
                 30,
                 0
             );
+            DayOfWeek signupDayOfWeek = DayOfWeek.Thursday + dayOfWeek;
             if (dayOfWeek == 3)
             {
                 signupDayOfWeek = DayOfWeek.Sunday;
-                if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now > closedCheckTime.AddHours(-1))
+
+                Console.WriteLine(signupDayOfWeek);
+                Console.WriteLine(closedCheckTime.DayOfWeek);
+                Console.WriteLine(DateTime.Now.TimeOfDay);
+                Console.WriteLine(closedCheckTime.AddHours(-1).TimeOfDay);
+
+                if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now.TimeOfDay > closedCheckTime.AddHours(-1).TimeOfDay)
                 {
                     await RespondWithOldSignupError(component);
                     return;
                 }
             }
-            if (signupDayOfWeek != DayOfWeek.Sunday && signupDayOfWeek < DateTime.Now.DayOfWeek && DateTime.Now > closedCheckTime)
+            else if (signupDayOfWeek < DateTime.Now.DayOfWeek && DateTime.Now > closedCheckTime)
             {
                 await RespondWithOldSignupError(component);
                 return;

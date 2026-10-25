@@ -66,32 +66,6 @@ namespace FOFA_Bot.Data
             return JsonBotData.StatsChannelId;
         }
 
-        internal static double GetTournamentHour()
-        {
-            Logger.LogInformation($"    Getting Tournament Hour");
-            return JsonBotData.TournamentHour;
-        }
-        internal static double GetBrawlHour()
-        {
-            Logger.LogInformation($"    Getting Brawl Hour");
-            return JsonBotData.BrawlHour;
-        }
-        internal static double GetBaseCaptureHour()
-        {
-            Logger.LogInformation($"    Getting Base Capture Hour");
-            return JsonBotData.BaseCaptureHour;
-        }
-
-        internal static double GetGoldenDropHour()
-        {
-            Logger.LogInformation($"    Getting Golden Drop Hour");
-            return JsonBotData.GoldenDropHour;
-        }
-        internal static double GetStillwatersHour()
-        {
-            Logger.LogInformation($"    Getting Stillwaters Hour");
-            return JsonBotData.StillwatersHour;
-        }
         internal static string GetROFARoleName()
         {
             return JsonBotData.ROFARoleName;

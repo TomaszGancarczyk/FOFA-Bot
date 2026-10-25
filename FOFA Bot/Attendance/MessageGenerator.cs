@@ -12,9 +12,6 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Creating attendance message from template");
             AttendanceMessage = new();
             DateTime eventDateTime;
-            // TODO event hours
-            //eventDateTime = GetEventDateTime(BotData.GetTournamentHour());
-            //eventDateTime = GetEventDateTime(BotData.GetBaseCaptureHour());
 
             EmbedMessage = GenerateMessageFromData();
             if (EmbedMessage == null)
@@ -51,7 +48,7 @@ namespace FOFA_Bot.Attendance
                 DateTime.Today.Year,
                 DateTime.Today.Month,
                 DateTime.Today.Day + ((int)DayOfWeek.Thursday - (int)DateTime.Today.DayOfWeek + 7) % 7,
-                20,
+                19,
                 0,
                 0
             );

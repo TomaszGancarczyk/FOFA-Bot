@@ -9,7 +9,6 @@ namespace FOFA_Bot.Attendance
     {
         private static List<Message?> CurrentMessages = [];
         private static readonly int EventReminderMinutes = 150;
-        private static readonly int EventCloseMinutes = 30;
         internal static void CreateAttendanceEvent()
         {
             Logger.LogInformation($"    Creating attendance event");
@@ -48,10 +47,21 @@ namespace FOFA_Bot.Attendance
         internal static async Task HandleMessageRunning(ulong messageId)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
-            DateTime eventReminderTime = currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes);
-            if (DateTime.Now < eventReminderTime)
+            DateTime[] tempEventReminderTimes =
+                [
+                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes),
+                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(1),
+                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(2),
+                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(3).AddHours(-1),
+                ];
+            DateTime[] eventReminderTimes = [];
+            foreach (DateTime tempReminderTime in tempEventReminderTimes)
             {
-                while (DateTime.Now < eventReminderTime)
+                if (tempReminderTime > DateTime.Now) eventReminderTimes = [.. eventReminderTimes, tempReminderTime];
+            }
+            foreach (DateTime reminderTime in eventReminderTimes)
+            {
+                while (DateTime.Now < reminderTime)
                     Task.Delay(60000).Wait();
                 bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
@@ -60,14 +70,9 @@ namespace FOFA_Bot.Attendance
                     if (reminderMessage != string.Empty)
                         await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
                 }
-            }
-
-            DateTime eventCloseTime = currentMessage.ThursdayDate.AddMinutes(-EventCloseMinutes);
-            if (DateTime.Now < eventCloseTime)
-            {
-                while (DateTime.Now < eventCloseTime)
+                while (DateTime.Now < reminderTime.AddHours(1))
                     Task.Delay(60000).Wait();
-                bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
+                isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
                     string AnnouncementMessage = CreateAnnouncementMessage(messageId);
@@ -82,9 +87,8 @@ namespace FOFA_Bot.Attendance
                         }
                 }
             }
-            string eventName = string.Join(" ", currentMessage.EmbedMessage.Title.Split(" ").Skip(1));
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
-            CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
+                CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
             BotHandler.ChangeSignupMessageRunning(-1);
         }
 
