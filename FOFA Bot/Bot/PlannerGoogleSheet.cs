@@ -19,15 +19,10 @@ namespace FOFA_Bot.Bot
             {
                 try
                 {
-                    PlannerData newData = new(value[0].ToString(), value[1].ToString());
-                    try
+                    PlannerData newData = new(value[0].ToString(), value[1].ToString())
                     {
-                        if (value[2] != null && value[2].ToString() != string.Empty)
-                        {
-                            newData.priority = Int32.Parse(value[2].ToString());
-                        }
-                    }
-                    catch (Exception) { newData.priority = 0; }
+                        priority = Int32.TryParse(value[2].ToString(), out int outValue) ? outValue : 0
+                    };
                     try
                     {
                         if (value[3] != null && value[3].ToString() != string.Empty)

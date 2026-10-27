@@ -91,7 +91,7 @@ namespace FOFA_Bot.PlayerStats
             string formattedHighestMoney = "0";
             try
             {
-                string highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
+                string? highestMoney = stats.stats.First(stat => stat.id == "max-mon-amo").value.ToString();
                 formattedHighestMoney = highestMoney[..(highestMoney.Length % 3)];
                 for (int i = 0; i < (highestMoney.Length / 3); i++)
                 {

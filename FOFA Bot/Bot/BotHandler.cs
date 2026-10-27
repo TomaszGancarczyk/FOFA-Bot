@@ -18,11 +18,11 @@ namespace FOFA_Bot.Bot
             Logger.LogInformation("Program is running");
             while (true)
             {
-                _ = CheckSignupMessage();
+                CheckSignupMessage();
                 Task.Delay(60000).Wait();
             }
         }
-        private static async Task CheckSignupMessage()
+        private static void CheckSignupMessage()
         {
             if (SignupMessageRunningCount == 0 && DateTime.Now.Hour == SignupHour && DateTime.Now.DayOfWeek == DayOfWeek.Monday && SettingsHandler.GetAutomnaticSignupMessage())
                 AttendanceHandler.CreateAttendanceEvent();

@@ -7,24 +7,31 @@ namespace FOFA_Bot.PlayerStats
     {
         internal static async Task SendStatsMessage(SocketSlashCommand command)
         {
-            string playername = command.Data.Options.First().Value.ToString();
+            string? playername = command.Data.Options.First().Value.ToString();
             if (playername == null)
             {
-                await command.RespondAsync(embed: GetErrorMessage(""));
+                await command.FollowupAsync(embed: GetErrorMessage(""));
                 return;
             }
             var stats = await PlayerApiHandler.GetPlayerStats(playername);
             EmbedBuilder message;
             if (stats == null)
             {
-                await command.RespondAsync(embed: GetErrorMessage(playername));
+                await command.FollowupAsync(embed: GetErrorMessage(playername));
             }
             else
             {
                 message = StatsMessageGenerator.CreateStatsMessage(stats);
                 string image = GetFactionImage(stats.alliance);
                 message.WithThumbnailUrl($"attachment://{stats.alliance.ToLower()}.webp");
-                await command.RespondWithFileAsync(image, embed: message.Build());
+                try
+                {
+                    await command.FollowupWithFileAsync(image, embed: message.Build());
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError($"Couldnt send the stats message for player {playername}:\n{e}");
+                }
             }
         }
         private static string GetFactionImage(string faction)

@@ -15,7 +15,7 @@ namespace FOFA_Bot.Bot
             switch (command.Data.Name)
             {
                 case "create-signup":
-                    Logger.LogInformation($"[command] User {command.User.Username} used create-signup-template");
+                    Logger.LogInformation($"[command] User {command.User.Username} used create-signup");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckRofaPermission(command)) break;
                     embed = await SlashHandler.CreateSignupFromSlashCommand();
@@ -34,6 +34,7 @@ namespace FOFA_Bot.Bot
 
                 case "stats":
                     Logger.LogInformation($"[command] User {command.User.Username} used stats");
+                    await command.DeferAsync();
                     if (command.ChannelId != StatsChannelId)
                     {
                         Logger.LogInformation($"    Wrong channel, responding with error message");

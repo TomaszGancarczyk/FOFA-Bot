@@ -7,7 +7,7 @@ namespace FOFA_Bot.Attendance
     {
         internal readonly IMessageChannel SignupsChannel = BotData.GetROFASignupsChannel();
         internal EmbedBuilder EmbedMessage = new();
-        internal ComponentBuilderV2 MessageButtons;
+        internal ComponentBuilderV2? MessageButtons;
         internal DateTime ThursdayDate;
         internal IMessage? DiscordMessage;
     }

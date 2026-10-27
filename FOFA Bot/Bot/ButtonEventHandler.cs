@@ -7,20 +7,20 @@ namespace FOFA_Bot.Bot
 {
     internal class ButtonEventHandler
     {
-        private static Embed CreatePositiveEmbed(DayOfWeek dayOfWeek)
+        private static Embed CreatePositiveEmbed(string dayOfWeek)
         {
             return new EmbedBuilder
             {
                 Color = Color.Green,
-                Title = $"Registered for event on {dayOfWeek}"
+                Title = $"Registered for event for {dayOfWeek}"
             }.Build();
         }
-        private static Embed CreateNegativeEmbed(DayOfWeek dayOfWeek)
+        private static Embed CreateNegativeEmbed(string dayOfWeek)
         {
             return new EmbedBuilder
             {
                 Color = Color.Red,
-                Title = $"Unregistered for event on {dayOfWeek}"
+                Title = $"Unregistered for event for {dayOfWeek}"
             }.Build();
         }
         private static List<string> signupActionNames = [];
@@ -80,6 +80,19 @@ namespace FOFA_Bot.Bot
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
                         );
                     break;
+                case "presentButton_Week":
+                    signupActionNames.Add(component.User.GlobalName);
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, true, 10),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
+                case "absentButton_Week":
+                    await Task.WhenAny(
+                        HandleAttendanceButton(component, false, 10),
+                        HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
+                        );
+                    break;
             }
         }
         private static async Task HandleAttendanceButton(SocketMessageComponent component, bool status, int dayOfWeek)
@@ -94,14 +107,9 @@ namespace FOFA_Bot.Bot
                 0
             );
             DayOfWeek signupDayOfWeek = DayOfWeek.Thursday + dayOfWeek;
-            if (dayOfWeek == 3)
+            if (dayOfWeek == 3 || dayOfWeek == 10)
             {
                 signupDayOfWeek = DayOfWeek.Sunday;
-
-                Console.WriteLine(signupDayOfWeek);
-                Console.WriteLine(closedCheckTime.DayOfWeek);
-                Console.WriteLine(DateTime.Now.TimeOfDay);
-                Console.WriteLine(closedCheckTime.AddHours(-1).TimeOfDay);
 
                 if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now.TimeOfDay > closedCheckTime.AddHours(-1).TimeOfDay)
                 {
@@ -114,12 +122,21 @@ namespace FOFA_Bot.Bot
                 await RespondWithOldSignupError(component);
                 return;
             }
-            if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now.Hour > 19)
-                Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayOfWeek}");
+            string signupDayText = signupDayOfWeek.ToString();
+            if (dayOfWeek == 10) signupDayText = "the whole week";
+            else Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayText}");
             List<ulong?>? currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
+
             if (currentMessageIds != null && currentMessageIds.Contains(component.Message.Id))
             {
-                MemberHandler.UpdateMemberStatus(component.User, status, dayOfWeek);
+                if (dayOfWeek == 10)
+                {
+                    MemberHandler.UpdateMemberStatus(component.User, status, 0);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 1);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 2);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 3);
+                }
+                else MemberHandler.UpdateMemberStatus(component.User, status, dayOfWeek);
                 EmbedBuilder? updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
                 if (updatedMessage == null)
                 {
@@ -143,9 +160,9 @@ namespace FOFA_Bot.Bot
                     Logger.LogError($"    Run into error when updating attendance message:\n{e}");
                 }
                 if (status)
-                    await component.FollowupAsync(embed: CreatePositiveEmbed(signupDayOfWeek), ephemeral: true);
+                    await component.FollowupAsync(embed: CreatePositiveEmbed(signupDayText), ephemeral: true);
                 else
-                    await component.FollowupAsync(embed: CreateNegativeEmbed(signupDayOfWeek), ephemeral: true);
+                    await component.FollowupAsync(embed: CreateNegativeEmbed(signupDayText), ephemeral: true);
             }
             else
                 await RespondWithOldSignupError(component);
@@ -154,11 +171,8 @@ namespace FOFA_Bot.Bot
         private static async Task HandleTimeoutDelay(TimeSpan timeout, string nameId)
         {
             await Task.Delay(timeout);
-            if (signupActionNames.Contains(nameId))
-            {
-                signupActionNames.Remove(nameId);
-                Logger.LogWarning($"    Timeout reached for {nameId}");
-            }
+            signupActionNames.Remove(nameId);
+            Logger.LogWarning($"    Timeout reached for {nameId}");
         }
         private static async Task RespondWithOldSignupError(SocketMessageComponent component)
         {

@@ -11,7 +11,6 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Creating attendance message from template");
             AttendanceMessage = new();
-            DateTime eventDateTime;
 
             EmbedMessage = GenerateMessageFromData();
             if (EmbedMessage == null)
@@ -124,7 +123,7 @@ namespace FOFA_Bot.Attendance
             {
                 int present = members.Where(m => m.status[i] == true).Count();
                 int absent = members.Where(m => m.status[i] == false).Count();
-                int usigned = members.Where(m => m.status == null).Count();
+                int usigned = members.Where(m => m.status[i] == null).Count();
                 DayOfWeek weekday = DayOfWeek.Thursday + i;
                 if (i == 3) weekday = DayOfWeek.Sunday;
                 footerString += $"\n{weekday}: {present} Present, {absent} Absent, {usigned} Unsigned";
@@ -182,6 +181,7 @@ namespace FOFA_Bot.Attendance
                 }
                 else presentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"presentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Success);
             }
+            presentActionRow.WithButton($"Whole Week", $"presentButton_Week", ButtonStyle.Success);
             for (int i = 0; i < 4; i++)
             {
                 if (i == 3)
@@ -190,6 +190,7 @@ namespace FOFA_Bot.Attendance
                 }
                 else absentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"absentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Danger);
             }
+            absentActionRow.WithButton($"Whole Week", $"absentButton_Week", ButtonStyle.Danger);
             Logger.LogInformation($"    Created buttons");
             message.MessageButtons = new ComponentBuilderV2()
                 .WithActionRow(presentActionRow)

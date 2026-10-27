@@ -20,7 +20,7 @@ namespace FOFA_Bot.Attendance
                 return;
             }
             Message? message = tempCurrentMessage;
-            SendAttendanceMessage(message);
+            _ = SendAttendanceMessage(message);
             Logger.LogInformation($"    Attendance event finished");
             return;
         }
@@ -48,12 +48,12 @@ namespace FOFA_Bot.Attendance
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             DateTime[] tempEventReminderTimes =
-                [
-                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes),
-                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(1),
-                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(2),
-                    currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(3).AddHours(-1),
-                ];
+            [
+                currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes),
+                currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(1),
+                currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(2),
+                currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(3).AddHours(-1),
+            ];
             DateTime[] eventReminderTimes = [];
             foreach (DateTime tempReminderTime in tempEventReminderTimes)
             {
