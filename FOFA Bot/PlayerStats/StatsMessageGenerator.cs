@@ -123,11 +123,11 @@ namespace FOFA_Bot.PlayerStats
                 OpsField.Value =
                     $"- Operations Done: {stats.stats.First(stat => stat.id == "completed-ops").value}\n" +
                 GetStatLineFromId("Kills", "kills-ops") +
-                GetStatLineFromId("Cleanup Completed", "big-cleanup-completed-ops") +
+                GetStatLineFromId("Cleanup Done", "big-cleanup-completed-ops") +
                 GetStatLineFromId("Cleanup Highest", "big-cleanup-max-key-ops") +
-                GetStatLineFromId("Focus Completed", "focus-completed-ops") +
+                GetStatLineFromId("Focus Done", "focus-completed-ops") +
                 GetStatLineFromId("Focus Highest", "focus-max-key-ops") +
-                GetStatLineFromId("Exclusion Completed", "sea-anienation-completed-ops") +
+                GetStatLineFromId("Exclusion Done", "sea-anienation-completed-ops") +
                 GetStatLineFromId("Exclusion Highest", "sea-alienation-max-key-ops");
             }
             catch (Exception e)
