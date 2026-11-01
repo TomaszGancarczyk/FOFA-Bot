@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
+using System;
 
 namespace FOFA_Bot.Attendance
 {
@@ -61,25 +62,36 @@ namespace FOFA_Bot.Attendance
             }
             foreach (DateTime reminderTime in eventReminderTimes)
             {
+                Console.WriteLine($"Next reminder on {reminderTime} in {reminderTime - DateTime.Now}");
                 while (DateTime.Now < reminderTime)
                     Task.Delay(60000).Wait();
                 bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    string? reminderMessage = CreateReminderMessage();
-                    if (reminderMessage != string.Empty)
-                        await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
+                    Console.WriteLine($"Hit reminder message requirements");
+                    string? reminderMessage = CreateReminderMessage(Array.IndexOf(eventReminderTimes, reminderTime));
+                    if (reminderMessage != string.Empty && reminderMessage != null)
+                        try
+                        {
+                            await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.LogError($"Error when sending reminder message:\n{e}");
+                        }
                 }
                 while (DateTime.Now < reminderTime.AddHours(1))
                     Task.Delay(60000).Wait();
                 isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
                 {
-                    string AnnouncementMessage = CreateAnnouncementMessage(messageId);
+                    Console.WriteLine($"Hit announcement message requirements");
+                    string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek);
                     if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
                         try
                         {
                             await BotData.GetROFAAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
+                            Console.WriteLine($"Sent announcement message requirements");
                         }
                         catch (Exception e)
                         {
@@ -124,12 +136,12 @@ namespace FOFA_Bot.Attendance
             return currentMessage.EmbedMessage;
         }
 
-        private static string? CreateReminderMessage()
+        private static string? CreateReminderMessage(int dayOfSignup)
         {
             string reminderMessage = "## Don't forget to signup!";
             List<Member> members = MemberHandler.GetMembers();
             int nullmbmers = 0;
-            foreach (var member in members) if (member.status == null && member.discordUser != null)
+            foreach (var member in members) if (member.status[dayOfSignup] == null && member.discordUser != null)
                 {
                     reminderMessage += "\n" + MentionUtils.MentionUser(member.discordUser.Id);
                     nullmbmers++;
@@ -137,12 +149,12 @@ namespace FOFA_Bot.Attendance
             if (nullmbmers == 0) return null;
             return reminderMessage;
         }
-        private static string CreateAnnouncementMessage(ulong? messageId)
+        private static string CreateAnnouncementMessage(DayOfWeek annoucmentDay)
         {
-            Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
+            string annoucmentDayStrting = $"{annoucmentDay} Tournament";
+            if (annoucmentDay == DayOfWeek.Sunday) annoucmentDayStrting = $"{annoucmentDay} Base Capture";
             ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id;
-            string[] eventParts = currentMessage.DiscordMessage.Embeds.First().Title.Split(" ");
-            string AnnouncementMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {currentMessage.DiscordMessage.Embeds.First().Title} in {MentionUtils.MentionChannel(BotData.GetROFAClanWarChannelId())}";
+            string AnnouncementMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {annoucmentDayStrting} in {MentionUtils.MentionChannel(BotData.GetROFAClanWarChannelId())}";
             return AnnouncementMessage;
         }
 
