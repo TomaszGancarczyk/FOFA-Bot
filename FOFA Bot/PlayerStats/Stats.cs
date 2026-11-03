@@ -1,7 +1,7 @@
 ﻿namespace FOFA_Bot.PlayerStats
 {
 #pragma warning disable IDE1006
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+#pragma warning disable CS8618
     public class PlayerStats
     {
         public string username { get; set; }
@@ -48,5 +48,5 @@
         public object value { get; set; }
     }
 #pragma warning restore IDE1006
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+#pragma warning restore CS8618
 }

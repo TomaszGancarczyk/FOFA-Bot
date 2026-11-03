@@ -37,6 +37,11 @@ namespace FOFA_Bot.Attendance
             File.WriteAllText($"..\\..\\..\\Data\\BackupMessages\\BackupMessage_{backupMessage.DiscordMessageId}", jsonMessage);
             Logger.LogInformation($"    Backup message saved");
         }
+        internal static void DeleteBackup(string messageId)
+        {
+            File.Delete($"..\\..\\..\\Data\\BackupMessages\\BackupMessage_{messageId}");
+            Logger.LogInformation($"    Backup message deleted");
+        }
         internal static async Task ReadBackup()
         {
             foreach (string filePath in Directory.GetFiles("..\\..\\..\\Data\\BackupMessages"))
@@ -63,6 +68,8 @@ namespace FOFA_Bot.Attendance
                     Logger.LogError($"    Couldnt read the backup message:\n{e}");
                     continue;
                 }
+                Console.WriteLine(backupMessage.ThursdayDate);
+                Console.WriteLine(DateTime.Now.AddDays(-3));
                 if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
                 {
                     Logger.LogWarning($"    Message is incorrect. Deleting and dropping");

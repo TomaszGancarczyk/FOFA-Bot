@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using FOFA_Bot.Bot;
 using FOFA_Bot.Data;
-using System;
 
 namespace FOFA_Bot.Attendance
 {
@@ -101,6 +100,7 @@ namespace FOFA_Bot.Attendance
             }
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
                 CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
+            Backup.DeleteBackup(currentMessage.DiscordMessage.Id.ToString());
             BotHandler.ChangeSignupMessageRunning(-1);
         }
 
