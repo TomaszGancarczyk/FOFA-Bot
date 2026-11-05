@@ -79,7 +79,7 @@ namespace FOFA_Bot.Attendance
                             Logger.LogError($"Error when sending reminder message:\n{e}");
                         }
                 }
-                while (DateTime.Now < reminderTime.AddHours(1))
+                while (DateTime.Now < reminderTime.AddHours(2))
                     Task.Delay(60000).Wait();
                 isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
                 if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
