@@ -47,55 +47,53 @@ namespace FOFA_Bot.Attendance
         internal static async Task HandleMessageRunning(ulong messageId)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
-            DateTime[] tempEventReminderTimes =
+            DateTime[] eventReminderTimes =
             [
                 currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes),
                 currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(1),
                 currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(2),
                 currentMessage.ThursdayDate.AddMinutes(-EventReminderMinutes).AddDays(3).AddHours(-1),
             ];
-            DateTime[] eventReminderTimes = [];
-            foreach (DateTime tempReminderTime in tempEventReminderTimes)
-            {
-                if (tempReminderTime > DateTime.Now) eventReminderTimes = [.. eventReminderTimes, tempReminderTime];
-            }
             foreach (DateTime reminderTime in eventReminderTimes)
             {
-                Console.WriteLine($"Next reminder on {reminderTime} in {reminderTime - DateTime.Now}");
-                while (DateTime.Now < reminderTime)
-                    Task.Delay(60000).Wait();
-                bool isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
-                if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+                if (DateTime.Now < reminderTime)
                 {
-                    Console.WriteLine($"Hit reminder message requirements");
-                    string? reminderMessage = CreateReminderMessage(Array.IndexOf(eventReminderTimes, reminderTime));
-                    if (reminderMessage != string.Empty && reminderMessage != null)
-                        try
-                        {
-                            await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.LogError($"Error when sending reminder message:\n{e}");
-                        }
+                    Logger.LogInformation($"    Next signup reminder on {reminderTime} in {reminderTime - DateTime.Now}");
+                    while (DateTime.Now < reminderTime)
+                        Task.Delay(60000).Wait();
+                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
+                    {
+                        string? reminderMessage = CreateReminderMessage(Array.IndexOf(eventReminderTimes, reminderTime));
+                        if (reminderMessage != string.Empty && reminderMessage != null)
+                            try
+                            {
+                                await currentMessage.SignupsChannel.SendMessageAsync(reminderMessage);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.LogError($"Error when sending reminder message:\n{e}");
+                            }
+                    }
                 }
-                while (DateTime.Now < reminderTime.AddHours(2))
-                    Task.Delay(60000).Wait();
-                isMessageDeleted = await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id);
-                if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !isMessageDeleted)
+                if (DateTime.Now < reminderTime.AddHours(2))
                 {
-                    Console.WriteLine($"Hit announcement message requirements");
-                    string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek);
-                    if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
-                        try
-                        {
-                            await BotData.GetROFAAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
-                            Console.WriteLine($"Sent announcement message requirements");
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.LogError($"Error when sending announcement message:\n{e}");
-                        }
+                    Logger.LogInformation($"    Next clan war reminder on {reminderTime.AddHours(2)} in {reminderTime.AddHours(2) - DateTime.Now}");
+                    while (DateTime.Now < reminderTime.AddHours(2))
+                        Task.Delay(60000).Wait();
+                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
+                    {
+                        string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek);
+                        if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
+                            try
+                            {
+                                await BotData.GetROFAAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.LogError($"Error when sending announcement message:\n{e}");
+
+                            }
+                    }
                 }
             }
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)

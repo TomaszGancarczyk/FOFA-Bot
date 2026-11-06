@@ -68,8 +68,6 @@ namespace FOFA_Bot.Attendance
                     Logger.LogError($"    Couldnt read the backup message:\n{e}");
                     continue;
                 }
-                Console.WriteLine(backupMessage.ThursdayDate);
-                Console.WriteLine(DateTime.Now.AddDays(-3));
                 if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
                 {
                     Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
@@ -95,6 +93,7 @@ namespace FOFA_Bot.Attendance
             IMessage discordMessage = await channel.GetMessageAsync(backupMessage.DiscordMessageId);
             Logger.LogInformation($"    Creating attendance message");
             Message? response = MessageGenerator.CreateAttendanceMessage();
+            response.ThursdayDate = backupMessage.ThursdayDate;
             if (response == null) return;
             response.DiscordMessage = discordMessage;
             Logger.LogInformation($"    Converting members from backup");

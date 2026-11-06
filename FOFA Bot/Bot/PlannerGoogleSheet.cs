@@ -27,7 +27,7 @@ namespace FOFA_Bot.Bot
                     catch (Exception) { newData.priority = 0; }
                     try
                     {
-                            newData.squadleader = Convert.ToBoolean(value[3]);
+                        newData.squadleader = Convert.ToBoolean(value[3]);
                     }
                     catch (Exception) { newData.squadleader = false; }
                     data.Add(newData);
