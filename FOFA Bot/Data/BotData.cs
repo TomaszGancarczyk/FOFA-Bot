@@ -70,9 +70,13 @@ namespace FOFA_Bot.Data
         {
             return JsonBotData.ROFARoleName;
         }
-        internal static string[] GetPrivilegedRoleNames()
+        internal static string[] GetPrivilegedRoleNames(string clan)
         {
-            return JsonBotData.PrivilegedRoleNames.ToObject<string[]>();
+            if (clan == "ROFA")
+                return JsonBotData.PrivilegedRoleNamesRofa.ToObject<string[]>();
+            else if (clan == "BOFA")
+                return JsonBotData.PrivilegedRoleNamesBofa.ToObject<string[]>();
+            return null;
         }
 
         internal static string GetPlannerSheetId()

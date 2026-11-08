@@ -75,7 +75,8 @@ namespace FOFA_Bot.Attendance
                     continue;
                 }
                 Logger.LogInformation($"[backup message] Backup message is correct, handling");
-                BotHandler.ChangeSignupMessageRunning(1);
+                //TODO
+                //BotHandler.ChangeSignupMessageRunning(1);
                 _ = HandleMessage(backupMessage);
             }
         }
@@ -83,7 +84,8 @@ namespace FOFA_Bot.Attendance
         {
             await ConvertToAttendanceMessage(backupMessage);
             AttendanceHandler.RefreshSignupMessage(backupMessage.DiscordMessageId);
-            await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
+            //TODO
+            //await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
         }
 
         private static async Task ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)

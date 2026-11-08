@@ -9,10 +9,10 @@ namespace FOFA_Bot.Attendance
     {
         private static List<Message?> CurrentMessages = [];
         private static readonly int EventReminderMinutes = 150;
-        internal static void CreateAttendanceEvent()
+        internal static void CreateAttendanceEvent(string clan)
         {
             Logger.LogInformation($"    Creating attendance event");
-            BotHandler.ChangeSignupMessageRunning(1);
+            BotHandler.ChangeSignupMessageRunning(1, clan);
             Message? tempCurrentMessage = MessageGenerator.CreateAttendanceMessage();
             if (tempCurrentMessage == null)
             {
@@ -36,7 +36,7 @@ namespace FOFA_Bot.Attendance
                 currentMessage.DiscordMessage = localCurrentMessage;
                 Backup.SaveBuckup(currentMessage);
                 CurrentMessages.Add(currentMessage);
-                await HandleMessageRunning(localCurrentMessage.Id);
+                await HandleMessageRunning(localCurrentMessage.Id, currentMessage.Clan);
             }
             catch (Exception e)
             {
@@ -44,7 +44,7 @@ namespace FOFA_Bot.Attendance
             }
         }
 
-        internal static async Task HandleMessageRunning(ulong messageId)
+        internal static async Task HandleMessageRunning(ulong messageId, string clan)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             DateTime[] eventReminderTimes =
@@ -61,7 +61,7 @@ namespace FOFA_Bot.Attendance
                     Logger.LogInformation($"    Next signup reminder on {reminderTime} in {reminderTime - DateTime.Now}");
                     while (DateTime.Now < reminderTime)
                         Task.Delay(60000).Wait();
-                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
+                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
                     {
                         string? reminderMessage = CreateReminderMessage(Array.IndexOf(eventReminderTimes, reminderTime));
                         if (reminderMessage != string.Empty && reminderMessage != null)
@@ -80,7 +80,7 @@ namespace FOFA_Bot.Attendance
                     Logger.LogInformation($"    Next clan war reminder on {reminderTime.AddHours(2)} in {reminderTime.AddHours(2) - DateTime.Now}");
                     while (DateTime.Now < reminderTime.AddHours(2))
                         Task.Delay(60000).Wait();
-                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminder() && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
+                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
                     {
                         string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek);
                         if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
@@ -99,7 +99,7 @@ namespace FOFA_Bot.Attendance
             if (CurrentMessages.Count > 0 && currentMessage.DiscordMessage != null && messageId == currentMessage.DiscordMessage.Id)
                 CurrentMessages.Remove(CurrentMessages.First(m => m.DiscordMessage.Id == messageId));
             Backup.DeleteBackup(currentMessage.DiscordMessage.Id.ToString());
-            BotHandler.ChangeSignupMessageRunning(-1);
+            BotHandler.ChangeSignupMessageRunning(-1, clan);
         }
 
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
@@ -138,14 +138,14 @@ namespace FOFA_Bot.Attendance
         {
             string reminderMessage = "## Don't forget to signup!";
             List<Member> members = MemberHandler.GetMembers();
-            int nullmbmers = 0;
+            bool nullmembers = false;
             foreach (var member in members) if (member.status[dayOfSignup] == null && member.discordUser != null)
                 {
                     reminderMessage += "\n" + MentionUtils.MentionUser(member.discordUser.Id);
-                    nullmbmers++;
+                    nullmembers = true;
                 }
-            if (nullmbmers == 0) return null;
-            return reminderMessage;
+            if (nullmembers) return reminderMessage;
+            return null;
         }
         private static string CreateAnnouncementMessage(DayOfWeek annoucmentDay)
         {
@@ -168,12 +168,11 @@ namespace FOFA_Bot.Attendance
             CurrentMessages.Add(message);
             Logger.LogInformation($"    Sucessfully added backup message for {message.ThursdayDate}: {message.DiscordMessage.Id}");
         }
-        internal static Embed ChangeRofaAutomnaticSettings(IReadOnlyCollection<SocketSlashCommandDataOption> options)
+        internal static Embed ChangeAutomnaticSettings(IReadOnlyCollection<SocketSlashCommandDataOption> options, string clan)
         {
-            Logger.LogInformation("    Changing settings");
+            Logger.LogInformation($"    Changing settings for {clan}");
             string message = "";
-
-            Dictionary<string, bool> oldSettings = SettingsHandler.GetAutomaticSettingsRofa();
+            Dictionary<string, bool> oldSettings = SettingsHandler.GetAutomaticSettings(clan);
             Dictionary<string, bool> settings = [];
             foreach (SocketSlashCommandDataOption option in options)
             {
@@ -186,7 +185,7 @@ namespace FOFA_Bot.Attendance
                 message += $"{setting.Key[0].ToString().ToUpper()}{setting.Key.AsSpan(1)}: {setting.Value}\n";
                 settings.Add(setting.Key, setting.Value);
             }
-            SettingsHandler.SetAutomaticSettingsRofa(settings);
+                SettingsHandler.SetAutomaticSettings(settings, clan);
 
             EmbedBuilder embed = new()
             {

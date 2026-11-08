@@ -4,9 +4,9 @@ namespace FOFA_Bot.Attendance
 {
     internal class SlashHandler
     {
-        internal static Task<Embed> CreateSignupFromSlashCommand()
+        internal static Task<Embed> CreateSignupFromSlashCommand(string clan)
         {
-            AttendanceHandler.CreateAttendanceEvent();
+            AttendanceHandler.CreateAttendanceEvent(clan);
             return Task.FromResult(SuccessSignupMessage());
         }
 
@@ -16,15 +16,6 @@ namespace FOFA_Bot.Attendance
             {
                 Color = Color.Green,
                 Title = "Successfully created signup message"
-            };
-            return embed.Build();
-        }
-        private static Embed DateErrorMessage(string message)
-        {
-            EmbedBuilder embed = new()
-            {
-                Color = Color.Red,
-                Title = message
             };
             return embed.Build();
         }

@@ -11,37 +11,56 @@ namespace FOFA_Bot.Data
             string json = reader.ReadToEnd();
             JsonBotData = JObject.Parse(json);
         }
-        internal static bool GetAutomnaticSignupMessage()
+        internal static bool GetAutomnaticSignupMessage(string clan)
         {
             LoadJson();
-            return JsonBotData.signups;
+            if (clan == "ROFA") return JsonBotData.rofaSignups;
+            else if (clan == "BOFA") return JsonBotData.bofaSignups;
+            return false;
         }
-        internal static bool GetAutomaticSignupQuestion()
+        internal static bool GetAutomaticReminderRofa(string clan)
         {
             LoadJson();
-            return JsonBotData.questions;
+            if (clan == "ROFA") return JsonBotData.rofaReminders;
+            else if (clan == "BOFA") return JsonBotData.bofaReminders;
+            return false;
         }
-        internal static bool GetAutomaticReminder()
+        internal static Dictionary<string, bool> GetAutomaticSettings(string clan)
         {
+            Logger.LogInformation($"    Getting settings data for {clan}");
             LoadJson();
-            return JsonBotData.reminders;
-        }
-        internal static Dictionary<string, bool> GetAutomaticSettingsRofa()
-        {
-            Logger.LogInformation("    Getting settings data");
-            LoadJson();
-            Dictionary<string, bool> dict = new()
+            if (clan == "ROFA")
             {
-                { "signups", (bool)JsonBotData.signups},
-                { "reminders", (bool)JsonBotData.reminders},
-            };
-            return dict;
+                return new Dictionary<string, bool>
+                {
+                    { "signups", (bool)JsonBotData.rofaSignups},
+                    { "reminders", (bool)JsonBotData.rofaReminders},
+                };
+            }
+            else if (clan == "BOFA")
+            {
+                return new Dictionary<string, bool>
+                {
+                    { "signups", (bool)JsonBotData.bofaSignups},
+                    { "reminders", (bool)JsonBotData.bofaReminders},
+                };
+
+            }
+            return null;
         }
-        internal static void SetAutomaticSettingsRofa(Dictionary<string, bool> settings)
+        internal static void SetAutomaticSettings(Dictionary<string, bool> settings, string clan)
         {
             LoadJson();
-            JsonBotData.signups = settings["signups"];
-            JsonBotData.reminders = settings["reminders"];
+            if (clan == "ROFA")
+            {
+                JsonBotData.rofaSignups = settings["signups"];
+                JsonBotData.rofaReminders = settings["reminders"];
+            }
+            else if (clan == "BOFA")
+            {
+                JsonBotData.bofaSignups = settings["signups"];
+                JsonBotData.bofaReminders = settings["reminders"];
+            }
             File.WriteAllText("..\\..\\..\\Data\\Settings.json", JsonBotData.ToString());
         }
     }

@@ -7,7 +7,8 @@ namespace FOFA_Bot.Bot
     internal class BotHandler
     {
         private static DiscordSocketClient? Discord;
-        private static int SignupMessageRunningCount = 0;
+        private static int RofaSignupMessageRunningCount = 0;
+        private static int BofaSignupMessageRunningCount = 0;
         internal static int SignupHour = 8;
 
         internal static async Task Run(DiscordSocketClient discord)
@@ -24,13 +25,18 @@ namespace FOFA_Bot.Bot
         }
         private static void CheckSignupMessage()
         {
-            if (SignupMessageRunningCount == 0 && DateTime.Now.Hour == SignupHour && DateTime.Now.DayOfWeek == DayOfWeek.Monday && SettingsHandler.GetAutomnaticSignupMessage())
-                AttendanceHandler.CreateAttendanceEvent();
+            if (RofaSignupMessageRunningCount == 0 && DateTime.Now.Hour == SignupHour && DateTime.Now.DayOfWeek == DayOfWeek.Monday && SettingsHandler.GetAutomnaticSignupMessage("ROFA"))
+                AttendanceHandler.CreateAttendanceEvent("ROFA");
+            if (RofaSignupMessageRunningCount == 0 && DateTime.Now.Hour == SignupHour && DateTime.Now.DayOfWeek == DayOfWeek.Monday && SettingsHandler.GetAutomnaticSignupMessage("BOFA"))
+                AttendanceHandler.CreateAttendanceEvent("BOFA");
         }
-        internal static void ChangeSignupMessageRunning(int changeCount)
+        internal static void ChangeSignupMessageRunning(int changeCount, string clan)
         {
-            SignupMessageRunningCount += changeCount;
-            Logger.LogInformation($"Changed Signup Message count with count {changeCount}, current count: {SignupMessageRunningCount}");
+            if (clan == "ROFA")
+                RofaSignupMessageRunningCount += changeCount;
+            else if (clan == "BOFA")
+                BofaSignupMessageRunningCount += changeCount;
+            Logger.LogInformation($"Changed Signup Message count with count {changeCount}, current count: {RofaSignupMessageRunningCount}");
         }
         internal static DiscordSocketClient? GetDiscord() => Discord;
     }

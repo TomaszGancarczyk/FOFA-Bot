@@ -10,6 +10,7 @@ namespace FOFA_Bot.Attendance
         internal ComponentBuilderV2? MessageButtons;
         internal DateTime ThursdayDate;
         internal IMessage? DiscordMessage;
+        internal string Clan;
     }
     internal class AttendanceMessageBackup
     {

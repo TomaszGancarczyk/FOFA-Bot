@@ -68,6 +68,20 @@ namespace FOFA_Bot
                         .WithRequired(false)
                         .WithType(ApplicationCommandOptionType.Boolean));
 
+                SlashCommandBuilder? changeAutomnaticSettingsBOFA = new SlashCommandBuilder()
+                    .WithName("settings-automatic-rofa")
+                    .WithDescription("Do you want to change automatic settings for ROFA?")
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("signups")
+                        .WithDescription("post or not")
+                        .WithRequired(false)
+                        .WithType(ApplicationCommandOptionType.Boolean))
+                    .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("reminders")
+                        .WithDescription("post or not")
+                        .WithRequired(false)
+                        .WithType(ApplicationCommandOptionType.Boolean));
+
                 SlashCommandBuilder? stats = new SlashCommandBuilder()
                     .WithName("stats")
                     .WithDescription("Show player stats")
@@ -79,6 +93,7 @@ namespace FOFA_Bot
                     );
                 await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSettingsROFA.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSettingsBOFA.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(stats.Build());
             }
             catch (Exception e)

@@ -110,7 +110,6 @@ namespace FOFA_Bot.Bot
             if (dayOfWeek == 3 || dayOfWeek == 10)
             {
                 signupDayOfWeek = DayOfWeek.Sunday;
-
                 if (signupDayOfWeek == closedCheckTime.DayOfWeek && DateTime.Now.TimeOfDay > closedCheckTime.AddHours(-1).TimeOfDay)
                 {
                     await RespondWithOldSignupError(component);
@@ -124,7 +123,7 @@ namespace FOFA_Bot.Bot
             }
             string signupDayText = signupDayOfWeek.ToString();
             if (dayOfWeek == 10) signupDayText = "the whole week";
-            else Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayText}");
+            Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayText}");
             List<ulong?>? currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
 
             if (currentMessageIds != null && currentMessageIds.Contains(component.Message.Id))

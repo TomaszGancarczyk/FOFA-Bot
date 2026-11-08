@@ -14,11 +14,19 @@ namespace FOFA_Bot.Bot
             Embed? embed;
             switch (command.Data.Name)
             {
-                case "create-signup":
+                case "create-signup-rofa":
                     Logger.LogInformation($"[command] User {command.User.Username} used create-signup");
                     await command.DeferAsync(ephemeral: true);
-                    if (!await CheckRofaPermission(command)) break;
-                    embed = await SlashHandler.CreateSignupFromSlashCommand();
+                    if (!await CheckPermission(command, "ROFA")) break;
+                    embed = await SlashHandler.CreateSignupFromSlashCommand("ROFA");
+                    if (embed != null)
+                        await command.FollowupAsync(embed: embed, ephemeral: true);
+                    break;
+                case "create-signup-bofa":
+                    Logger.LogInformation($"[command] User {command.User.Username} used create-signup");
+                    await command.DeferAsync(ephemeral: true);
+                    if (!await CheckPermission(command, "BOFA")) break;
+                    embed = await SlashHandler.CreateSignupFromSlashCommand("BOFA");
                     if (embed != null)
                         await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
@@ -26,8 +34,17 @@ namespace FOFA_Bot.Bot
                 case "settings-automatic-rofa":
                     Logger.LogInformation($"[command] User {command.User.Username} used settings-automatic-rofa");
                     await command.DeferAsync(ephemeral: true);
-                    if (!await CheckRofaPermission(command)) break;
-                    embed = AttendanceHandler.ChangeRofaAutomnaticSettings(command.Data.Options);
+                    if (!await CheckPermission(command, "ROFA")) break;
+                    embed = AttendanceHandler.ChangeAutomnaticSettings(command.Data.Options, "ROFA");
+                    if (embed != null)
+                        await command.FollowupAsync(embed: embed, ephemeral: true);
+                    break;
+
+                case "settings-automatic-bofa":
+                    Logger.LogInformation($"[command] User {command.User.Username} used settings-automatic-bofa");
+                    await command.DeferAsync(ephemeral: true);
+                    if (!await CheckPermission(command, "BOFA")) break;
+                    embed = AttendanceHandler.ChangeAutomnaticSettings(command.Data.Options, "BOFA");
                     if (embed != null)
                         await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
@@ -46,13 +63,13 @@ namespace FOFA_Bot.Bot
             }
         }
 
-        private static async Task<bool> CheckRofaPermission(SocketSlashCommand command)
+        private static async Task<bool> CheckPermission(SocketSlashCommand command, string clan)
         {
             string[] privilegedRoleNames = [];
             bool hasPermission = false;
             try
             {
-                privilegedRoleNames = BotData.GetPrivilegedRoleNames();
+                privilegedRoleNames = BotData.GetPrivilegedRoleNames(clan);
             }
             catch (Exception ex)
             {
