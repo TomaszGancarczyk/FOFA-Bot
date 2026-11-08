@@ -2,6 +2,7 @@
 using Discord.Net;
 using Discord.WebSocket;
 using FOFA_Bot.Attendance;
+using FOFA_Bot.Data;
 
 namespace FOFA_Bot.Bot
 {
@@ -125,18 +126,20 @@ namespace FOFA_Bot.Bot
             if (dayOfWeek == 10) signupDayText = "the whole week";
             Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayText}");
             List<ulong?>? currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
-
+            string clan = "";
+            if (component.Channel.Id == BotData.GetROFASignupsChannel().Id) clan = "ROFA";
+            else if (component.Channel.Id == BotData.GetBOFASignupsChannel().Id) clan = "BOFA";
             if (currentMessageIds != null && currentMessageIds.Contains(component.Message.Id))
             {
                 if (dayOfWeek == 10)
                 {
-                    MemberHandler.UpdateMemberStatus(component.User, status, 0);
-                    MemberHandler.UpdateMemberStatus(component.User, status, 1);
-                    MemberHandler.UpdateMemberStatus(component.User, status, 2);
-                    MemberHandler.UpdateMemberStatus(component.User, status, 3);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 0, clan);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 1, clan);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 2, clan);
+                    MemberHandler.UpdateMemberStatus(component.User, status, 3, clan);
                 }
-                else MemberHandler.UpdateMemberStatus(component.User, status, dayOfWeek);
-                EmbedBuilder? updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id);
+                else MemberHandler.UpdateMemberStatus(component.User, status, dayOfWeek, clan);
+                EmbedBuilder? updatedMessage = AttendanceHandler.RefreshSignupMessage(component.Message.Id, clan);
                 if (updatedMessage == null)
                 {
                     Logger.LogWarning($"    Run into error when updating attendance message:\nupdatedMessage == null");

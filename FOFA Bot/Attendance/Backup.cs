@@ -14,7 +14,7 @@ namespace FOFA_Bot.Attendance
             Logger.LogInformation($"    Saving backup message");
             string jsonMessage;
             Dictionary<ulong, bool?[]> members = [];
-            foreach (Member member in MemberHandler.GetMembers())
+            foreach (Member member in MemberHandler.GetMembers(message.Clan))
             {
                 members.Add(member.discordUser.Id, member.status);
             }
@@ -23,7 +23,8 @@ namespace FOFA_Bot.Attendance
             {
                 ThursdayDate = message.ThursdayDate,
                 DiscordMessageId = message.DiscordMessage.Id,
-                Members = members
+                Members = members,
+                Clan = message.Clan
             };
             try
             {
@@ -68,38 +69,36 @@ namespace FOFA_Bot.Attendance
                     Logger.LogError($"    Couldnt read the backup message:\n{e}");
                     continue;
                 }
-                if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId))
+                if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId, backupMessage.Clan))
                 {
                     Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
                     File.Delete(filePath);
                     continue;
                 }
                 Logger.LogInformation($"[backup message] Backup message is correct, handling");
-                //TODO
-                //BotHandler.ChangeSignupMessageRunning(1);
                 _ = HandleMessage(backupMessage);
             }
         }
         private static async Task HandleMessage(AttendanceMessageBackup backupMessage)
         {
             await ConvertToAttendanceMessage(backupMessage);
-            AttendanceHandler.RefreshSignupMessage(backupMessage.DiscordMessageId);
-            //TODO
-            //await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId);
+            AttendanceHandler.RefreshSignupMessage(backupMessage.DiscordMessageId, backupMessage.Clan);
+            BotHandler.ChangeSignupMessageRunning(1, backupMessage.Clan);
+            await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId, backupMessage.Clan);
         }
 
         private static async Task ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
         {
             Logger.LogInformation($"    Getting discord message from backup");
-            IMessageChannel channel = BotData.GetROFASignupsChannel();
-            IMessage discordMessage = await channel.GetMessageAsync(backupMessage.DiscordMessageId);
+            IMessage discordMessage = await BotData.GetROFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
+            if (discordMessage == null) discordMessage = await BotData.GetBOFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
             Logger.LogInformation($"    Creating attendance message");
-            Message? response = MessageGenerator.CreateAttendanceMessage();
+            Message? response = MessageGenerator.CreateAttendanceMessage(backupMessage.Clan);
             response.ThursdayDate = backupMessage.ThursdayDate;
             if (response == null) return;
             response.DiscordMessage = discordMessage;
             Logger.LogInformation($"    Converting members from backup");
-            MemberHandler.UpdateBackupMembers(backupMessage.Members);
+            MemberHandler.UpdateBackupMembers(backupMessage.Members, backupMessage.Clan);
             AttendanceHandler.UpdateBackupAttendanceMessage(response);
             Logger.LogInformation($"    Message converted");
             return;

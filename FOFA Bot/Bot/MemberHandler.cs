@@ -1,33 +1,46 @@
 ﻿using Discord.WebSocket;
 using FOFA_Bot.Data;
+using FOFA_Bot.PlayerStats;
 
 namespace FOFA_Bot.Bot
 {
     internal class MemberHandler
     {
-        private static List<SocketGuildUser> DiscordMembers = [];
-        private static List<Member> Members = [];
+        private static List<Member> RofaMembers = [];
+        private static List<Member> BofaMembers = [];
         private static List<PlannerData> PlannerDatas = [];
 
-        internal static void CreateMembersList()
+        internal static void CreateMembersList(string clan)
         {
             Logger.LogInformation($"    Creating attendance Members");
             List<Member> tempMembers = [];
-            CreateDiscordMembers();
-            foreach (SocketGuildUser discordMember in DiscordMembers)
+            List<SocketGuildUser> discordMembers = CreateDiscordMembers(clan);
+            foreach (SocketGuildUser discordMember in discordMembers)
             {
-                Member? member = CreateMember(discordMember, true);
+                Member? member = CreateMember(discordMember, true, clan);
                 if (member == null || member.discordUser == null) continue;
                 tempMembers.Add(member);
                 Logger.LogInformation($"    Added {member.discordUser.Username} to member list to squad {member.squad}");
             }
-            Members = [.. tempMembers.OrderByDescending(p => p.priority)];
+            if (clan == "ROFA")
+                RofaMembers = [.. tempMembers.OrderByDescending(p => p.priority)];
+            else if (clan == "BOFA")
+                BofaMembers = [.. tempMembers.OrderByDescending(p => p.priority)];
         }
-        internal static void UpdateMemberStatus(SocketUser user, bool status, int dayOfWeek)
+        internal static void UpdateMemberStatus(SocketUser user, bool status, int dayOfWeek, string clan)
         {
-            if (Members.Any(member => member.discordUser.Id == user.Id))
+            if (clan == "ROFA" || RofaMembers.Any(member => member.discordUser.Id == user.Id))
             {
-                Member? discordUser = Members.First(member => member.discordUser.Id == user.Id);
+                Member? discordUser = RofaMembers.First(member => member.discordUser.Id == user.Id);
+                if (discordUser != null && discordUser.discordUser != null)
+                {
+                    Logger.LogInformation($"    Updating status for {discordUser.discordUser.Username}: {status}");
+                    discordUser.status[dayOfWeek] = status;
+                }
+            }
+            else if (clan == "BOFA" || BofaMembers.Any(member => member.discordUser.Id == user.Id))
+            {
+                Member? discordUser = BofaMembers.First(member => member.discordUser.Id == user.Id);
                 if (discordUser != null && discordUser.discordUser != null)
                 {
                     Logger.LogInformation($"    Updating status for {discordUser.discordUser.Username}: {status}");
@@ -37,49 +50,58 @@ namespace FOFA_Bot.Bot
             else
             {
                 Logger.LogInformation($"    Cannot find {user.Username}, adding new member to list");
-                Member? member = CreateMember(user, false);
-                if (member != null)
+                Member? member = CreateMember(user, false, clan);
+                if (member != null && clan == "ROFA")
                 {
                     member.status[dayOfWeek] = status;
-                    Members.Add(member);
+                    RofaMembers.Add(member);
+                }
+                else if (member != null && clan == "BOFA")
+                {
+                    member.status[dayOfWeek] = status;
+                    BofaMembers.Add(member);
                 }
             }
         }
-        internal static List<Member> GetMembers()
+        internal static List<Member>? GetMembers(string clan)
         {
-            return Members;
+            if (clan == "ROFA")
+                return RofaMembers;
+            else if (clan == "BOFA")
+                return BofaMembers;
+            return null;
         }
-        private static void CreateDiscordMembers()
+        private static List<SocketGuildUser> CreateDiscordMembers(string clan)
         {
             Logger.LogInformation($"    Creating Members from Discord");
-            DiscordMembers = [];
+            List<SocketGuildUser> discordMembers = [];
             PlannerDatas = PlannerGoogleSheet.GetPlannerData();
             SocketGuild guild = BotData.GetGuild();
-            string roleName = BotData.GetROFARoleName();
-            DiscordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
-            for (int i = (DiscordMembers.Count - 1); i >= 0; i--) if (DiscordMembers[i].IsBot)
-                {
-                    Logger.LogWarning($"    {DiscordMembers[i].Username} is a bot, removing from the list");
-                    DiscordMembers.RemoveAt(i);
-                }
+            string roleName = "";
+            if (clan == "ROFA")
+                roleName = BotData.GetROFARoleName();
+            else if (clan == "BOFA")
+                roleName = BotData.GetBOFARoleName();
+            discordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
+            for (int i = (discordMembers.Count - 1); i >= 0; i--) if (discordMembers[i].IsBot)
+                    discordMembers.RemoveAt(i);
+            return discordMembers;
         }
 
-        internal static void RefreshMemberSquads()
+        internal static void RefreshMemberSquads(string clan)
         {
             Logger.LogInformation($"    Refreshing members");
-            foreach (var member in Members)
+            if (clan == "ROFA") foreach (var member in RofaMembers)
             {
-                int? tempSquad = member.squad;
-                if (member.discordUser != null)
-                {
-                    member.squad = GetMemberSquad(member.discordUser, false);
-                    if (member.squad != tempSquad) Logger.LogInformation($"      {member.discordUser.Username} changed squad from {tempSquad} to {member.squad}");
-                }
+                member.squad = GetMemberSquad(member.discordUser, false, "ROFA");
             }
-
+            if (clan == "BOFA") foreach (var member in BofaMembers)
+            {
+                member.squad = GetMemberSquad(member.discordUser, false, "BOFA");
+            }
         }
 
-        private static Member? CreateMember(SocketUser user, bool skipUnassigned)
+        private static Member? CreateMember(SocketUser user, bool skipUnassigned, string clan)
         {
             SocketGuild guild = BotData.GetGuild();
             SocketGuildUser? guildUser = guild.Users.FirstOrDefault(u => u.Id == user.Id);
@@ -99,8 +121,8 @@ namespace FOFA_Bot.Bot
                 squadleader = data.squadleader;
                 Logger.LogInformation($"      Got {inGameName} name for {guildUser.Username}, priority {priority}, squadleader {squadleader}");
             }
-            int squad = GetMemberSquad(guildUser, skipUnassigned);
-            if (squad == 0) return null;
+            int? squad = GetMemberSquad(guildUser, skipUnassigned, clan);
+            if (squad == null || squad == 0) return null;
             Member member = new()
             {
                 discordUser = guildUser,
@@ -112,17 +134,33 @@ namespace FOFA_Bot.Bot
             };
             return member;
         }
-        private static int GetMemberSquad(SocketGuildUser user, bool skipUnassigned)
+        private static int? GetMemberSquad(SocketGuildUser user, bool skipUnassigned, string clan)
         {
-            for (int i = 1; i <= 6; i++)
+            if (clan == "ROFA")
             {
-                if (user.Roles.Any(id => id.Id == GetRoleByName($"Rofa-Sq{i}").Id))
-                    return i;
+                for (int i = 1; i <= 6; i++)
+                {
+                    if (user.Roles.Any(id => id.Id == GetRoleByName($"Rofa-Sq{i}").Id))
+                        return i;
+                }
+                if (user.Roles.Any(id => id.Id == GetRoleByName("Rofa-Reserve").Id))
+                    return 7; //reserve
+                else if (!skipUnassigned) return 8; //unassigned
+                return 0; //skip
             }
-            if (user.Roles.Any(id => id.Id == GetRoleByName("Rofa-Reserve").Id))
-                return 7; //reserve
-            else if (!skipUnassigned) return 8; //unassigned
-            return 0; //skip
+            else if (clan == "BOFA")
+            {
+                for (int i = 1; i <= 6; i++)
+                {
+                    if (user.Roles.Any(id => id.Id == GetRoleByName($"BOFA Squad {i}").Id))
+                        return i;
+                }
+                if (user.Roles.Any(id => id.Id == GetRoleByName("BOFA Reserve").Id))
+                    return 7; //reserve
+                else if (!skipUnassigned) return 8; //unassigned
+                return 0; //skip
+            }
+            return null;
         }
         private static SocketRole? GetRoleByName(string roleName)
         {
@@ -137,14 +175,28 @@ namespace FOFA_Bot.Bot
             }
         }
 
-        internal static void UpdateBackupMembers(Dictionary<ulong, bool?[]> backupMembers)
+        internal static void UpdateBackupMembers(Dictionary<ulong, bool?[]> backupMembers, string clan)
         {
-            foreach (Member member in Members)
+            if (clan == "ROFA")
             {
-                foreach (KeyValuePair<ulong, bool?[]> backupMember in backupMembers)
+                foreach (Member member in RofaMembers)
                 {
-                    if (member.discordUser.Id == backupMember.Key)
-                        member.status = backupMember.Value;
+                    foreach (KeyValuePair<ulong, bool?[]> backupMember in backupMembers)
+                    {
+                        if (member.discordUser.Id == backupMember.Key)
+                            member.status = backupMember.Value;
+                    }
+                }
+            }
+            else if (clan == "BOFA")
+            {
+                foreach (Member member in BofaMembers)
+                {
+                    foreach (KeyValuePair<ulong, bool?[]> backupMember in backupMembers)
+                    {
+                        if (member.discordUser.Id == backupMember.Key)
+                            member.status = backupMember.Value;
+                    }
                 }
             }
         }

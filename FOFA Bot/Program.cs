@@ -50,9 +50,12 @@ namespace FOFA_Bot
         {
             try
             {
-                SlashCommandBuilder? createCustomSignupCommand = new SlashCommandBuilder()
-                    .WithName("create-signup")
-                    .WithDescription("Create new signup");
+                SlashCommandBuilder? createSignupRofaCommand = new SlashCommandBuilder()
+                    .WithName("create-signup-rofa")
+                    .WithDescription("Create new signup for ROFA");
+                SlashCommandBuilder? createSignupBofaCommand = new SlashCommandBuilder()
+                    .WithName("create-signup-bofa")
+                    .WithDescription("Create new signup for BOFA");
 
                 SlashCommandBuilder? changeAutomnaticSettingsROFA = new SlashCommandBuilder()
                     .WithName("settings-automatic-rofa")
@@ -69,8 +72,8 @@ namespace FOFA_Bot
                         .WithType(ApplicationCommandOptionType.Boolean));
 
                 SlashCommandBuilder? changeAutomnaticSettingsBOFA = new SlashCommandBuilder()
-                    .WithName("settings-automatic-rofa")
-                    .WithDescription("Do you want to change automatic settings for ROFA?")
+                    .WithName("settings-automatic-bofa")
+                    .WithDescription("Do you want to change automatic settings for BOFA?")
                     .AddOption(new SlashCommandOptionBuilder()
                         .WithName("signups")
                         .WithDescription("post or not")
@@ -91,7 +94,8 @@ namespace FOFA_Bot
                         .WithRequired(true)
                         .WithType(ApplicationCommandOptionType.String)
                     );
-                await Discord.CreateGlobalApplicationCommandAsync(createCustomSignupCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(createSignupRofaCommand.Build());
+                await Discord.CreateGlobalApplicationCommandAsync(createSignupBofaCommand.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSettingsROFA.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(changeAutomnaticSettingsBOFA.Build());
                 await Discord.CreateGlobalApplicationCommandAsync(stats.Build());

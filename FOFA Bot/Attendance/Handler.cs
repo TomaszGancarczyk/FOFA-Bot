@@ -13,13 +13,15 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Creating attendance event");
             BotHandler.ChangeSignupMessageRunning(1, clan);
-            Message? tempCurrentMessage = MessageGenerator.CreateAttendanceMessage();
+            Message? tempCurrentMessage = MessageGenerator.CreateAttendanceMessage(clan);
             if (tempCurrentMessage == null)
             {
                 Logger.LogError($"    Cloudn't create attendance message, returning");
                 return;
             }
             Message? message = tempCurrentMessage;
+            if (clan == "ROFA") message.SignupsChannel = BotData.GetROFASignupsChannel();
+            else if (clan == "BOFA") message.SignupsChannel = BotData.GetBOFASignupsChannel();
             _ = SendAttendanceMessage(message);
             Logger.LogInformation($"    Attendance event finished");
             return;
@@ -27,12 +29,16 @@ namespace FOFA_Bot.Attendance
         internal static async Task SendAttendanceMessage(Message? currentMessage)
         {
             Logger.LogInformation($"    Sending attendance message to {currentMessage.SignupsChannel.Name}");
-            ulong pingMessage = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id;
+            string pingMessage = "";
+            if (currentMessage.Clan == "ROFA")
+                pingMessage = $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id}>";
+            else if (currentMessage.Clan == "BOFA")
+                pingMessage = $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetBOFARoleName()).Id}>";
             try
             {
                 IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
-                    $"<@&{pingMessage}>"
-                    , false, currentMessage.EmbedMessage.Build(), null, null, null, currentMessage.MessageButtons.Build());
+                    pingMessage,
+                    false, currentMessage.EmbedMessage.Build(), null, null, null, currentMessage.MessageButtons.Build());
                 currentMessage.DiscordMessage = localCurrentMessage;
                 Backup.SaveBuckup(currentMessage);
                 CurrentMessages.Add(currentMessage);
@@ -61,9 +67,9 @@ namespace FOFA_Bot.Attendance
                     Logger.LogInformation($"    Next signup reminder on {reminderTime} in {reminderTime - DateTime.Now}");
                     while (DateTime.Now < reminderTime)
                         Task.Delay(60000).Wait();
-                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
+                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id, clan))
                     {
-                        string? reminderMessage = CreateReminderMessage(Array.IndexOf(eventReminderTimes, reminderTime));
+                        string? reminderMessage = CreateReminderMessage(Array.IndexOf(eventReminderTimes, reminderTime), clan);
                         if (reminderMessage != string.Empty && reminderMessage != null)
                             try
                             {
@@ -80,7 +86,7 @@ namespace FOFA_Bot.Attendance
                     Logger.LogInformation($"    Next clan war reminder on {reminderTime.AddHours(2)} in {reminderTime.AddHours(2) - DateTime.Now}");
                     while (DateTime.Now < reminderTime.AddHours(2))
                         Task.Delay(60000).Wait();
-                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id))
+                    if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id, clan))
                     {
                         string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek);
                         if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
@@ -102,9 +108,11 @@ namespace FOFA_Bot.Attendance
             BotHandler.ChangeSignupMessageRunning(-1, clan);
         }
 
-        internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId)
+        internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId, string clan)
         {
-            IMessageChannel channel = BotData.GetROFASignupsChannel();
+            IMessageChannel? channel = null;
+            if (clan == "ROFA") channel = BotData.GetROFASignupsChannel();
+            else if (clan == "BOFA") channel = BotData.GetBOFASignupsChannel();
             try
             {
                 if (await channel.GetMessageAsync(messageId) == null)
@@ -121,23 +129,23 @@ namespace FOFA_Bot.Attendance
             return false;
         }
 
-        internal static EmbedBuilder? RefreshSignupMessage(ulong? messageId)
+        internal static EmbedBuilder? RefreshSignupMessage(ulong? messageId, string clan)
         {
             Message? currentMessage = CurrentMessages.First(m => m.DiscordMessage.Id == messageId);
             if (CurrentMessages.Count <= 0) return null;
             Logger.LogInformation($"    Refreshing attendance message members");
-            MemberHandler.RefreshMemberSquads();
+            MemberHandler.RefreshMemberSquads(clan);
             Logger.LogInformation($"    Refreshing attendance message fields");
-            currentMessage.EmbedMessage = MessageGenerator.AddMessageFields(currentMessage.EmbedMessage);
-            currentMessage.EmbedMessage = MessageGenerator.AddFooterMessage(currentMessage.EmbedMessage);
+            currentMessage.EmbedMessage = MessageGenerator.AddMessageFields(currentMessage.EmbedMessage, clan);
+            currentMessage.EmbedMessage = MessageGenerator.AddFooterMessage(currentMessage.EmbedMessage, clan);
             Backup.SaveBuckup(currentMessage);
             return currentMessage.EmbedMessage;
         }
 
-        private static string? CreateReminderMessage(int dayOfSignup)
+        private static string? CreateReminderMessage(int dayOfSignup, string clan)
         {
             string reminderMessage = "## Don't forget to signup!";
-            List<Member> members = MemberHandler.GetMembers();
+            List<Member> members = MemberHandler.GetMembers(clan);
             bool nullmembers = false;
             foreach (var member in members) if (member.status[dayOfSignup] == null && member.discordUser != null)
                 {
@@ -185,7 +193,7 @@ namespace FOFA_Bot.Attendance
                 message += $"{setting.Key[0].ToString().ToUpper()}{setting.Key.AsSpan(1)}: {setting.Value}\n";
                 settings.Add(setting.Key, setting.Value);
             }
-                SettingsHandler.SetAutomaticSettings(settings, clan);
+            SettingsHandler.SetAutomaticSettings(settings, clan);
 
             EmbedBuilder embed = new()
             {

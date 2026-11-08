@@ -5,41 +5,34 @@ namespace FOFA_Bot.Attendance
 {
     internal class MessageGenerator
     {
-        private static EmbedBuilder? EmbedMessage;
-        private static Message? AttendanceMessage;
-        internal static Message? CreateAttendanceMessage()
+        internal static Message? CreateAttendanceMessage(string clan)
         {
-            Logger.LogInformation($"    Creating attendance message from template");
-            AttendanceMessage = new();
-
-            EmbedMessage = GenerateMessageFromData();
-            if (EmbedMessage == null)
+            Logger.LogInformation($"    Creating attendance message from template for {clan}");
+            Message attendanceMessage = new()
+            {
+                Clan = clan
+            };
+            attendanceMessage.EmbedMessage = GenerateMessageFromData(attendanceMessage);
+            if (attendanceMessage.EmbedMessage == null)
             {
                 return null;
             }
-            AttendanceMessage.EmbedMessage = EmbedMessage;
-            AttendanceMessage = AddMessageButtons(AttendanceMessage);
-            return AttendanceMessage;
+            attendanceMessage = AddMessageButtons(attendanceMessage, clan);
+            return attendanceMessage;
         }
 
-        internal static EmbedBuilder? GenerateMessageFromData()
+        internal static EmbedBuilder? GenerateMessageFromData(Message attendanceMessage)
         {
             Logger.LogInformation($"[message] Creating weekly attendance message");
-            EmbedMessage = null;
-            if (AttendanceMessage == null)
-            {
-                Logger.LogError($"    Cannot find Attendance Message in GenerateMessageFromData, exiting...");
-                return null;
-            }
-            EmbedBuilder embedMessage = CreateBaseMessage();
-            MemberHandler.CreateMembersList();
-            embedMessage = AddMessageFields(embedMessage);
-            embedMessage = AddFooterMessage(embedMessage);
+            EmbedBuilder embedMessage = CreateBaseMessage(attendanceMessage);
+            MemberHandler.CreateMembersList(attendanceMessage.Clan);
+            embedMessage = AddMessageFields(embedMessage, attendanceMessage.Clan);
+            embedMessage = AddFooterMessage(embedMessage, attendanceMessage.Clan);
             Logger.LogInformation($"    Embed message created");
             return embedMessage;
         }
 
-        private static EmbedBuilder CreateBaseMessage()
+        private static EmbedBuilder CreateBaseMessage(Message attendanceMessage)
         {
             Logger.LogInformation($"    Creating base message");
             DateTime nextThursday = new
@@ -51,42 +44,47 @@ namespace FOFA_Bot.Attendance
                 0,
                 0
             );
-            AttendanceMessage.ThursdayDate = nextThursday;
+            attendanceMessage.ThursdayDate = nextThursday;
             string descriptionString = "";
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 3; i++)
             {
                 long eventUnix = GetUnixFromDateTime(nextThursday.AddDays(i));
-                if (i == 3)
-                {
-                    eventUnix = GetUnixFromDateTime(nextThursday.AddDays(i).AddHours(-1));
-                    descriptionString += $"Sunday: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
-                }
-                else
-                    descriptionString += $"{nextThursday.DayOfWeek + i}: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
+                descriptionString += $"{nextThursday.DayOfWeek + i}: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
             }
-            EmbedBuilder embedMessage = new()
+            if (attendanceMessage.Clan == "ROFA")
             {
-                Color = Color.DarkGreen,
-                Title = $"{nextThursday:dd.MM} - {nextThursday.AddDays(3):dd.MM} Clan Wars",
-                Description = descriptionString +
-                Format.Bold($"- Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n")
-            };
+                long eventUnix = GetUnixFromDateTime(nextThursday.AddDays(3).AddHours(-1));
+                descriptionString += $"Sunday: <t:{eventUnix}:D><t:{eventUnix}:t> - <t:{eventUnix}:R>\n";
+            }
+            string lineup = "";
+            if (attendanceMessage.Clan == "ROFA") lineup = Format.Bold($"- Lineup: https://discord.com/channels/710884253457711134/1279534231256694845\n");
+            else if (attendanceMessage.Clan == "BOFA") lineup = Format.Bold($"- Lineup: https://discord.com/channels/710884253457711134/1519798128138780722\n");
+            EmbedBuilder embedMessage = new()
+                {
+                    Color = Color.DarkGreen,
+                    Title = $"{nextThursday:dd.MM} - {nextThursday.AddDays(3):dd.MM} Clan Wars",
+                    Description = descriptionString + lineup
+                };
             return embedMessage;
         }
-        internal static EmbedBuilder AddMessageFields(EmbedBuilder embedMessage)
+        internal static EmbedBuilder AddMessageFields(EmbedBuilder embedMessage, string clan)
         {
             embedMessage.Fields = [];
             Logger.LogInformation($"    Creating message fields");
             List<IEmote> squadEmotes = GetSquadEmotes();
-            List<Member> members = MemberHandler.GetMembers();
+            List<Member> members = MemberHandler.GetMembers(clan);
             List<Member> handledMembers = [];
             Logger.LogInformation($"    {members.Count} members found");
+            string days = "Thu | Fri | Sat | ";
+            if (clan == "ROFA") days += ("Sun | Member");
+            else if (clan == "BOFA") days += ("Member");
             for (int squadCount = 1; squadCount <= 9; squadCount++)
             {
                 string? squadMembers = "";
                 foreach (Member member in members) if (!handledMembers.Contains(member) && squadCount == member.squad)
                     {
                         string? newMember = null;
+                        if (clan == "BOFA") member.status = member.status.Take(3).ToArray();
                         if (member.discordUser == null) continue;
                         if (member.inGameName != null) newMember = AddMemberAndStatus(member.inGameName, member.status, member.squadleader);
                         else newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status, member.squadleader);
@@ -97,15 +95,15 @@ namespace FOFA_Bot.Attendance
                     }
                 if (squadCount < 7 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}\nThu | Fri | Sat | Sun | Member", squadMembers, false);
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Squad {squadCount}\n{days}", squadMembers, false);
                 }
                 else if (squadCount == 7 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve\nThu | Fri | Sat | Sun | Member", squadMembers, false);
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Reserve\n{days}", squadMembers, false);
                 }
                 else if (squadCount == 8 && squadMembers != "")
                 {
-                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned\nThu | Fri | Sat | Sun | Member", squadMembers, false);
+                    embedMessage.AddField($"{squadEmotes[squadCount - 1]} Unassigned\n{days}", squadMembers, false);
                 }
             }
             if (members.Count > handledMembers.Count)
@@ -114,20 +112,20 @@ namespace FOFA_Bot.Attendance
                 Logger.LogInformation($"    Handled all members");
             return embedMessage;
         }
-        internal static EmbedBuilder AddFooterMessage(EmbedBuilder embedMessage)
+        internal static EmbedBuilder AddFooterMessage(EmbedBuilder embedMessage, string clan)
         {
             Logger.LogInformation($"    Creating footer");
             string footerString = ($"____________________________________________________________________________________________________");
-            List<Member> members = MemberHandler.GetMembers();
-            for (int i = 0; i < 4; i++)
+            List<Member> members = MemberHandler.GetMembers(clan);
+            for (int i = 0; i < 3; i++)
             {
                 int present = members.Where(m => m.status[i] == true).Count();
                 int absent = members.Where(m => m.status[i] == false).Count();
                 int usigned = members.Where(m => m.status[i] == null).Count();
                 DayOfWeek weekday = DayOfWeek.Thursday + i;
-                if (i == 3) weekday = DayOfWeek.Sunday;
                 footerString += $"\n{weekday}: {present} Present, {absent} Absent, {usigned} Unsigned";
             }
+            if (clan == "ROFA") footerString += $"\n{DayOfWeek.Sunday}: {members.Where(m => m.status[3] == true).Count()} Present, {members.Where(m => m.status[3] == false).Count()} Absent, {members.Where(m => m.status[3] == null).Count()} Unsigned";
             embedMessage.WithFooter(footerString);
             return embedMessage;
         }
@@ -168,29 +166,29 @@ namespace FOFA_Bot.Attendance
             if (memberRow.Length > 0) return $"{memberRow} {displayName} \n";
             return null;
         }
-        internal static Message AddMessageButtons(Message message)
+        internal static Message AddMessageButtons(Message message, string clan)
         {
             Logger.LogInformation($"    Adding attendance buttons");
             ActionRowBuilder presentActionRow = new();
             ActionRowBuilder absentActionRow = new();
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 3; i++)
             {
-                if (i == 3)
-                {
-                    presentActionRow.WithButton($"{DayOfWeek.Sunday}", $"presentButton_Sunday", ButtonStyle.Success);
-                }
-                else presentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"presentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Success);
+                presentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"presentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Success);
             }
-            presentActionRow.WithButton($"Whole Week", $"presentButton_Week", ButtonStyle.Success);
-            for (int i = 0; i < 4; i++)
+            if (clan == "ROFA")
             {
-                if (i == 3)
-                {
-                    absentActionRow.WithButton($"{DayOfWeek.Sunday}", $"absentButton_Sunday", ButtonStyle.Danger);
-                }
-                else absentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"absentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Danger);
+                presentActionRow.WithButton($"{DayOfWeek.Sunday}", $"presentButton_Sunday", ButtonStyle.Success);
             }
-            absentActionRow.WithButton($"Whole Week", $"absentButton_Week", ButtonStyle.Danger);
+            presentActionRow.WithButton($"All Days", $"presentButton_Week", ButtonStyle.Success);
+            for (int i = 0; i < 3; i++)
+            {
+                absentActionRow.WithButton($"{message.ThursdayDate.DayOfWeek + i}", $"absentButton_{message.ThursdayDate.DayOfWeek + i}", ButtonStyle.Danger);
+            }
+            if (clan == "ROFA")
+            {
+                absentActionRow.WithButton($"{DayOfWeek.Sunday}", $"absentButton_Sunday", ButtonStyle.Danger);
+            }
+            absentActionRow.WithButton($"All Days", $"absentButton_Week", ButtonStyle.Danger);
             Logger.LogInformation($"    Created buttons");
             message.MessageButtons = new ComponentBuilderV2()
                 .WithActionRow(presentActionRow)
