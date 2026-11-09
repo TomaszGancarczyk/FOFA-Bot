@@ -8,6 +8,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class Backup
     {
+        private static bool BackupQueue = false;
         private static readonly JsonSerializerOptions Options = new() { IncludeFields = true, ReferenceHandler = ReferenceHandler.Preserve };
         internal static void SaveBuckup(Message message)
         {
@@ -47,36 +48,31 @@ namespace FOFA_Bot.Attendance
         {
             foreach (string filePath in Directory.GetFiles("..\\..\\..\\Data\\BackupMessages"))
             {
+                while (BackupQueue) Task.Delay(1000).Wait();
+                BackupQueue = true;
                 string json = "";
                 try
                 {
-                    using StreamReader reader = new(filePath);
-                    json = reader.ReadToEnd();
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError($"    Couldnt find the backup message\n{e}");
-                    continue;
-                }
-                AttendanceMessageBackup? backupMessage;
-                try
-                {
-                    backupMessage = JsonSerializer.Deserialize<AttendanceMessageBackup?>(json, Options);
+                    using (StreamReader reader = new(filePath))
+                        json = reader.ReadToEnd();
+                    AttendanceMessageBackup? backupMessage = JsonSerializer.Deserialize<AttendanceMessageBackup?>(json, Options);
                     Logger.LogInformation($"    Successfully read backup message");
+                    if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId, backupMessage.Clan))
+                    {
+                        Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
+                        File.Delete(filePath);
+                        BackupQueue = false;
+                        continue;
+                    }
+                    Logger.LogInformation($"[backup message] Backup message is correct, handling");
+                    _ = HandleMessage(backupMessage);
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError($"    Couldnt read the backup message:\n{e}");
+                    Logger.LogError($"    Run into error when handling backup message:\n{e}");
+                    BackupQueue = false;
                     continue;
                 }
-                if (backupMessage == null || backupMessage.ThursdayDate < DateTime.Now.AddDays(-3) || await AttendanceHandler.CheckIfMessageIsDeleted(backupMessage.DiscordMessageId, backupMessage.Clan))
-                {
-                    Logger.LogWarning($"    Message is incorrect. Deleting and dropping");
-                    File.Delete(filePath);
-                    continue;
-                }
-                Logger.LogInformation($"[backup message] Backup message is correct, handling");
-                _ = HandleMessage(backupMessage);
             }
         }
         private static async Task HandleMessage(AttendanceMessageBackup backupMessage)
@@ -84,6 +80,7 @@ namespace FOFA_Bot.Attendance
             await ConvertToAttendanceMessage(backupMessage);
             AttendanceHandler.RefreshSignupMessage(backupMessage.DiscordMessageId, backupMessage.Clan);
             BotHandler.ChangeSignupMessageRunning(1, backupMessage.Clan);
+            BackupQueue = false;
             await AttendanceHandler.HandleMessageRunning(backupMessage.DiscordMessageId, backupMessage.Clan);
         }
 
@@ -91,7 +88,7 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Getting discord message from backup");
             IMessage discordMessage = await BotData.GetROFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
-            if (discordMessage == null) discordMessage = await BotData.GetBOFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
+            discordMessage ??= await BotData.GetBOFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
             Logger.LogInformation($"    Creating attendance message");
             Message? response = MessageGenerator.CreateAttendanceMessage(backupMessage.Clan);
             response.ThursdayDate = backupMessage.ThursdayDate;

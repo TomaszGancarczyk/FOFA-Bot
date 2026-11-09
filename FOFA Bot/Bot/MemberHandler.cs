@@ -1,6 +1,5 @@
 ﻿using Discord.WebSocket;
 using FOFA_Bot.Data;
-using FOFA_Bot.PlayerStats;
 
 namespace FOFA_Bot.Bot
 {
@@ -29,7 +28,7 @@ namespace FOFA_Bot.Bot
         }
         internal static void UpdateMemberStatus(SocketUser user, bool status, int dayOfWeek, string clan)
         {
-            if (clan == "ROFA" || RofaMembers.Any(member => member.discordUser.Id == user.Id))
+            if (clan == "ROFA" && RofaMembers.Any(member => member.discordUser.Id == user.Id))
             {
                 Member? discordUser = RofaMembers.First(member => member.discordUser.Id == user.Id);
                 if (discordUser != null && discordUser.discordUser != null)
@@ -38,7 +37,7 @@ namespace FOFA_Bot.Bot
                     discordUser.status[dayOfWeek] = status;
                 }
             }
-            else if (clan == "BOFA" || BofaMembers.Any(member => member.discordUser.Id == user.Id))
+            else if (clan == "BOFA" && BofaMembers.Any(member => member.discordUser.Id == user.Id))
             {
                 Member? discordUser = BofaMembers.First(member => member.discordUser.Id == user.Id);
                 if (discordUser != null && discordUser.discordUser != null)
@@ -92,13 +91,13 @@ namespace FOFA_Bot.Bot
         {
             Logger.LogInformation($"    Refreshing members");
             if (clan == "ROFA") foreach (var member in RofaMembers)
-            {
-                member.squad = GetMemberSquad(member.discordUser, false, "ROFA");
-            }
+                {
+                    member.squad = GetMemberSquad(member.discordUser, false, "ROFA");
+                }
             if (clan == "BOFA") foreach (var member in BofaMembers)
-            {
-                member.squad = GetMemberSquad(member.discordUser, false, "BOFA");
-            }
+                {
+                    member.squad = GetMemberSquad(member.discordUser, false, "BOFA");
+                }
         }
 
         private static Member? CreateMember(SocketUser user, bool skipUnassigned, string clan)
