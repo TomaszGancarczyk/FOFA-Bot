@@ -18,7 +18,7 @@ namespace FOFA_Bot.Bot
                     Logger.LogInformation($"[command] User {command.User.Username} used create-signup");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckPermission(command, "ROFA")) break;
-                    embed = await SlashHandler.CreateSignupFromSlashCommand("ROFA");
+                    embed = await CreateSignupFromSlashCommand("ROFA");
                     if (embed != null)
                         await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
@@ -26,7 +26,7 @@ namespace FOFA_Bot.Bot
                     Logger.LogInformation($"[command] User {command.User.Username} used create-signup");
                     await command.DeferAsync(ephemeral: true);
                     if (!await CheckPermission(command, "BOFA")) break;
-                    embed = await SlashHandler.CreateSignupFromSlashCommand("BOFA");
+                    embed = await CreateSignupFromSlashCommand("BOFA");
                     if (embed != null)
                         await command.FollowupAsync(embed: embed, ephemeral: true);
                     break;
@@ -65,7 +65,7 @@ namespace FOFA_Bot.Bot
 
         private static async Task<bool> CheckPermission(SocketSlashCommand command, string clan)
         {
-            string[] privilegedRoleNames = [];
+            string[]? privilegedRoleNames = [];
             bool hasPermission = false;
             try
             {
@@ -88,6 +88,18 @@ namespace FOFA_Bot.Bot
             }
             return hasPermission;
         }
+
+        internal static Task<Embed> CreateSignupFromSlashCommand(string clan)
+        {
+            AttendanceHandler.CreateAttendanceEvent(clan);
+            EmbedBuilder embed = new()
+            {
+                Color = Color.Green,
+                Title = "Successfully created signup message"
+            };
+            return Task.FromResult(embed.Build());
+        }
+
         private static EmbedBuilder GetPermissionErrorMessage()
         {
             EmbedBuilder embed = new()

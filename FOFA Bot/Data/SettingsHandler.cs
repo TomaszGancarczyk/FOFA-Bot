@@ -25,7 +25,7 @@ namespace FOFA_Bot.Data
             else if (clan == "BOFA") return JsonBotData.bofaReminders;
             return false;
         }
-        internal static Dictionary<string, bool> GetAutomaticSettings(string clan)
+        internal static Dictionary<string, bool>? GetAutomaticSettings(string clan)
         {
             Logger.LogInformation($"    Getting settings data for {clan}");
             LoadJson();

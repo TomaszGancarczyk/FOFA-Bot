@@ -30,7 +30,6 @@ namespace FOFA_Bot.Bot
             switch (component.Data.CustomId)
             {
                 case "presentButton_Thursday":
-                    signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
                         HandleAttendanceButton(component, true, 0),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
@@ -43,7 +42,6 @@ namespace FOFA_Bot.Bot
                         );
                     break;
                 case "presentButton_Friday":
-                    signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
                         HandleAttendanceButton(component, true, 1),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
@@ -56,7 +54,6 @@ namespace FOFA_Bot.Bot
                         );
                     break;
                 case "presentButton_Saturday":
-                    signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
                         HandleAttendanceButton(component, true, 2),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
@@ -69,7 +66,6 @@ namespace FOFA_Bot.Bot
                         );
                     break;
                 case "presentButton_Sunday":
-                    signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
                         HandleAttendanceButton(component, true, 3),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
@@ -82,7 +78,6 @@ namespace FOFA_Bot.Bot
                         );
                     break;
                 case "presentButton_Week":
-                    signupActionNames.Add(component.User.GlobalName);
                     await Task.WhenAny(
                         HandleAttendanceButton(component, true, 10),
                         HandleTimeoutDelay(TimeSpan.FromSeconds(5), component.User.GlobalName)
@@ -98,6 +93,7 @@ namespace FOFA_Bot.Bot
         }
         private static async Task HandleAttendanceButton(SocketMessageComponent component, bool status, int dayOfWeek)
         {
+            signupActionNames.Add(component.User.GlobalName);
             DateTime closedCheckTime = new
             (
                 DateTime.Today.Year,
@@ -173,6 +169,8 @@ namespace FOFA_Bot.Bot
         private static async Task HandleTimeoutDelay(TimeSpan timeout, string nameId)
         {
             await Task.Delay(timeout);
+            if (!signupActionNames.Contains(nameId))
+                return;
             signupActionNames.Remove(nameId);
             Logger.LogWarning($"    Timeout reached for {nameId}");
         }

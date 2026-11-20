@@ -29,14 +29,14 @@ namespace FOFA_Bot.Data
             return guild;
         }
 
-        internal static IMessageChannel GetSignupsChannel(string clan)
+        internal static IMessageChannel? GetSignupsChannel(string clan)
         {
             Logger.LogInformation($"    Getting {clan} Signups Channel");
             if (clan == "ROFA") return (IMessageChannel)GetGuild().GetChannel((ulong)JsonBotData.ROFASignupsChannelId);
             else if (clan == "BOFA") return (IMessageChannel)GetGuild().GetChannel((ulong)JsonBotData.BOFASignupsChannelId);
             return null;
         }
-        internal static IMessageChannel GetAnnouncementChannel(string clan)
+        internal static IMessageChannel? GetAnnouncementChannel(string clan)
         {
             Logger.LogInformation($"    Getting {clan} Announcement Channel");
             ulong channelId = 1;
@@ -57,21 +57,13 @@ namespace FOFA_Bot.Data
         {
             return JsonBotData.StatsChannelId;
         }
-        internal static string GetClanRoleName(string clan)
+        internal static string? GetClanRoleName(string clan)
         {
             if (clan == "ROFA") return JsonBotData.ROFARoleName;
             else if (clan == "BOFA") return JsonBotData.BOFARoleName;
             return null;
         }
-        internal static string GetROFARoleName()
-        {
-            return JsonBotData.ROFARoleName;
-        }
-        internal static string GetBOFARoleName()
-        {
-            return JsonBotData.BOFARoleName;
-        }
-        internal static string[] GetPrivilegedRoleNames(string clan)
+        internal static string[]? GetPrivilegedRoleNames(string clan)
         {
             if (clan == "ROFA")
                 return JsonBotData.PrivilegedRoleNamesRofa.ToObject<string[]>();

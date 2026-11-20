@@ -5,7 +5,7 @@ namespace FOFA_Bot.Attendance
 {
     internal class Message
     {
-        internal IMessageChannel SignupsChannel;
+        internal IMessageChannel? SignupsChannel;
         internal EmbedBuilder EmbedMessage = new();
         internal ComponentBuilderV2? MessageButtons;
         internal DateTime ThursdayDate;

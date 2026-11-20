@@ -142,7 +142,7 @@ namespace FOFA_Bot.Attendance
         private static string? CreateReminderMessage(int dayOfSignup, string clan)
         {
             string reminderMessage = "## Don't forget to signup!";
-            List<Member> members = MemberHandler.GetMembers(clan);
+            List<Member>? members = MemberHandler.GetMembers(clan);
             bool nullmembers = false;
             foreach (var member in members) if (member.status[dayOfSignup] == null && member.discordUser != null)
                 {
@@ -177,8 +177,8 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Changing settings for {clan}");
             string message = "";
-            Dictionary<string, bool> oldSettings = SettingsHandler.GetAutomaticSettings(clan);
-            Dictionary<string, bool> settings = [];
+            Dictionary<string, bool>? oldSettings = SettingsHandler.GetAutomaticSettings(clan);
+            Dictionary<string, bool>? settings = [];
             foreach (SocketSlashCommandDataOption option in options)
             {
                 settings[option.Name] = (bool)option.Value;

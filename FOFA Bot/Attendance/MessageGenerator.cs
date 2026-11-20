@@ -72,7 +72,7 @@ namespace FOFA_Bot.Attendance
             embedMessage.Fields = [];
             Logger.LogInformation($"    Creating message fields");
             List<IEmote> squadEmotes = GetSquadEmotes();
-            List<Member> members = MemberHandler.GetMembers(clan);
+            List<Member>? members = MemberHandler.GetMembers(clan);
             List<Member> handledMembers = [];
             Logger.LogInformation($"    {members.Count} members found");
             string days = "Thu | Fri | Sat | ";
@@ -84,7 +84,7 @@ namespace FOFA_Bot.Attendance
                 foreach (Member member in members) if (!handledMembers.Contains(member) && squadCount == member.squad)
                     {
                         string? newMember = null;
-                        if (clan == "BOFA") member.status = member.status.Take(3).ToArray();
+                        if (clan == "BOFA") member.status = [.. member.status.Take(3)];
                         if (member.discordUser == null) continue;
                         if (member.inGameName != null) newMember = AddMemberAndStatus(member.inGameName, member.status, member.squadleader);
                         else newMember = AddMemberAndStatus(member.discordUser.DisplayName, member.status, member.squadleader);
@@ -116,9 +116,10 @@ namespace FOFA_Bot.Attendance
         {
             Logger.LogInformation($"    Creating footer");
             string footerString = ($"____________________________________________________________________________________________________");
-            List<Member> members = MemberHandler.GetMembers(clan);
+            List<Member>? members = MemberHandler.GetMembers(clan);
             for (int i = 0; i < 3; i++)
             {
+                if (members == null) return embedMessage;
                 int present = members.Where(m => m.status[i] == true).Count();
                 int absent = members.Where(m => m.status[i] == false).Count();
                 int usigned = members.Where(m => m.status[i] == null).Count();
