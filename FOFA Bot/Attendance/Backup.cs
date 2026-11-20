@@ -87,13 +87,13 @@ namespace FOFA_Bot.Attendance
         private static async Task ConvertToAttendanceMessage(AttendanceMessageBackup backupMessage)
         {
             Logger.LogInformation($"    Getting discord message from backup");
-            IMessage discordMessage = await BotData.GetROFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
-            discordMessage ??= await BotData.GetBOFASignupsChannel().GetMessageAsync(backupMessage.DiscordMessageId);
+            IMessage discordMessage = await BotData.GetSignupsChannel("ROFA").GetMessageAsync(backupMessage.DiscordMessageId);
+            discordMessage ??= await BotData.GetSignupsChannel("BOFA").GetMessageAsync(backupMessage.DiscordMessageId);
             Logger.LogInformation($"    Creating attendance message");
             Message? response = MessageGenerator.CreateAttendanceMessage(backupMessage.Clan);
             response.ThursdayDate = backupMessage.ThursdayDate;
-            if (response == null) return;
             response.DiscordMessage = discordMessage;
+            response.SignupsChannel = BotData.GetSignupsChannel(response.Clan);
             Logger.LogInformation($"    Converting members from backup");
             MemberHandler.UpdateBackupMembers(backupMessage.Members, backupMessage.Clan);
             AttendanceHandler.UpdateBackupAttendanceMessage(response);

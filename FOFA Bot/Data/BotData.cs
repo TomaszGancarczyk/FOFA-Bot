@@ -28,51 +28,41 @@ namespace FOFA_Bot.Data
             SocketGuild? guild = BotHandler.GetDiscord().GetGuild(guildId);
             return guild;
         }
-        internal static IMessageChannel GetROFASignupsChannel()
+
+        internal static IMessageChannel GetSignupsChannel(string clan)
         {
-            Logger.LogInformation($"    Getting ROFA Signups Channel");
-            IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel((ulong)JsonBotData.ROFASignupsChannelId);
-            Logger.LogInformation($"    Found Signups Channel: {channel.Name}");
-            return channel;
+            Logger.LogInformation($"    Getting {clan} Signups Channel");
+            if (clan == "ROFA") return (IMessageChannel)GetGuild().GetChannel((ulong)JsonBotData.ROFASignupsChannelId);
+            else if (clan == "BOFA") return (IMessageChannel)GetGuild().GetChannel((ulong)JsonBotData.BOFASignupsChannelId);
+            return null;
         }
-        internal static IMessageChannel GetBOFASignupsChannel()
+        internal static IMessageChannel GetAnnouncementChannel(string clan)
         {
-            Logger.LogInformation($"    Getting BOFA Signups Channel");
-            IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel((ulong)JsonBotData.BOFASignupsChannelId);
-            Logger.LogInformation($"    Found Signups Channel: {channel.Name}");
-            return channel;
+            Logger.LogInformation($"    Getting {clan} Announcement Channel");
+            ulong channelId = 1;
+            if (clan == "ROFA") channelId = (ulong)JsonBotData.ROFAAnnouncementChannelId;
+            else if (clan == "BOFA") channelId = (ulong)JsonBotData.BOFAAnnouncementChannelId;
+            if (channelId != 1) return (IMessageChannel)GetGuild().GetChannel(channelId);
+            return null;
         }
-        internal static IMessageChannel GetROFAAnnouncementChannel()
+
+        internal static ulong GetClanWarChannelId(string clan)
         {
-            Logger.LogInformation($"    Getting ROFA Announcement Channel");
-            IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(JsonBotData.ROFAAnnouncementChannelId);
-            Logger.LogInformation($"    Found Announcement Channel: {channel.Name}");
-            return channel;
-        }
-        internal static IMessageChannel GetBOFAAnnouncementChannel()
-        {
-            Logger.LogInformation($"    Getting BOFA Announcement Channel");
-            IMessageChannel channel = (IMessageChannel)GetGuild().GetChannel(JsonBotData.BOFAAnnouncementChannelId);
-            Logger.LogInformation($"    Found Announcement Channel: {channel.Name}");
-            return channel;
-        }
-        internal static ulong GetROFAClanWarChannelId()
-        {
-            Logger.LogInformation($"    Getting ROFA Announcement Channel Id");
-            ulong channelId = JsonBotData.ROFAClanWarChannelId;
-            return channelId;
-        }
-        internal static ulong GetBOFAClanWarChannelId()
-        {
-            Logger.LogInformation($"    Getting BOFA Announcement Channel Id");
-            ulong channelId = JsonBotData.BOFAClanWarChannelId;
-            return channelId;
+            Logger.LogInformation($"    Getting {clan} Announcement Channel Id");
+            if (clan == "ROFA") return JsonBotData.ROFAClanWarChannelId;
+            else if (clan == "BOFA") return JsonBotData.BOFAClanWarChannelId;
+            return 1;
         }
         internal static ulong GetStatsChannelId()
         {
             return JsonBotData.StatsChannelId;
         }
-
+        internal static string GetClanRoleName(string clan)
+        {
+            if (clan == "ROFA") return JsonBotData.ROFARoleName;
+            else if (clan == "BOFA") return JsonBotData.BOFARoleName;
+            return null;
+        }
         internal static string GetROFARoleName()
         {
             return JsonBotData.ROFARoleName;

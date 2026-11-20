@@ -127,8 +127,8 @@ namespace FOFA_Bot.Bot
             Logger.LogInformation($"[button] {component.User.Username} clicked {status} on the signup for {signupDayText}");
             List<ulong?>? currentMessageIds = AttendanceHandler.GetCurrentMessagesIds();
             string clan = "";
-            if (component.Channel.Id == BotData.GetROFASignupsChannel().Id) clan = "ROFA";
-            else if (component.Channel.Id == BotData.GetBOFASignupsChannel().Id) clan = "BOFA";
+            if (component.Channel.Id == BotData.GetSignupsChannel("ROFA").Id) clan = "ROFA";
+            else if (component.Channel.Id == BotData.GetSignupsChannel("BOFA").Id) clan = "BOFA";
             if (currentMessageIds != null && currentMessageIds.Contains(component.Message.Id))
             {
                 if (dayOfWeek == 10)

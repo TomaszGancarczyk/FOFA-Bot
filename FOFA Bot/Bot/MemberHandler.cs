@@ -77,10 +77,7 @@ namespace FOFA_Bot.Bot
             PlannerDatas = PlannerGoogleSheet.GetPlannerData();
             SocketGuild guild = BotData.GetGuild();
             string roleName = "";
-            if (clan == "ROFA")
-                roleName = BotData.GetROFARoleName();
-            else if (clan == "BOFA")
-                roleName = BotData.GetBOFARoleName();
+            roleName = BotData.GetClanRoleName(clan);
             discordMembers = [.. guild.Users.Where(user => user.Roles.Any(role => role.Name == roleName))];
             for (int i = (discordMembers.Count - 1); i >= 0; i--) if (discordMembers[i].IsBot)
                     discordMembers.RemoveAt(i);

@@ -20,20 +20,17 @@ namespace FOFA_Bot.Attendance
                 return;
             }
             Message? message = tempCurrentMessage;
-            if (clan == "ROFA") message.SignupsChannel = BotData.GetROFASignupsChannel();
-            else if (clan == "BOFA") message.SignupsChannel = BotData.GetBOFASignupsChannel();
-            _ = SendAttendanceMessage(message);
+            if (clan == "ROFA") message.SignupsChannel = BotData.GetSignupsChannel("ROFA");
+            else if (clan == "BOFA") message.SignupsChannel = BotData.GetSignupsChannel("BOFA");
+            _ = SendAttendanceMessage(message, clan);
             Logger.LogInformation($"    Attendance event finished");
             return;
         }
-        internal static async Task SendAttendanceMessage(Message? currentMessage)
+        internal static async Task SendAttendanceMessage(Message? currentMessage, string clan)
         {
             Logger.LogInformation($"    Sending attendance message to {currentMessage.SignupsChannel.Name}");
             string pingMessage = "";
-            if (currentMessage.Clan == "ROFA")
-                pingMessage = $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id}>";
-            else if (currentMessage.Clan == "BOFA")
-                pingMessage = $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetBOFARoleName()).Id}>";
+            pingMessage = $"<@&{BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetClanRoleName(clan)).Id}>";
             try
             {
                 IMessage localCurrentMessage = await currentMessage.SignupsChannel.SendMessageAsync(
@@ -88,11 +85,11 @@ namespace FOFA_Bot.Attendance
                         Task.Delay(60000).Wait();
                     if (CurrentMessages.Count > 0 && messageId == currentMessage.DiscordMessage.Id && SettingsHandler.GetAutomaticReminderRofa(clan) && !await CheckIfMessageIsDeleted(currentMessage.DiscordMessage.Id, clan))
                     {
-                        string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek);
+                        string AnnouncementMessage = CreateAnnouncementMessage(reminderTime.DayOfWeek, clan);
                         if (AnnouncementMessage != string.Empty && AnnouncementMessage != null)
                             try
                             {
-                                await BotData.GetROFAAnnouncementChannel().SendMessageAsync(AnnouncementMessage);
+                                await BotData.GetAnnouncementChannel(clan).SendMessageAsync(AnnouncementMessage);
                             }
                             catch (Exception e)
                             {
@@ -111,8 +108,8 @@ namespace FOFA_Bot.Attendance
         internal static async Task<bool> CheckIfMessageIsDeleted(ulong messageId, string clan)
         {
             IMessageChannel? channel = null;
-            if (clan == "ROFA") channel = BotData.GetROFASignupsChannel();
-            else if (clan == "BOFA") channel = BotData.GetBOFASignupsChannel();
+            if (clan == "ROFA") channel = BotData.GetSignupsChannel("ROFA");
+            else if (clan == "BOFA") channel = BotData.GetSignupsChannel("BOFA");
             try
             {
                 if (await channel.GetMessageAsync(messageId) == null)
@@ -155,12 +152,12 @@ namespace FOFA_Bot.Attendance
             if (nullmembers) return reminderMessage;
             return null;
         }
-        private static string CreateAnnouncementMessage(DayOfWeek annoucmentDay)
+        private static string CreateAnnouncementMessage(DayOfWeek annoucmentDay, string clan)
         {
             string annoucmentDayStrting = $"{annoucmentDay} Tournament";
             if (annoucmentDay == DayOfWeek.Sunday) annoucmentDayStrting = $"{annoucmentDay} Base Capture";
-            ulong rofaRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetROFARoleName()).Id;
-            string AnnouncementMessage = $"{MentionUtils.MentionRole(rofaRoleId)} Gather up for the {annoucmentDayStrting} in {MentionUtils.MentionChannel(BotData.GetROFAClanWarChannelId())}";
+            ulong clanRoleId = BotData.GetGuild().Roles.FirstOrDefault(role => role.Name == BotData.GetClanRoleName(clan)).Id;
+            string AnnouncementMessage = $"{MentionUtils.MentionRole(clanRoleId)} Gather up for the {annoucmentDayStrting} in {MentionUtils.MentionChannel(BotData.GetClanWarChannelId(clan))}";
             return AnnouncementMessage;
         }
 
